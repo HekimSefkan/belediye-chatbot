@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vatandaş Hizmetleri Asistanı | Mardin Büyükşehir Belediyesi (Demo)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- ============ ÜST BAŞLIK ============ -->
+<header class="site-header">
+    <div class="container header-inner">
+        <a href="{{ url_for('chat.index') }}" class="brand">
+            <span class="brand-mark" aria-hidden="true">MB</span>
+            <span class="brand-text">
+                <strong>Mardin Büyükşehir Belediyesi</strong>
+                <small>Vatandaş Hizmetleri Asistanı</small>
+            </span>
+        </a>
+        <nav class="main-nav" aria-label="Ana menü">
+            <a href="#hizli-sorular">Hızlı Sorular</a>
+            <a href="#nasil-calisir">Nasıl Çalışır?</a>
+            <button type="button" class="link-button" data-open-ticket>Talep / Şikayet</button>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <!-- ============ KARŞILAMA ALANI ============ -->
+    <section class="hero">
+        <div class="container hero-inner">
+            <div class="hero-text">
+                <p class="eyebrow">7/24 çevrim içi yardım</p>
+                <h1>Sorunuzu yazın, sizi doğru birime ulaştıralım.</h1>
+                <p class="lead">
+                    Su faturasından nikah işlemlerine, çöp toplama günlerinden imar belgelerine kadar
+                    belediye hizmetleriyle ilgili sorularınızı asistanımıza sorabilirsiniz.
+                    Cevap bulamazsak talebinizi ilgili birime iletiyoruz.
+                </p>
+                <div class="hero-actions">
+                    <button type="button" class="btn btn-primary" data-open-chat>Asistanla Konuş</button>
+                    <button type="button" class="btn btn-ghost" data-open-ticket>Talep / Şikayet Bildir</button>
+                </div>
+                <ul class="hero-facts">
+                    <li><strong>{{ quick_questions|length }}</strong> hizmet alanı</li>
+                    <li><strong>{{ faq_count }}</strong> hazır cevap</li>
+                    <li><strong>Anında</strong> yanıt</li>
+                </ul>
+            </div>
+
+            <!-- Mardin'in taş kemerlerini anımsatan dekoratif çizim -->
+            <div class="hero-art" aria-hidden="true">
+                <svg viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0" y="40" width="320" height="220" rx="18" class="art-wall"/>
+                    <path d="M30 250 V140 a45 45 0 0 1 90 0 V250 Z" class="art-arch"/>
+                    <path d="M130 250 V110 a30 30 0 0 1 60 0 V250 Z" class="art-arch art-arch--tall"/>
+                    <path d="M200 250 V140 a45 45 0 0 1 90 0 V250 Z" class="art-arch"/>
+                    <circle cx="160" cy="70" r="10" class="art-dot"/>
+                    <rect x="20" y="226" width="280" height="6" rx="3" class="art-line"/>
+                </svg>
+                <div class="hero-bubble hero-bubble--user">Çöpler hangi günler toplanıyor?</div>
+                <div class="hero-bubble hero-bubble--bot">Merkez mahallelerde her gün akşam saatlerinde…</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ HIZLI SORULAR ============ -->
+    <section id="hizli-sorular" class="section">
+        <div class="container">
+            <div class="section-head">
+                <h2>Hızlı Sorular</h2>
+                <p>En sık sorulan sorulardan birine tıklayın; asistan cevabı hemen getirsin.</p>
+            </div>
+
+            <div class="category-grid">
+                {% for group in quick_questions %}
+                <article class="category-card">
+                    <h3>
+                        <span class="category-index">{{ '%02d' % loop.index }}</span>
+                        {{ group.kategori }}
+                    </h3>
+                    <ul>
+                        {% for question in group.sorular %}
+                        <li>
+                            <button type="button" class="question-link" data-question="{{ question }}">
+                                {{ question }}
+                            </button>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ NASIL ÇALIŞIR ============ -->
+    <section id="nasil-calisir" class="section section--tinted">
+        <div class="container">
+            <div class="section-head">
+                <h2>Nasıl Çalışır?</h2>
+            </div>
+            <ol class="steps">
+                <li>
+                    <span class="step-no">1</span>
+                    <h3>Sorunuzu yazın</h3>
+                    <p>Günlük dilde yazmanız yeterli. Türkçe karakter kullanmasanız da asistan anlar.</p>
+                </li>
+                <li>
+                    <span class="step-no">2</span>
+                    <h3>En uygun cevabı alın</h3>
+                    <p>Asistan sorunuzu belediyenin sık sorulan sorularıyla karşılaştırıp en yakın cevabı gösterir.</p>
+                </li>
+                <li>
+                    <span class="step-no">3</span>
+                    <h3>Gerekirse talep oluşturun</h3>
+                    <p>Cevap bulunamazsa sizi ilgili birime yönlendirir ve talebinizi kayıt altına alır.</p>
+                </li>
+            </ol>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div class="container footer-inner">
+        <p>
+            <strong>Bu proje bir staj çalışmasıdır.</strong>
+            İçerdiği tüm veriler kurgusal demo verisidir, kurumun resmi verisi değildir.
+        </p>
+        <a href="{{ url_for('admin.login') }}">Yönetici Girişi</a>
+    </div>
+</footer>
+
+<!-- ============ SOHBET WIDGET'I (sağ alt köşe) ============ -->
+<button type="button" id="chat-toggle" class="chat-toggle"
+        aria-label="Sohbet penceresini aç" aria-expanded="false" aria-controls="chat-panel">
+    <svg class="icon-chat" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.2 3.4c-.5.4-1.3 0-1.3-.6V16A2.5 2.5 0 0 1 4 13.5z"/>
+    </svg>
+    <svg class="icon-close" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18"/>
+    </svg>
+</button>
+
+<section id="chat-panel" class="chat-panel" role="dialog" aria-label="Belediye asistanı" hidden>
+    <header class="chat-header">
+        <span class="chat-avatar" aria-hidden="true">MB</span>
+        <div class="chat-title">
+            <strong>Belediye Asistanı</strong>
+            <span><i class="status-dot"></i> Çevrim içi · Demo</span>
+        </div>
+        <button type="button" id="chat-close" class="chat-close" aria-label="Sohbeti kapat">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+    </header>
+
+    <!-- Mesajlar JavaScript ile buraya eklenir; aria-live ekran okuyuculara yeni mesajı bildirir -->
+    <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
+
+    <div class="chat-shortcuts">
+        <button type="button" id="btn-quick" class="shortcut">Hızlı Sorular</button>
+        <button type="button" id="btn-ticket" class="shortcut">Talep / Şikayet Oluştur</button>
+    </div>
+
+    <form id="chat-form" class="chat-input" autocomplete="off">
+        <label for="chat-input" class="visually-hidden">Mesajınız</label>
+        <input id="chat-input" type="text" maxlength="500" placeholder="Sorunuzu yazın…">
+        <button type="submit" id="chat-send" aria-label="Gönder">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l16-8-6 16-2.5-6.5z"/></svg>
+        </button>
+    </form>
+</section>
+
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+</body>
+</html>
