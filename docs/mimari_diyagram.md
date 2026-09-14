@@ -53,9 +53,10 @@ sequenceDiagram
     API->>RESP: build_response(message)
     RESP->>RESP: Selamlama / teşekkür mü?
     RESP->>MATCH: find_best_match(message)
-    MATCH->>MATCH: clean_text → "cop topla gunle"
+    MATCH->>MATCH: clean_text → "cop topla" ("gunleri" stopword)
     MATCH->>MATCH: TF-IDF vektörü + cosine similarity
-    MATCH-->>RESP: {faq, score: 0.78, found: true}
+    MATCH->>MATCH: Kapsam dışı kelime kontrolü
+    MATCH-->>RESP: {faq, score: 0.70, found: true, out_of_scope: false}
     RESP-->>API: cevap, kategori, departman
     API->>DB: INSERT INTO chat_log (...)
     API-->>JS: JSON cevap
@@ -69,15 +70,21 @@ flowchart TD
     S["Mesaj geldi"] --> G{"Selamlama veya<br/>teşekkür mü?"}
     G -- Evet --> GR["Hazır kısa cevap"]
     G -- Hayır --> T["TF-IDF ile en benzer SSS'yi bul"]
-    T --> C{"skor ≥ 0.35 ?"}
+    T --> K{"Kapsam dışı kelime var mı?<br/>(elektrik, doğalgaz, hastane...)<br/>ve SSS'de geçmiyor mu?"}
+    K -- Evet --> KD["'Hizmet alanımız dışında'<br/>+ Beyaz Masa"]
+    K -- Hayır --> C{"skor ≥ 0.35 ?"}
     C -- Evet --> OK["SSS cevabı + departman"]
     C -- Hayır --> Y{"skor ≥ 0.30 ?"}
     Y -- Evet --> D1["En yakın SSS'nin departmanına yönlendir"]
     Y -- Hayır --> D2["Beyaz Masa'ya yönlendir"]
     D1 --> O["Benzer soru önerileri +<br/>'Talep olarak kaydedeyim mi?'"]
     D2 --> O
+    KD --> O2["'Talep olarak kaydedeyim mi?'"]
     O --> F["Evet → sohbet içinde talep formu → POST /api/talep"]
+    O2 --> F
 ```
+
+**Kapsam dışı kontrolü neden var?** TF-IDF kelime benzerliğine baktığı için *“doğalgaz faturası çok yüksek geldi”* sorusu, *“Su faturam çok yüksek geldi”* SSS'siyle 0.73 skor alır. Belediyenin görev alanı dışındaki konuları gösteren küçük bir kelime listesi (`chatbot/preprocessor.py` → `OUT_OF_SCOPE_WORDS`) bu tür yanlış cevapları engeller.
 
 ## 4. Katmanların görevleri
 

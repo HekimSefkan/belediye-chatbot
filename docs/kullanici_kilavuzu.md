@@ -2,7 +2,20 @@
 
 > Bu proje bir staj çalışmasıdır. İçerdiği tüm veriler kurgusal demo verisidir, kurumun resmi verisi değildir.
 
-Bu kılavuz iki bölümden oluşur: **Vatandaş** kullanımı ve **Yönetici (admin)** kullanımı.
+Bu kılavuz üç bölümden oluşur: **Uygulamayı açma**, **Vatandaş** kullanımı ve **Yönetici (admin)** kullanımı.
+
+---
+
+## Bölüm 0 – Uygulamayı açma ve kapatma
+
+| İşlem | Nasıl? |
+|---|---|
+| **Açmak** | Proje klasöründeki **`basla.bat`** dosyasına çift tıklayın. Tarayıcı birkaç saniye içinde kendiliğinden açılır. |
+| **Kapatmak** | Açılan siyah pencereyi kapatın veya pencerede **Ctrl+C** tuşlarına basın. |
+| **Demo öncesi temizlik** | Uygulamayı kapatın, **`sifirla.bat`** dosyasına çift tıklayın, `E` yazıp Enter'a basın. |
+| **Testleri çalıştırmak** | **`testleri_calistir.bat`** dosyasına çift tıklayın. |
+
+> Siyah pencere açık kaldığı sürece uygulama çalışır. Pencereyi küçültebilirsiniz ama kapatmayın.
 
 ---
 
@@ -10,7 +23,7 @@ Bu kılavuz iki bölümden oluşur: **Vatandaş** kullanımı ve **Yönetici (ad
 
 ### 1.1 Sohbeti başlatma
 
-1. Tarayıcıda **http://127.0.0.1:5000** adresini açın.
+1. Tarayıcıda **http://127.0.0.1:5000** adresini açın (`basla.bat` bunu otomatik yapar).
 2. Sağ alt köşedeki yuvarlak **sohbet balonuna** ya da sayfadaki **Asistanla Konuş** butonuna tıklayın.
 3. Açılan pencerede asistan sizi karşılar ve konu başlıklarını buton olarak gösterir.
 
@@ -35,6 +48,8 @@ Asistan sorunuza uygun bir cevap bulamazsa:
 1. *“Bu konuda net bir cevap bulamadım”* der ve sizi **ilgili birime** (bilinmiyorsa Beyaz Masa'ya) yönlendirir.
 2. Varsa **“Şunlardan birini mi sormak istediniz?”** başlığıyla benzer soruları gösterir. Birine tıklayarak cevabını görebilirsiniz.
 3. **Evet, talep oluştur** veya **Hayır, teşekkürler** seçeneklerini sunar.
+
+**Konu belediyenin görev alanı dışındaysa** (örn. elektrik, doğalgaz, sağlık, eğitim), asistan *“Bu konu belediyemizin hizmet alanı dışında görünüyor”* der. Yanlış bir belediye cevabı vermez. Yine de isterseniz talebinizi Beyaz Masa'ya iletebilirsiniz.
 
 ### 1.5 Talep / şikayet oluşturma
 
@@ -111,8 +126,10 @@ Girişten sonra ilk açılan sayfadır.
 
 | Sorun | Çözüm |
 |---|---|
-| `python` komutu bulunamadı | Python 3.11+ kurun ve kurulumda **Add python.exe to PATH** seçeneğini işaretleyin |
-| PowerShell `activate` betiğini çalıştırmıyor | `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` komutunu çalıştırın veya `venv\Scripts\python.exe app.py` ile başlatın |
-| 5000 portu kullanımda | `.env` dosyasında `PORT=5001` yapın |
-| Admin şifresini unuttum | `.env` dosyasında `ADMIN_PASSWORD` değerini değiştirip uygulamayı yeniden başlatın |
-| Demo verilere geri dönmek istiyorum | Uygulamayı durdurun, `database/chatbot.db` dosyasını silin ve yeniden başlatın |
+| *“Python was not found; run without arguments to install from the Microsoft Store”* | `python` komutu yerine **`basla.bat`** kullanın; venv içindeki Python'u tam yoluyla çalıştırır. Python'u yeni kurduysanız yeni bir terminal penceresi açın. |
+| *“Activate.ps1 cannot be loaded because running scripts is disabled”* | **`basla.bat`** aktivasyon kullanmaz. Aktivasyon kullanmak isterseniz bir kez `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` çalıştırın (yönetici yetkisi gerekmez). |
+| `basla.bat` *“Python bulunamadı”* diyor | Python 3.11+ kurun, kurulumda **Add python.exe to PATH** seçeneğini işaretleyin |
+| *“Address already in use”* / 5000 portu kullanımda | Uygulama zaten açık olabilir; diğer `basla.bat` penceresini kapatın. Ya da `.env` dosyasında `PORT=5001` yapın. |
+| `sifirla.bat` *“Veritabanı dosyası silinemedi”* diyor | Uygulama açık. `basla.bat` penceresini kapatıp tekrar deneyin. |
+| Admin şifresini unuttum | `.env` dosyasında `ADMIN_PASSWORD` değerini değiştirip uygulamayı yeniden başlatın. `.env` yoksa şifre `admin123`'tür. |
+| Demo verilere geri dönmek istiyorum | **`sifirla.bat`** |

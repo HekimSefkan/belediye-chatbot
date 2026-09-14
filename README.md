@@ -4,168 +4,195 @@
 
 Mardin Büyükşehir Belediyesi Bilgi İşlem Dairesi Başkanlığı'ndaki zorunlu yaz stajı kapsamında geliştirilmiş, **tamamen yerelde (offline) çalışan** bir web chatbotu.
 
-Vatandaşın yazdığı soruyu belediyenin sık sorulan sorularıyla (SSS) karşılaştırır:
+Vatandaşların belediyeye en sık sorduğu soruları (su faturası, imar, nikah, çöp toplama, zabıta, vergi, ulaşım…) otomatik yanıtlar. Cevap bulamadığında vatandaşı doğru birime yönlendirir ve sohbetin içinden **talep/şikayet kaydı** oluşturur. Amaç, çağrı merkezi ve Beyaz Masa'ya gelen tekrarlayan soru yükünü azaltmaktır.
 
-- Benzerlik skoru **0.35 ve üzerindeyse** en uygun cevabı ve sorumlu birimi gösterir.
-- Skor eşiğin altındaysa vatandaşı **ilgili birime yönlendirir**, benzer soruları önerir ve **“Talep olarak kaydedeyim mi?”** diye sorar.
-- Admin panelinden SSS'ler yönetilir, talepler takip edilir ve kullanım istatistikleri grafiklerle izlenir.
-
-Ücretli hiçbir API veya harici servis kullanılmaz; eşleştirme **TF-IDF + cosine similarity** (scikit-learn) ile yapılır.
+- Vatandaşın sorusu, belediyenin **sık sorulan sorularıyla (SSS)** karşılaştırılır. Yöntem: **TF-IDF + cosine similarity**.
+- Benzerlik skoru **0.35 ve üzerindeyse** cevap ve sorumlu birim gösterilir.
+- Skor düşükse veya konu belediyenin görev alanı dışındaysa (elektrik, doğalgaz…) vatandaş yönlendirilir ve **“Talep olarak kaydedeyim mi?”** diye sorulur.
+- **Admin paneli:** SSS yönetimi, talep takibi ve grafiklerle kullanım istatistikleri.
+- Ücretli API, internet bağlantısı veya harici servis **gerekmez**.
 
 ---
 
 ## İçindekiler
 
-- [Özellikler](#özellikler)
-- [Kullanılan teknolojiler](#kullanılan-teknolojiler)
-- [Kurulum](#kurulum-windows)
-- [Testleri çalıştırma](#testleri-çalıştırma)
-- [Kullanım senaryosu](#kısa-kullanım-senaryosu)
-- [Proje yapısı](#proje-yapısı)
-- [Chatbot nasıl çalışır?](#chatbot-nasıl-çalışır)
-- [Güvenlik önlemleri](#güvenlik-önlemleri)
-- [Sınırlılıklar ve geliştirme fikirleri](#sınırlılıklar-ve-geliştirme-fikirleri)
-- [Dokümanlar](#dokümanlar)
+1. [Hızlı başlangıç (çift tıkla)](#1-hızlı-başlangıç)
+2. [Kurulum ve çalıştırma yöntemleri](#2-kurulum-ve-çalıştırma-yöntemleri)
+3. [Yardımcı dosyalar](#3-yardımcı-dosyalar-bat)
+4. [Ekran akışı](#4-ekran-akışı)
+5. [Özellikler](#5-özellikler)
+6. [Kullanılan teknolojiler](#6-kullanılan-teknolojiler)
+7. [Chatbot nasıl çalışır?](#7-chatbot-nasıl-çalışır)
+8. [Doğruluk ölçümü](#8-doğruluk-ölçümü)
+9. [Testler](#9-testler)
+10. [Proje yapısı](#10-proje-yapısı)
+11. [Güvenlik önlemleri](#11-güvenlik-önlemleri)
+12. [Sınırlılıklar](#12-sınırlılıklar)
+13. [Dokümanlar](#13-dokümanlar)
 
 ---
 
-## Özellikler
+## 1. Hızlı başlangıç
 
-**Vatandaş tarafı**
-- Sağ altta açılan sohbet balonu (mobil uyumlu, telefonda tam ekran)
-- Kategori bazlı **Hızlı Sorular**, hem sayfada hem sohbet penceresinde
-- Türkçe karakter kullanmadan yazılan soruları da anlama (`cop toplama gunleri` → Temizlik İşleri)
-- Cevap bulunamadığında birim yönlendirmesi, benzer soru önerileri ve sohbet içinde **talep/şikayet formu**
-- Talep oluşturulunca vatandaşa talep numarası verilmesi
+> Gereksinim: Bilgisayarda **Python 3.11 veya üzeri** kurulu olmalı.
 
-**Admin paneli** (`/admin`)
-- Oturum tabanlı giriş (şifre hash'lenmiş olarak saklanır)
-- **İstatistikler:** toplam soru, cevaplanamayan soru oranı, en çok sorulan kategoriler, son 7 gün grafikleri (Chart.js)
-- **SSS Yönetimi:** ekle / düzenle / sil, kategori filtresi ve arama. Değişiklikler chatbota **anında** yansır.
-- **Talep / Şikayetler:** listeleme, duruma göre filtreleme, durum güncelleme (Beklemede → İşlemde → Tamamlandı)
-- **Sohbet Geçmişi:** tüm mesajlar. Cevaplanamayan bir soru tek tıkla SSS'ye eklenebilir.
+1. Proje klasöründeki **`basla.bat`** dosyasına **çift tıklayın**.
+2. Birkaç saniye içinde tarayıcı **http://127.0.0.1:5000** adresinde açılır.
+3. Admin paneli: **http://127.0.0.1:5000/admin**. Kullanıcı adı `admin`, şifre `admin123`.
+4. Uygulamayı kapatmak için siyah pencereyi kapatın ya da **Ctrl+C** tuşlarına basın.
 
-## Kullanılan teknolojiler
+`basla.bat` sanal ortamı (`venv`) **etkinleştirmez**. venv içindeki Python'u tam yoluyla çalıştırır. Bu yüzden:
 
-| Katman | Teknoloji | Neden? |
-|---|---|---|
-| Backend | Python 3.11+, Flask | Öğrenmesi kolay, hafif ve yaygın web çatısı |
-| Veritabanı | SQLite | Kurulum gerektirmez, tek dosya |
-| Doğal dil eşleştirme | scikit-learn (TF-IDF + cosine similarity) | Ücretsiz, offline, sonuçları açıklanabilir |
-| Frontend | HTML, düz CSS, vanilla JavaScript | Ek kütüphane yok, kolay anlaşılır |
-| Grafikler | Chart.js 4 (projede yerel dosya) | Kurumsal ağda internet olmasa da çalışır |
-| Test | pytest | Python'un standart test aracı |
-| Güvenlik | Werkzeug (şifre hash'leme) | Flask ile birlikte gelir |
+- PowerShell'in *“running scripts is disabled on this system”* hatası oluşmaz.
+- *“Python was not found; run without arguments to install from the Microsoft Store”* hatası oluşmaz.
+- Proje GitHub'dan yeni indirildiyse ve `venv` klasörü yoksa, ilk açılışta venv'i **otomatik oluşturur** ve paketleri yükler. İlk açılış birkaç dakika sürebilir ve internet gerektirir.
 
 ---
 
-## Kurulum (Windows)
+## 2. Kurulum ve çalıştırma yöntemleri
 
-> Gereksinim: **Python 3.11 veya üzeri**. Kurulu olup olmadığını `python --version` komutuyla kontrol edebilirsiniz.
+### Yöntem 1 – `basla.bat` (önerilen)
 
-PowerShell'i proje klasöründe açın ve sırasıyla şu komutları çalıştırın:
+Dosya Gezgini'nde `basla.bat` dosyasına çift tıklamanız yeterlidir. PowerShell'den çalıştırmak isterseniz:
 
 ```powershell
-# 1) Sanal ortam oluştur
-python -m venv venv
-
-# 2) Sanal ortamı etkinleştir
-venv\Scripts\activate
-
-# 3) Gerekli paketleri yükle
-pip install -r requirements.txt
-
-# 4) (İsteğe bağlı) Ayar dosyasını oluştur ve admin şifresini değiştir
-copy .env.example .env
-
-# 5) Uygulamayı başlat
-python app.py
+.\basla.bat
 ```
 
-Tarayıcıda açın:
+### Yöntem 2 – venv içindeki Python'u tam yoluyla çalıştırma
 
-- Chatbot: **http://127.0.0.1:5000**
-- Admin paneli: **http://127.0.0.1:5000/admin**
-  (varsayılan kullanıcı adı `admin`, şifre `admin123`. `.env` dosyasından değiştirilebilir.)
+Aktivasyon yapmadan, proje klasöründe açılmış PowerShell'de:
 
-İlk çalıştırmada `database/chatbot.db` dosyası otomatik oluşturulur ve 70 demo SSS kaydı yüklenir. Veritabanını sıfırlamak için uygulamayı durdurup bu dosyayı silmeniz yeterlidir.
+```powershell
+# (Sadece ilk kurulumda) sanal ortamı oluştur ve paketleri yükle
+py -3 -m venv venv
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
 
-> **PowerShell “betik çalıştırma devre dışı” hatası verirse:** Önce `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` komutunu çalıştırın. Ya da sanal ortamı etkinleştirmeden `venv\Scripts\python.exe app.py` ile başlatın.
+# Uygulamayı başlat
+.\venv\Scripts\python.exe app.py
+```
+
+> `py` komutu bulunamazsa, Python'un kurulu olduğu tam yolu kullanın. Örnek: `& "$env:LOCALAPPDATA\Programs\Python\Python312\python.exe" -m venv venv`
+
+### Yöntem 3 – Sanal ortamı etkinleştirerek (klasik yöntem)
+
+PowerShell, güvenlik nedeniyle betik (`Activate.ps1`) çalıştırmayı varsayılan olarak engeller. Bu engeli **sadece kendi kullanıcı hesabınız için** bir kez kaldırabilirsiniz:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+- **Yönetici (Administrator) yetkisi gerektirmez.** Ayar sadece sizin Windows kullanıcınızı etkiler.
+- `RemoteSigned` politikası, bilgisayarınızda oluşturulan betiklerin çalışmasına izin verir. İnternetten indirilen betikler ise dijital imzalı olmadıkça yine engellenir. Güvenli ve yaygın bir ayardır.
+- Geri almak için: `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Undefined`
+
+Ardından:
+
+```powershell
+venv\Scripts\activate
+python app.py
+```
 
 ### Linux / macOS
 
 ```bash
 python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-python app.py
+venv/bin/python -m pip install -r requirements.txt
+venv/bin/python app.py
 ```
 
-### Ayarlar (`.env`)
+### Ayarlar (`.env`, isteğe bağlı)
+
+Uygulama `.env` dosyası **olmadan da** varsayılan ayarlarla çalışır. Ayarları değiştirmek için `.env.example` dosyasını `.env` adıyla kopyalayıp düzenleyin.
 
 | Değişken | Varsayılan | Açıklama |
 |---|---|---|
 | `SECRET_KEY` | geliştirme anahtarı | Oturum çerezlerini imzalar. Gerçek ortamda mutlaka değiştirin. |
 | `ADMIN_USERNAME` | `admin` | Admin kullanıcı adı |
-| `ADMIN_PASSWORD` | `admin123` | Admin şifresi. Uygulama her açıldığında hash'lenip veritabanına yazılır. |
+| `ADMIN_PASSWORD` | `admin123` | Admin şifresi. Her açılışta hash'lenip veritabanına yazılır. |
 | `SIMILARITY_THRESHOLD` | `0.35` | Cevabın “bulundu” sayılması için gereken en düşük benzerlik skoru |
 | `FLASK_DEBUG` | `True` | Geliştirme modu |
 | `PORT` | `5000` | Sunucu portu |
 
-## Testleri çalıştırma
+---
 
-```powershell
-pytest -v
-```
+## 3. Yardımcı dosyalar (`.bat`)
 
-48 test bulunur: metin ön işleme, TF-IDF eşleştirme doğruluğu, `/api/chat` ve `/api/talep` uç noktaları, admin girişi, CSRF koruması, SSS CRUD, talep durum güncelleme ve SQL injection denemesi. Testler geçici bir veritabanı kullanır; gerçek `chatbot.db` dosyasına dokunmaz.
+| Dosya | Ne yapar? | Ne zaman kullanılır? |
+|---|---|---|
+| **`basla.bat`** | Uygulamayı başlatır, tarayıcıyı açar, gerekirse ilk kurulumu yapar | Her kullanımda |
+| **`sifirla.bat`** | Veritabanını silip 70 demo SSS ile yeniden oluşturur. Onay için `E` yazmanız istenir. | **Demodan önce** temiz başlangıç için (önce `basla.bat` penceresini kapatın) |
+| **`testleri_calistir.bat`** | 56 otomatik testi çalıştırır ve sonucu gösterir | Kodda değişiklik yaptıktan sonra |
 
 ---
 
-## Kısa kullanım senaryosu
+## 4. Ekran akışı
 
-1. **Vatandaş cevabı hazır bir soru soruyor.** Ana sayfada sağ alttaki balona tıklar ve *“çöpler hangi gün toplanıyor”* yazar. Asistan Temizlik İşleri'ne ait cevabı gösterir, altında *“Temizlik İşleri · İlgili birim: Temizlik İşleri Dairesi Başkanlığı”* bilgisi yer alır.
-2. **Türkçe karakter olmadan yazıyor.** *“faturami nerden oderim”* yazar. Ön işleme sayesinde soru yine su faturası cevabıyla eşleşir.
-3. **Hızlı soru seçiyor.** Sayfadaki “Hızlı Sorular” bölümünden *“Nikah başvurusu için hangi belgeler gerekiyor?”* sorusuna tıklar. Sohbet açılır ve cevap gelir.
-4. **Cevabı olmayan bir soru soruyor.** *“sokak lambası yanmıyor”* yazar. Asistan net bir cevap bulamadığını söyler, vatandaşı Beyaz Masa'ya yönlendirir ve *“Talep olarak kaydetmemi ister misiniz?”* diye sorar.
-5. **Talep oluşturuyor.** *“Evet, talep oluştur”* butonuna basar. Konu ve birim önceden doldurulmuş form açılır. Ad soyad ve açıklamayı yazıp gönderir, *“Talebiniz #1 numarasıyla … iletildi”* mesajını görür.
-6. **Admin talebi işliyor.** `/admin` adresinden giriş yapar. **Talep / Şikayetler** sayfasında #1 numaralı talebin durumunu *İşlemde* yapar.
-7. **Admin chatbotu geliştiriyor.** **İstatistikler** sayfasında cevaplanamayan oranını ve kategori grafiğini inceler. “Son cevaplanamayan sorular” tablosunda *“sokak lambası yanmıyor”* satırındaki **SSS olarak ekle** bağlantısına tıklar, cevabı yazıp kaydeder. Aynı soru chatbota tekrar sorulduğunda artık cevap gelir.
+```mermaid
+flowchart LR
+    A["Ana sayfa<br/>Hızlı Sorular"] -->|balona tıkla| B["Sohbet penceresi"]
+    A -->|soruya tıkla| B
+    B -->|cevap bulundu| C["Cevap +<br/>ilgili birim"]
+    B -->|cevap yok /<br/>kapsam dışı| D["Yönlendirme +<br/>Evet/Hayır"]
+    D -->|Evet| E["Sohbet içi<br/>talep formu"]
+    E --> F["Talep no: #12"]
+    G["/admin giriş"] --> H["İstatistikler"]
+    H --> I["SSS Yönetimi"]
+    H --> J["Talep / Şikayetler"]
+    H --> K["Sohbet Geçmişi"]
+    K -->|SSS olarak ekle| I
+```
 
-Daha ayrıntılı demo adımları için: [docs/test_senaryolari.md](docs/test_senaryolari.md)
+**Vatandaş tarafı**
+
+1. **Ana sayfa:** Belediye tanıtım alanı, kategori kartlarında **Hızlı Sorular** ve “Nasıl çalışır?” bölümü. Sağ altta yuvarlak sohbet balonu bulunur.
+2. **Sohbet penceresi:** Karşılama mesajı ve 10 kategori butonu gösterilir. Soru yazılır ya da bir butona tıklanır.
+3. **Cevap bulunduğunda:** Cevap metni ve altında *“Temizlik İşleri · İlgili birim: Temizlik İşleri Dairesi Başkanlığı”* bilgisi görünür.
+4. **Cevap bulunamadığında:** *“Net bir cevap bulamadım”* mesajı, yönlendirilen birim, varsa benzer soru önerileri ve **Evet, talep oluştur / Hayır** butonları gösterilir.
+5. **Konu kapsam dışıysa** (örn. *“elektrik faturamı nasıl öderim”*): *“Bu konu belediyemizin hizmet alanı dışında görünüyor”* mesajı ve talep seçeneği gösterilir.
+6. **Talep formu:** Sohbetin içinde açılır, konu ve birim önceden doludur. Gönderilince vatandaşa talep numarası verilir.
+
+Telefonda sohbet penceresi tam ekran açılır.
+
+**Yönetici tarafı** (`/admin`)
+
+1. **Giriş:** kullanıcı adı ve şifre.
+2. **İstatistikler:** toplam soru, cevaplanamayan oranı, talep sayıları, 3 grafik (en çok sorulan kategoriler, cevaplanan/cevaplanamayan, son 7 gün) ve **son cevaplanamayan sorular** tablosu.
+3. **SSS Yönetimi:** listeleme, kategori filtresi, arama, ekleme, düzenleme ve silme. Değişiklikler chatbota **anında** yansır.
+4. **Talep / Şikayetler:** duruma göre filtreleme. Durum kutusundan *Beklemede → İşlemde → Tamamlandı* olarak güncellenir.
+5. **Sohbet Geçmişi:** tüm mesajlar ve skorları. Cevaplanamayan bir soru **“SSS olarak ekle”** bağlantısıyla tek tıkla bilgi tabanına eklenir.
+
+Adım adım demo senaryosu: [docs/test_senaryolari.md](docs/test_senaryolari.md)
 
 ---
 
-## Proje yapısı
+## 5. Özellikler
 
-```
-mardin-belediye-chatbot/
-├── app.py                  # Flask giriş noktası (application factory)
-├── config.py               # Ayarlar (.env'den okunur)
-├── requirements.txt
-├── .env.example            # Örnek ayar dosyası
-├── database/
-│   ├── schema.sql          # Tablo tanımları
-│   ├── seed_data.json      # 10 kategori, 70 kurgusal demo SSS
-│   └── db.py               # Bağlantı, kurulum ve ortak sorgular
-├── chatbot/
-│   ├── preprocessor.py     # Türkçe metin temizleme (küçük harf, karakter, stopword, kök)
-│   ├── matcher.py          # TF-IDF + cosine similarity eşleştirme
-│   └── responses.py        # Eşleşme sonucunu vatandaş cevabına dönüştürme
-├── routes/
-│   ├── chat_routes.py      # Ana sayfa
-│   ├── api_routes.py       # /api/chat, /api/talep, /api/hizli-sorular, /api/departmanlar
-│   └── admin_routes.py     # Admin paneli (giriş, istatistik, SSS, talepler, sohbet geçmişi)
-├── templates/              # Jinja2 HTML şablonları (index.html + admin/)
-├── static/
-│   ├── css/                # style.css (vatandaş), admin.css (panel)
-│   └── js/                 # chat.js, admin_charts.js, chart.umd.min.js (yerel Chart.js)
-├── tests/                  # pytest testleri
-└── docs/                   # Mimari, veritabanı, kullanıcı kılavuzu, test senaryoları
-```
+- Türkçe karakter kullanmadan yazılan soruları anlama (`cop toplama gunleri` → Temizlik İşleri)
+- Farklı eklerle yazılan kelimeleri eşleştirme (`faturamı / faturası / faturayı`)
+- Selamlama ve teşekkür mesajlarına kısa cevap
+- Kapsam dışı konuları (elektrik, doğalgaz, sağlık, eğitim…) tanıyıp yanlış cevap vermeme
+- Sohbet içinde alan bazlı hata mesajları gösteren talep formu
+- Tüm sohbetlerin kaydedilmesi ve istatistiklerde kullanılması
+- Mobil uyumlu arayüz (vatandaş ve admin)
+- Tamamen offline çalışma: Chart.js dahil tüm dosyalar projenin içinde
 
-## Chatbot nasıl çalışır?
+## 6. Kullanılan teknolojiler
+
+| Katman | Teknoloji | Neden seçildi? |
+|---|---|---|
+| Backend | **Python 3.11+, Flask** | Öğrenmesi kolay, hafif, stajyer ölçeğinde bir proje için yeterli |
+| Veritabanı | **SQLite** | Kurulum gerektirmez, tek dosya, belediye sunucusunda ek servis istemez |
+| Doğal dil eşleştirme | **scikit-learn** (TF-IDF + cosine similarity) | Ücretsiz, offline, hızlı. Her sonucun *neden* verildiği skorla açıklanabilir. |
+| Frontend | **HTML, düz CSS, vanilla JavaScript** | Ek kütüphane yok, kod baştan sona okunabilir |
+| Grafikler | **Chart.js 4.4.1** (yerel dosya) | Kurumsal ağda internet olmasa da çalışır |
+| Güvenlik | **Werkzeug** (şifre hash'leme) | Flask ile birlikte gelir |
+| Test | **pytest** | Python'un standart test aracı |
+| Sürüm kontrolü | **Git** | Anlamlı commit geçmişi |
+
+---
+
+## 7. Chatbot nasıl çalışır?
 
 ```
 "Su faturamı nasıl ödeyebilirim?"
@@ -174,42 +201,143 @@ mardin-belediye-chatbot/
 "su fatur odeye"
         │ 2) TF-IDF vektörüne dönüştürme
         ▼
-[0.00, 0.61, 0.00, 0.43, ...]
         │ 3) 70 SSS vektörüyle cosine similarity
         ▼
 En yüksek skor: 0.66  →  "Su faturamı nasıl ödeyebilirim?"
-        │ 4) Skor ≥ 0.35 ise cevap, değilse yönlendirme + talep teklifi
+        │ 4) Kapsam dışı kelime var mı? (elektrik, doğalgaz…)  → hayır
+        │ 5) Skor ≥ 0.35 ?  → evet
         ▼
 Cevap + "Su ve Kanalizasyon Dairesi Başkanlığı"
 ```
 
-- **TF-IDF:** Bir kelime bir soruda sık, diğer sorularda seyrek geçiyorsa o kelimenin ağırlığı yüksek olur. Örneğin *“iskan”* ayırt edici bir kelimedir, *“belediye”* değildir.
-- **Cosine similarity:** İki vektör arasındaki açının kosinüsüdür. 1 değeri tamamen aynı kelimeler, 0 değeri hiç ortak kelime olmadığı anlamına gelir.
-- **Kök bulma (F5):** Türkçe eklemeli bir dildir. *“faturamı / faturası / faturayı”* kelimelerinin ilk 5 harfi alınarak hepsi *“fatur”* köküne indirgenir. Harici kütüphane gerektirmeyen basit bir yöntemdir.
-- Model uygulama açılırken bir kez eğitilir ve bellekte tutulur. SSS eklenince, düzenlenince veya silinince yeniden eğitilir.
+| Adım | Açıklama |
+|---|---|
+| **Küçük harf** | Türkçeye uygun: `İ → i`, `I → ı` (Python'un `lower()` fonksiyonu bunu yanlış yapar) |
+| **Karakter normalizasyonu** | `ç ğ ı ö ş ü → c g i o s u`. Türkçe klavyesi olmayan kullanıcı da anlaşılır. |
+| **Stopword** | Konu belirtmeyen kelimeler atılır: *ve, mi, nasıl, nerede, istiyorum, durum, gün, zaman…* |
+| **Kök bulma (F5)** | Kelimenin ilk 5 harfi alınır: *faturamı → fatur*. Ek kütüphane gerektirmez. |
+| **TF-IDF** | Bir soruda sık, diğerlerinde seyrek geçen kelimeye yüksek ağırlık verir (*“iskan”* ayırt edicidir, *“belediye”* değildir) |
+| **Cosine similarity** | İki vektör arasındaki açının kosinüsüdür. 1 = aynı kelimeler, 0 = ortak kelime yok. |
+| **Eşik 0.35** | Bu değerin üstü “cevap bulundu” sayılır. 0.30–0.35 arasında en yakın SSS'nin birimine, daha düşük skorda Beyaz Masa'ya yönlendirilir. |
+| **Kapsam dışı kontrolü** | Mesajda *elektrik, doğalgaz, hastane, okul…* gibi bir kelime varsa ve bu kelime eşleşen SSS'de geçmiyorsa eşleşme reddedilir |
+
+Model uygulama açılırken bir kez eğitilir ve bellekte tutulur. Admin bir SSS'yi ekleyince, düzenleyince veya silince yeniden eğitilir.
 
 Ayrıntılı diyagramlar: [docs/mimari_diyagram.md](docs/mimari_diyagram.md)
 
-## Güvenlik önlemleri
+## 8. Doğruluk ölçümü
+
+`scripts/dogruluk_olcumu.py` betiği, seed verisindeki sorulardan **farklı ifade edilmiş** sorularla ölçüm yapar:
+
+```powershell
+.\venv\Scripts\python.exe scripts\dogruluk_olcumu.py
+```
+
+| Soru seti | İyileştirme öncesi | İyileştirme sonrası |
+|---|---|---|
+| İlgili sorular (40) – doğru kategori | 40/40 | 40/40 |
+| Alakasız sorular (15) – reddetme | 12/15 | **15/15** |
+| **Kontrol seti** (20) – ayarlamada **hiç kullanılmadı** | 13/20 (%65) | **15/20 (%75)** |
+
+Kontrol seti, yöntemin daha önce görmediği sorulardaki gerçekçi başarısını gösterir. Tüm tablolar: [docs/dogruluk_olcumu.md](docs/dogruluk_olcumu.md)
+
+## 9. Testler
+
+`testleri_calistir.bat` dosyasına çift tıklayın ya da:
+
+```powershell
+.\venv\Scripts\python.exe -m pytest -v
+```
+
+**56 test** bulunur:
+- Metin ön işleme
+- Eşleştirme doğruluğu ve kapsam dışı kontrolü
+- `/api/chat` ve `/api/talep` uç noktaları
+- Admin girişi ve CSRF koruması
+- SQL injection denemesi
+- **Admin panelinin uçtan uca kullanım senaryosu:** giriş → cevaplanamayan sorudan SSS oluşturma → düzenleme → silme → talep durumu → çıkış
+
+Testler geçici bir veritabanı kullanır, gerçek `chatbot.db` dosyasına dokunmaz.
+
+---
+
+## 10. Proje yapısı
+
+```
+mardin-belediye-chatbot/
+├── basla.bat               # ÇİFT TIKLA: uygulamayı başlatır
+├── sifirla.bat             # Demo öncesi veritabanını sıfırlar
+├── testleri_calistir.bat   # Testleri çalıştırır
+├── app.py                  # Flask giriş noktası (application factory)
+├── config.py               # Ayarlar (.env'den okunur, yoksa varsayılanlar)
+├── requirements.txt
+├── .env.example
+├── database/
+│   ├── schema.sql          # Tablo tanımları
+│   ├── seed_data.json      # 10 kategori, 70 kurgusal demo SSS
+│   └── db.py               # Bağlantı, kurulum ve ortak sorgular
+├── chatbot/
+│   ├── preprocessor.py     # Türkçe metin temizleme, stopword ve kapsam dışı kelime listeleri
+│   ├── matcher.py          # TF-IDF + cosine similarity eşleştirme
+│   └── responses.py        # Eşleşme sonucunu vatandaş cevabına dönüştürme
+├── routes/
+│   ├── chat_routes.py      # Ana sayfa
+│   ├── api_routes.py       # /api/chat, /api/talep, /api/hizli-sorular, /api/departmanlar
+│   └── admin_routes.py     # Admin paneli
+├── templates/              # Jinja2 HTML şablonları (index.html + admin/)
+├── static/
+│   ├── css/                # style.css (vatandaş), admin.css (panel)
+│   └── js/                 # chat.js, admin_charts.js, chart.umd.min.js (yerel Chart.js)
+├── scripts/
+│   └── dogruluk_olcumu.py  # Doğruluk ölçümü
+├── tests/                  # pytest testleri
+└── docs/                   # Mimari, veritabanı, kılavuz, test, rapor, sunum, savunma belgeleri
+```
+
+## 11. Güvenlik önlemleri
 
 - **SQL injection:** Tüm sorgular `?` yer tutucularıyla (parametreli) yazılmıştır. Bunu doğrulayan bir test de vardır.
-- **Şifre saklama:** Admin şifresi `werkzeug.security` ile hash'lenir, veritabanında düz metin tutulmaz.
+- **Şifre saklama:** Admin şifresi `werkzeug.security` ile hash'lenir, düz metin olarak saklanmaz.
 - **CSRF:** Admin panelindeki tüm POST formları oturuma özel bir token ile korunur.
-- **XSS:** Sohbet mesajları ekrana `textContent` ile yazılır. Jinja2 şablonları çıktıları otomatik olarak kaçışlar (escape).
-- **Girdi doğrulama:** Mesaj ve form alanlarında uzunluk sınırı, telefon formatı ve departman listesi kontrolleri yapılır.
-- **Oturum:** Girişte oturum yenilenir (session fixation önlemi), yönlendirmeler yalnızca site içi adreslere yapılır.
-- `.env` ve veritabanı dosyası `.gitignore` sayesinde GitHub'a yüklenmez.
+- **XSS:** Sohbet mesajları ekrana `textContent` ile yazılır. Jinja2 çıktıları otomatik olarak kaçışlar (escape).
+- **Girdi doğrulama:** Uzunluk sınırları, telefon formatı ve departman listesi kontrolleri yapılır.
+- **Oturum:** Girişte oturum yenilenir, yönlendirmeler yalnızca site içi adreslere yapılır.
+- `.env` ve veritabanı dosyası `.gitignore` ile GitHub'a yüklenmez.
 
-## Sınırlılıklar ve geliştirme fikirleri
+> Varsayılan şifre (`admin123`) ve `SECRET_KEY` sadece demo içindir. Gerçek kullanımda `.env` dosyasından değiştirilmelidir.
 
-- TF-IDF **kelime** benzerliğine bakar, **anlama** bakmaz. Örneğin *“hava durumu”* sorusu, *“imar durum belgesi”* sorusuyla ortak kelime içerdiği için yanlış eşleşebilir. Eş anlamlı kelimeler SSS'nin *anahtar kelimeler* alanına eklenerek başarı artırılabilir.
-- Yazım hatalarına toleransı sınırlıdır. İleride Levenshtein mesafesi ile iyileştirilebilir.
-- Tek admin kullanıcısı vardır, rol yönetimi yoktur.
-- Olası geliştirmeler: sesli soru (Web Speech API), Telegram botu, talep durumunu vatandaşın sorgulayabilmesi. İsteğe bağlı olarak bir LLM katmanı da eklenebilir, ancak bu *ücretli/harici servis gerektirdiği için kurumsal ortamda kullanılmayabilir.*
+## 12. Sınırlılıklar
 
-## Dokümanlar
+**TF-IDF kelime benzerliğine bakar, anlama bakmaz.** Bu projenin en önemli sınırlılığıdır. Aynı kelimeleri içeren ama anlamı farklı sorular yanlış eşleşebilir. Kontrol setinde gözlenen gerçek örnekler:
 
-- [Mimari diyagram](docs/mimari_diyagram.md)
-- [Veritabanı şeması](docs/veritabani_semasi.md)
-- [Kullanıcı kılavuzu](docs/kullanici_kilavuzu.md)
-- [Test senaryoları ve sonuçları](docs/test_senaryolari.md)
+| Vatandaşın sorusu | Chatbotun eşleştirdiği SSS | Neden? |
+|---|---|---|
+| telefon faturamı ödemek istiyorum | Su faturamı nasıl ödeyebilirim? | “fatura” ve “ödemek” ortak |
+| vergi dairesi nerede | Emlak vergisi ne zaman ödenir? | “vergi” ortak. Vergi dairesi belediyeye değil devlete bağlıdır. |
+| araba kiralamak istiyorum | Düğün salonu veya sosyal tesis kiralayabilir miyim? | “kiralamak” ortak |
+| internet paketim bitti | Belediyenin ücretsiz Wi-Fi hizmeti nerelerde var? | “internet” anahtar kelimesi ortak |
+| kimlik kartımı yenilemek istiyorum | Öğrenci kartı nasıl çıkarılır? | “kart” ortak |
+
+İyileştirme öncesinde *“hava durumu nasıl olacak”* sorusu *“İmar durum belgesi”* ile, *“doğalgaz faturası çok yüksek geldi”* sorusu ise *“Su faturam çok yüksek geldi”* ile eşleşiyordu. Genişletilmiş stopword listesi ve kapsam dışı kelime kontrolüyle bunlar düzeltildi. Ancak bu listeler elle hazırlanır ve her durumu kapsayamaz.
+
+Diğer sınırlılıklar:
+- **Eş anlamlıları bilmez:** *“lağım”* ile *“kanalizasyon”* ancak SSS'nin anahtar kelimelerinde ikisi de yazılıysa eşleşir.
+- **Yazım hatalarına toleransı sınırlıdır:** *“faturmı”* gibi harf hataları kök bulmayı bozabilir.
+- **Bağlamı hatırlamaz:** Her mesaj bağımsız değerlendirilir. *“Peki ücreti ne kadar?”* gibi önceki soruya bağlı sorular anlaşılmaz.
+- **Bilgi tabanı kadar iyidir:** SSS'de olmayan konuyu bilemez. Bu yüzden sohbet geçmişinden SSS oluşturma akışı eklenmiştir.
+- Tek admin kullanıcısı vardır, rol yönetimi yoktur. Flask'ın geliştirme sunucusu kullanılır; gerçek yayında Waitress/Gunicorn gibi bir WSGI sunucusu gerekir.
+
+**Geliştirme fikirleri:** Levenshtein mesafesiyle yazım hatası toleransı, eş anlamlı sözlüğü, anlamsal benzerlik için yerel çalışan bir kelime vektörü modeli, sesli soru (Web Speech API), talep durumunu vatandaşın sorgulayabilmesi. İsteğe bağlı olarak bir LLM katmanı da eklenebilir; ancak bu *ücretli/harici servis gerektirdiği için kurumsal ortamda kullanılmayabilir.*
+
+## 13. Dokümanlar
+
+| Belge | İçerik |
+|---|---|
+| [docs/kullanici_kilavuzu.md](docs/kullanici_kilavuzu.md) | Vatandaş ve yönetici kullanım kılavuzu |
+| [docs/mimari_diyagram.md](docs/mimari_diyagram.md) | Sistem mimarisi ve akış diyagramları |
+| [docs/veritabani_semasi.md](docs/veritabani_semasi.md) | Tablolar ve ER diyagramı |
+| [docs/test_senaryolari.md](docs/test_senaryolari.md) | Otomatik testler ve manuel demo senaryoları |
+| [docs/dogruluk_olcumu.md](docs/dogruluk_olcumu.md) | İyileştirme öncesi/sonrası doğruluk tabloları |
+| [docs/staj_raporu_taslagi.md](docs/staj_raporu_taslagi.md) | Staj raporu için taslak metin |
+| [docs/sunum_taslagi.md](docs/sunum_taslagi.md) | 10 slaytlık sunum içeriği ve konuşma notları |
+| [docs/savunma_sorulari.md](docs/savunma_sorulari.md) | Komisyonun sorabileceği sorular ve cevapları |

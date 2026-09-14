@@ -2,24 +2,26 @@
 
 > Bu proje bir staj çalışmasıdır. İçerdiği tüm veriler kurgusal demo verisidir, kurumun resmi verisi değildir.
 
-Bu belge iki bölümden oluşur:
+Bu belge dört bölümden oluşur:
 
-1. **Otomatik testler (pytest):** Kod değiştiğinde tek komutla tekrar çalıştırılabilir.
-2. **Uçtan uca manuel senaryolar:** Sunum/demo sırasında tarayıcıda uygulanacak adımlar ve beklenen sonuçlar.
+1. **Otomatik testler (pytest):** Kod değiştiğinde tek tıkla tekrar çalıştırılabilir.
+2. **Doğruluk ölçümü:** Chatbotun farklı ifade edilmiş sorulardaki başarısı.
+3. **Uçtan uca manuel senaryolar:** Sunum/demo sırasında tarayıcıda uygulanacak adımlar.
+4. **Kurulum ve çalıştırma testleri:** `.bat` dosyalarının doğrulanması.
 
 ---
 
 ## 1. Otomatik testler
 
-Çalıştırma (sanal ortam etkinken, proje klasöründe):
+Çalıştırma: **`testleri_calistir.bat`** dosyasına çift tıklayın ya da:
 
 ```powershell
-pytest -v
+.\venv\Scripts\python.exe -m pytest -v
 ```
 
-**Sonuç (14.09.2026):** `48 passed`
+**Son çalıştırma (14.09.2026):** `56 passed`
 
-### `tests/test_matcher.py` – Ön işleme ve eşleştirme (28 test)
+### `tests/test_matcher.py` – Ön işleme ve eşleştirme (34 test)
 
 | Test | Neyi doğrular? |
 |---|---|
@@ -31,26 +33,31 @@ pytest -v
 | `test_seed_data_size` | Demo veri seti 8-10 kategori ve 60-80 soru içeriyor |
 | `test_exact_question_matches_itself` | 70 SSS'nin her biri kendisiyle eşleşiyor |
 | `test_paraphrased_questions_match_correct_category` (11 örnek) | Farklı ifade edilmiş sorular doğru kategoriye gidiyor |
-| `test_unrelated_messages_are_below_threshold` (3 örnek) | Konu dışı mesajlar eşik altında kalıyor |
+| `test_unrelated_messages_are_below_threshold` (3 örnek) | Konu dışı mesajlar eşleşmiyor |
 | `test_only_stopwords_returns_not_found` | Sadece bağlaçlardan oluşan mesaj eşleşmiyor |
+| `test_generic_words_no_longer_cause_false_match` (2 örnek) | *“hava durumu”*, *“bugün günlerden ne”* artık yanlış eşleşmiyor |
+| `test_out_of_scope_words_block_match` (2 örnek) | *“elektrik faturası”*, *“doğalgaz kesintisi”* kapsam dışı olarak reddediliyor |
+| `test_out_of_scope_word_allowed_when_faq_contains_it` | *“pasaport”* kelimesini içeren SSS (yabancı evlilik) eşleşmeye devam ediyor |
 | `test_empty_matcher_does_not_crash` | SSS tablosu boşken uygulama çökmüyor |
 | `test_threshold_is_configurable` | Eşik değeri ayardan değiştirilebiliyor |
 | `test_suggestions_respect_limit_and_min_score` | Öneri listesi en fazla 3 kayıt ve doğru kategori içeriyor |
 | `test_greeting_response` | “Merhaba” mesajına selamlama cevabı veriliyor |
-| `test_not_found_response_offers_ticket_and_default_department` | Cevap yoksa talep teklif ediliyor ve Beyaz Masa'ya yönlendiriliyor |
+| `test_not_found_response_offers_ticket_and_default_department` | Cevap yoksa talep teklif ediliyor, Beyaz Masa'ya yönlendiriliyor |
+| `test_out_of_scope_response` | Kapsam dışı cevap tipi, talep teklifi var, öneri yok |
 | `test_found_response_contains_department` | Bulunan cevapta departman bilgisi var |
 
-### `tests/test_api.py` – API ve admin paneli (20 test)
+### `tests/test_api.py` – API ve admin paneli (21 test)
 
 | Test | Neyi doğrular? |
 |---|---|
 | `test_chat_returns_answer_for_known_question` | `/api/chat` bilinen soruya 200 ve doğru kategoriyle cevap veriyor |
 | `test_chat_is_logged_to_database` | Mesaj, skor ve kategori `chat_log` tablosuna yazılıyor |
-| `test_chat_unknown_question_offers_ticket` | Bilinmeyen soruda `offer_ticket: true` dönüyor, log'da `cevap_bulundu_mu = 0` |
+| `test_chat_unknown_question_offers_ticket` | Bilinmeyen soruda `offer_ticket: true`, log'da `cevap_bulundu_mu = 0` |
+| `test_chat_out_of_scope_question` | *“doğalgaz faturası çok yüksek geldi”* kapsam dışı olarak Beyaz Masa'ya yönlendiriliyor |
 | `test_chat_greeting` | Selamlama tipi cevap dönüyor |
 | `test_chat_rejects_empty_message` | Boş mesaj, eksik alan ve JSON olmayan istek 400 dönüyor |
 | `test_chat_rejects_too_long_message` | 500 karakterden uzun mesaj reddediliyor |
-| `test_chat_sql_injection_text_is_stored_safely` | `x'); DROP TABLE faq; --` metni tabloyu silmiyor, metin olarak saklanıyor |
+| `test_chat_sql_injection_text_is_stored_safely` | `x'); DROP TABLE faq; --` tabloyu silmiyor, metin olarak saklanıyor |
 | `test_create_ticket_success` | `/api/talep` 201 dönüyor, kayıt `Beklemede` durumunda oluşuyor |
 | `test_create_ticket_validation_errors` | Eksik/hatalı alanların hepsi için hata mesajı dönüyor |
 | `test_quick_questions_endpoint` | Hızlı sorular kategori bazında dönüyor |
@@ -65,38 +72,79 @@ pytest -v
 | `test_admin_faq_delete` | SSS silme çalışıyor |
 | `test_admin_ticket_status_update` | Talep durumu güncelleniyor, geçersiz durum kabul edilmiyor |
 
+### `tests/test_admin_akisi.py` – Admin panelinin uçtan uca kullanımı (1 senaryo testi)
+
+`test_admin_full_walkthrough`, bir yöneticinin paneldeki tüm işlerini **gerçek HTTP istekleriyle sırasıyla** dener:
+
+| Adım | Doğrulanan davranış |
+|---|---|
+| 0 | Vatandaşlar 2 cevaplı ve 1 cevapsız soru soruyor |
+| 1 | Giriş yapmadan `/admin/sss` → giriş sayfasına yönlendirme (`next` parametresiyle) |
+| 2 | Yanlış şifre → hata mesajı; kullanıcı adı alanı boşalmıyor |
+| 3 | Doğru şifre → istenen sayfaya (`/admin/sss`) dönüş; giriş yapmışken giriş sayfası panele yönlendiriyor |
+| 4 | İstatistikler: toplam soru sayısı, grafik alanları, yerel Chart.js, cevaplanamayan soru ve “SSS olarak ekle” bağlantısı |
+| 5 | “SSS olarak ekle” formu soruyu dolu getiriyor. Eksik alanla gönderim hata veriyor, eksiksiz gönderimle kayıt ekleniyor ve **chatbot artık cevaplıyor**. |
+| 6 | Düzenleme → chatbot güncel cevabı veriyor |
+| 7 | Silme → chatbot artık eşleştirmiyor; olmayan kaydı silme hata mesajı veriyor |
+| 8 | Talep: Beklemede → İşlemde → Tamamlandı, durum filtreleri doğru; olmayan talep hata veriyor; istatistik kartı güncelleniyor |
+| 9 | Sohbet geçmişinde “cevaplanamayanlar” filtresi |
+| 10 | Çıkış → admin sayfaları tekrar kilitleniyor |
+
 ---
 
-## 2. Uçtan uca manuel senaryolar (demo akışı)
+## 2. Doğruluk ölçümü
 
-**Hazırlık:** Temiz bir demo için uygulamayı durdurun, `database/chatbot.db` dosyasını silin ve `python app.py` ile yeniden başlatın.
+```powershell
+.\venv\Scripts\python.exe scripts\dogruluk_olcumu.py
+```
+
+| Soru seti | Öncesi | Sonrası |
+|---|---|---|
+| İlgili sorular (40) | 40/40 | 40/40 |
+| Alakasız sorular (15) | 12/15 | 15/15 |
+| Kontrol seti – ayarlamada kullanılmadı (20) | 13/20 | **15/20** |
+
+Soru soru skorlar ve yorum: [dogruluk_olcumu.md](dogruluk_olcumu.md)
+
+---
+
+## 3. Uçtan uca manuel senaryolar (demo akışı)
+
+**Hazırlık:** `basla.bat` penceresi açıksa kapatın → **`sifirla.bat`** (E + Enter) → **`basla.bat`**
 
 | # | Senaryo | Adımlar | Beklenen sonuç | Sonuç |
 |---|---|---|---|---|
 | M1 | Sohbeti açma | Ana sayfada sağ alttaki balona tıkla | Pencere açılır, karşılama mesajı ve 10 kategori butonu görünür | ✅ |
-| M2 | Bilinen soru | `çöpler hangi gün toplanıyor` yaz | Temizlik İşleri cevabı, altında birim bilgisi (skor ≈ 0.50) | ✅ |
+| M2 | Bilinen soru | `çöpler hangi gün toplanıyor` yaz | Temizlik İşleri cevabı ve altında birim bilgisi | ✅ |
 | M3 | Türkçe karaktersiz yazım | `faturami nerden oderim` yaz | Su faturası ödeme cevabı (skor ≈ 0.48) | ✅ |
-| M4 | Hızlı soru (sayfa) | “Hızlı Sorular” bölümünde *Nikah başvurusu için hangi belgeler gerekiyor?* sorusuna tıkla | Sohbet açılır, nikah belgeleri cevabı gelir (skor ≈ 0.83) | ✅ |
-| M5 | Hızlı soru (sohbet içi) | Sohbette **Hızlı Sorular** → **Ulaşım** → bir soru seç | Seçilen sorunun cevabı gelir | ✅ |
+| M4 | Hızlı soru (sayfa) | “Hızlı Sorular” bölümünde *Nikah başvurusu için hangi belgeler gerekiyor?* sorusuna tıkla | Sohbet açılır, nikah belgeleri cevabı gelir | ✅ |
+| M5 | Hızlı soru (sohbet içi) | Sohbette **Ulaşım** → *Öğrenci kartı…* sorusu | Öğrenci kartı cevabı gelir | ✅ |
 | M6 | Selamlama | `merhaba` yaz | Asistan kendini tanıtır | ✅ |
-| M7 | Cevapsız soru | `sokak lambası yanmıyor` yaz | “Net bir cevap bulamadım”, Beyaz Masa'ya yönlendirme, **Evet/Hayır** butonları | ✅ |
-| M8 | Talep formu doğrulama | M7'de **Evet, talep oluştur** → boş haliyle **Gönder** | Konu ve birim önceden dolu. “Ad soyad zorunludur”, “Açıklama zorunludur” hataları | ✅ |
-| M9 | Talep oluşturma | Ad soyad, telefon, açıklama doldur → **Gönder** | “Talebiniz #1 numarasıyla … iletildi” mesajı, form kapanır | ✅ |
-| M10 | Mobil görünüm | Tarayıcıyı telefon genişliğine (≈375px) getir | Sohbet tam ekran açılır, yatay kaydırma olmaz | ✅ |
-| M11 | Admin koruması | Oturum açmadan `/admin/sss` adresine git | Giriş sayfasına yönlendirilir | ✅ (otomatik test) |
-| M12 | Admin girişi | `/admin` → `admin` / `admin123` | İstatistikler sayfası açılır | ✅ (otomatik test) |
-| M13 | İstatistikler | M2–M9 sonrasında istatistik sayfasına bak | Toplam soru, cevaplanamayan oranı, kategori grafiği dolu | ✅ |
-| M14 | Talep durumu | **Talep / Şikayetler** → #1 → durumu *İşlemde* yap | Onay mesajı, satır mavi renkli *İşlemde* olur | ✅ (otomatik test) |
-| M15 | Chatbotu geliştirme | İstatistikler → “sokak lambası yanmıyor” → **SSS olarak ekle** → cevap, kategori, departman yaz → kaydet → sohbette aynı soruyu tekrar sor | Artık cevap bulunur | ✅ (otomatik test: `test_admin_faq_create_updates_chatbot`) |
-| M16 | SSS silme | **SSS Yönetimi** → bir kaydı **Sil** → onayla | Kayıt listeden kalkar, chatbot artık o cevabı vermez | ✅ (otomatik test) |
+| M7 | Kapsam dışı soru | `elektrik faturamı nasıl öderim` yaz | *“Bu konu belediyemizin hizmet alanı dışında görünüyor”*, Beyaz Masa, Evet/Hayır butonları | ✅ |
+| M8 | Cevapsız soru | `sokak lambası yanmıyor` yaz | *“Net bir cevap bulamadım”*, Beyaz Masa'ya yönlendirme, Evet/Hayır | ✅ |
+| M9 | Talep formu doğrulama | M8'de **Evet, talep oluştur** → boş haliyle **Gönder** | Konu ve birim önceden dolu; *“Ad soyad zorunludur”*, *“Açıklama zorunludur”* | ✅ |
+| M10 | Talep oluşturma | Ad soyad, telefon, açıklama doldur → **Gönder** | *“Talebiniz #1 numarasıyla … iletildi”*, form kapanır | ✅ |
+| M11 | Mobil görünüm | Tarayıcıyı telefon genişliğine (≈390px) getir | Sohbet tam ekran; ana sayfa ve admin sayfalarında yatay kaydırma yok | ✅ |
+| M12 | Admin koruması | Oturum açmadan `/admin/sss` | Giriş sayfasına yönlendirilir | ✅ (otomatik test) |
+| M13 | Admin girişi | `/admin` → `admin` / `admin123` | İstatistikler sayfası açılır | ✅ (otomatik test) |
+| M14 | İstatistik grafikleri | M2–M10 sonrasında istatistik sayfası | 4 özet kartı dolu; 3 grafik yerel Chart.js 4.4.1 ile çiziliyor | ✅ |
+| M15 | Talep durumu | **Talep / Şikayetler** → #1 → *İşlemde* | Onay mesajı; durum kutusu mavi (*İşlemde*), yeşil (*Tamamlandı*), turuncu (*Beklemede*) | ✅ |
+| M16 | Cevapsız sorudan SSS | İstatistikler → *sokak lambası yanmıyor* → **SSS olarak ekle** → formu doldur → kaydet → sohbette aynı soruyu sor | Soru alanı dolu gelir; kayıt sonrası chatbot cevap verir | ✅ (otomatik test: `test_admin_full_walkthrough`) |
+| M17 | SSS düzenle / sil | **SSS Yönetimi** → Düzenle → kaydet; Sil → onayla | Başarı mesajları; chatbot güncel cevabı verir / artık vermez | ✅ (otomatik test) |
+
+> **Not:** M12, M13, M16 ve M17 senaryolarının tarayıcıda şifre girilerek yapılan kısmı otomatik testlerle doğrulandı. Admin sayfalarının görünümü (hata/başarı mesajları, dolu form, durum renkleri, grafikler, mobil taşma) test verisiyle oluşturulan sayfa kopyalarında tarayıcıda kontrol edildi. **Sunumdan önce admin panelini bir kez kendiniz gezin.**
 
 ---
 
-## 3. Bilinen sınırlılıklar (testlerde gözlenen)
+## 4. Kurulum ve çalıştırma testleri
 
-| Mesaj | Sonuç | Açıklama |
-|---|---|---|
-| `hava durumu nasıl olacak` | *İmar durum belgesi* ile eşleşiyor (0.50) | TF-IDF anlama değil kelime benzerliğine bakar. “durum” kelimesi ortak olduğu için yanlış eşleşme oluşur. |
-| `bugün günlerden ne` | *Çöp toplama günleri* ile eşleşiyor | “gün” kelimesi ortak |
-
-Bu tür durumlar sunumda **yöntemin sınırlılığı** olarak anlatılabilir. Çözüm önerileri: SSS kapsamının ve anahtar kelimelerin genişletilmesi, konu dışı sorular için “kara liste” kelimeleri ya da ileride anlamsal benzerlik (word embedding) kullanan bir model.
+| # | Test | Nasıl yapıldı? | Sonuç |
+|---|---|---|---|
+| K1 | `basla.bat` aktivasyon olmadan açılıyor | Yeni kabukta `basla.bat` çalıştırıldı, `/`, `/api/chat`, `/admin/giris`, `chart.umd.min.js` adreslerine istek atıldı | ✅ Hepsi 200 |
+| K2 | `.env` olmadan çalışma | `.env` dosyası yokken K1 tekrarlandı | ✅ Varsayılan ayarlarla açıldı |
+| K3 | Veritabanı yoksa oluşturma | `chatbot.db` silinip `basla.bat` çalıştırıldı | ✅ 70 SSS ile yeniden oluştu |
+| K4 | **GitHub'dan yeni indirilmiş kopya** | Depo, `venv` ve veritabanı olmayan boş bir klasöre klonlandı; `basla.bat` çalıştırıldı | ✅ Python'u buldu, venv oluşturdu, paketleri yükledi, uygulama 200 döndü |
+| K5 | `sifirla.bat` | `E` onayıyla çalıştırıldı | ✅ faq: 70, chat_log: 0, talep: 0 |
+| K6 | `sifirla.bat` iptal | `E` dışında bir cevap verildi | ✅ “İşlem iptal edildi”, veritabanı silinmedi |
+| K7 | `testleri_calistir.bat` | Çalıştırıldı | ✅ 56 passed |
+| K8 | `.bat` satır sonları | Klonlanan kopyada kontrol edildi | ✅ CRLF (`.gitattributes` ile sabitlendi) |
