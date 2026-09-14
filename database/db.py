@@ -129,7 +129,9 @@ def fetch_quick_questions(conn, per_category=4):
     Ana sayfadaki "Hızlı Sorular" bölümü için her kategoriden ilk birkaç soruyu döndürür.
     Sonuç: [{"kategori": "...", "sorular": ["...", "..."]}, ...]
     """
-    rows = conn.execute("SELECT kategori, soru FROM faq ORDER BY kategori, id").fetchall()
+    # id sırasına göre okuyoruz; sözlük ekleme sırasını koruduğu için kategoriler
+    # veri setindeki sırayla listelenir (SQLite "İ" harfini alfabetik sıralayamıyor).
+    rows = conn.execute("SELECT kategori, soru FROM faq ORDER BY id").fetchall()
 
     grouped = {}
     for row in rows:
@@ -141,8 +143,10 @@ def fetch_quick_questions(conn, per_category=4):
 
 
 def fetch_categories(conn):
-    """SSS tablosundaki kategori isimlerinin listesi (tekrarsız, alfabetik)."""
-    rows = conn.execute("SELECT DISTINCT kategori FROM faq ORDER BY kategori").fetchall()
+    """SSS tablosundaki kategori isimlerinin listesi (tekrarsız, veri setindeki sırayla)."""
+    rows = conn.execute(
+        "SELECT kategori FROM faq GROUP BY kategori ORDER BY MIN(id)"
+    ).fetchall()
     return [row["kategori"] for row in rows]
 
 
@@ -151,7 +155,9 @@ def fetch_departments(conn, default_department=None):
     Talep formunda seçilebilecek departmanlar.
     SSS'lerdeki departmanlar + genel yönlendirme birimi (Beyaz Masa).
     """
-    rows = conn.execute("SELECT DISTINCT departman FROM faq ORDER BY departman").fetchall()
+    rows = conn.execute(
+        "SELECT departman FROM faq GROUP BY departman ORDER BY MIN(id)"
+    ).fetchall()
     departments = [row["departman"] for row in rows]
     if default_department and default_department not in departments:
         departments.append(default_department)

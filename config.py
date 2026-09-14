@@ -49,9 +49,10 @@ class Config:
     # Chatbot eşleştirme eşiği: bu skorun altı "cevap bulunamadı" demektir
     SIMILARITY_THRESHOLD = float(os.environ.get("SIMILARITY_THRESHOLD", "0.35"))
 
-    # Eşik altında kalsa bile bu skorun üzerindeyse en yakın SSS'nin
-    # departmanı "muhtemel ilgili birim" olarak önerilir
-    ROUTING_THRESHOLD = 0.15
+    # Eşik altında kalsa bile bu skorun üzerindeyse ("yakın ama emin değil" bandı)
+    # en yakın SSS'nin departmanı "muhtemel ilgili birim" olarak önerilir.
+    # Daha düşük skorlarda vatandaş genel birime (Beyaz Masa) yönlendirilir.
+    ROUTING_THRESHOLD = 0.30
 
     # Hiçbir birim tahmin edilemezse vatandaşın yönlendirileceği genel birim (demo)
     DEFAULT_DEPARTMENT = "Beyaz Masa (Vatandaş İletişim Merkezi)"

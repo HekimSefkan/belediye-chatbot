@@ -40,6 +40,9 @@ STOPWORDS = {
     # nezaket ve dolgu kelimeleri
     "lutfen", "rica", "ederim", "bir", "biri", "bazi", "cok", "daha", "en",
     "her", "hic", "sey", "icinde", "var", "mevcut", "hakkinda",
+    # her konuda geçebilen genel fiiller (tek başına konu belirtmez)
+    "istiyorum", "istiyoruz", "isterim", "yapmak", "yapmaliyim", "yapabilirim",
+    "olabilir", "olur", "nedir", "lazim", "vermek", "etmek",
 }
 
 # DİKKAT: "su" hem zamir (şu) hem de "su" (içme suyu) anlamına geliyor.
