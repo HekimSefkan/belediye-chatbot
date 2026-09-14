@@ -18,12 +18,12 @@
         {
           "soru": "Mahallemde sular kesik, ne zaman gelecek?",
           "cevap": "Planlı su kesintileri belediyenin web sitesindeki 'Duyurular' bölümünde bölge ve saat bilgisiyle yayınlanır. Duyuruda yer almayan bir kesinti yaşıyorsanız arıza hattını (demo: 0 482 000 00 01) arayarak bildirim yapabilirsiniz.",
-          "anahtar_kelimeler": "su kesintisi kesik su yok arıza ne zaman gelecek"
+          "anahtar_kelimeler": "su kesintisi suyumuz kesildi su yok arıza ne zaman gelecek"
         },
         {
           "soru": "Kanalizasyon tıkandı, kime başvurmalıyım?",
           "cevap": "Kanalizasyon tıkanıklığı ve taşma ihbarları 7/24 arıza hattına (demo: 0 482 000 00 01) bildirilir. Ekip, bina bağlantı hattı dışındaki ana hat tıkanıklıklarına ücretsiz müdahale eder. (Demo bilgi)",
-          "anahtar_kelimeler": "kanalizasyon tıkanıklık taşma lağım rögar koku"
+          "anahtar_kelimeler": "kanalizasyon tıkanıklık taştı lağım rögar koku"
         },
         {
           "soru": "Su sayacım bozuldu, ne yapmalıyım?",
@@ -54,7 +54,7 @@
         {
           "soru": "Yapı ruhsatı almak için ne yapmam gerekiyor?",
           "cevap": "Yapı ruhsatı için imar durum belgesi, onaylı mimari/statik/tesisat projeleri, tapu kaydı, müteahhit ve yapı denetim sözleşmeleri ile başvuru yapılır. Eksiksiz dosyalar yaklaşık 30 gün içinde sonuçlandırılır. (Demo bilgi)",
-          "anahtar_kelimeler": "yapı ruhsatı inşaat izni bina yapmak proje"
+          "anahtar_kelimeler": "yapı ruhsatı inşaat ruhsatı inşaat izni bina yapmak proje"
         },
         {
           "soru": "İskan belgesi (yapı kullanma izni) nasıl alınır?",
@@ -69,7 +69,7 @@
         {
           "soru": "Komşum ruhsatsız inşaat yapıyor, nasıl şikayet ederim?",
           "cevap": "Ruhsatsız veya ruhsata aykırı yapıları adres bilgisiyle birlikte İmar ve Şehircilik Dairesi yapı kontrol birimine bildirebilir ya da bu chatbot üzerinden talep/şikayet kaydı oluşturabilirsiniz. (Demo bilgi)",
-          "anahtar_kelimeler": "ruhsatsız inşaat kaçak yapı şikayet izinsiz bina"
+          "anahtar_kelimeler": "kaçak yapı ihbar şikayet izinsiz bina"
         },
         {
           "soru": "Tarihi eserler koruma alanındaki evimde tadilat yapabilir miyim?",
@@ -397,12 +397,12 @@
         {
           "soru": "Belediyenin ücretsiz Wi-Fi hizmeti nerelerde var?",
           "cevap": "Belediyenin ücretsiz kablosuz internet hizmeti meydanlar, parklar ve hizmet binalarında sunulmaktadır. Bağlanmak için cep telefonunuza gelen doğrulama kodunu girmeniz yeterlidir. (Demo bilgi)",
-          "anahtar_kelimeler": "ücretsiz wifi kablosuz internet bağlantı"
+          "anahtar_kelimeler": "wifi internet"
         },
         {
           "soru": "Başvurumun durumunu nasıl takip edebilirim?",
           "cevap": "E-belediye üzerinden yaptığınız başvuruları 'Başvurularım' ekranından takip edebilirsiniz. Bu chatbot üzerinden oluşturduğunuz talepler için size verilen talep numarasıyla Beyaz Masa'ya danışabilirsiniz. (Demo bilgi)",
-          "anahtar_kelimeler": "başvuru takip durum sorgulama talep numarası"
+          "anahtar_kelimeler": "başvuru takip sorgulama talep numarası"
         },
         {
           "soru": "Kişisel verilerim belediye tarafından nasıl korunuyor?",

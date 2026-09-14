@@ -122,3 +122,37 @@ def fetch_all_faqs(conn):
         "SELECT id, kategori, soru, cevap, anahtar_kelimeler, departman FROM faq ORDER BY id"
     ).fetchall()
     return [dict(row) for row in rows]
+
+
+def fetch_quick_questions(conn, per_category=4):
+    """
+    Ana sayfadaki "Hızlı Sorular" bölümü için her kategoriden ilk birkaç soruyu döndürür.
+    Sonuç: [{"kategori": "...", "sorular": ["...", "..."]}, ...]
+    """
+    rows = conn.execute("SELECT kategori, soru FROM faq ORDER BY kategori, id").fetchall()
+
+    grouped = {}
+    for row in rows:
+        questions = grouped.setdefault(row["kategori"], [])
+        if len(questions) < per_category:
+            questions.append(row["soru"])
+
+    return [{"kategori": name, "sorular": items} for name, items in grouped.items()]
+
+
+def fetch_categories(conn):
+    """SSS tablosundaki kategori isimlerinin listesi (tekrarsız, alfabetik)."""
+    rows = conn.execute("SELECT DISTINCT kategori FROM faq ORDER BY kategori").fetchall()
+    return [row["kategori"] for row in rows]
+
+
+def fetch_departments(conn, default_department=None):
+    """
+    Talep formunda seçilebilecek departmanlar.
+    SSS'lerdeki departmanlar + genel yönlendirme birimi (Beyaz Masa).
+    """
+    rows = conn.execute("SELECT DISTINCT departman FROM faq ORDER BY departman").fetchall()
+    departments = [row["departman"] for row in rows]
+    if default_department and default_department not in departments:
+        departments.append(default_department)
+    return departments
