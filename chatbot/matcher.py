@@ -17,13 +17,17 @@ NASIL ÇALIŞIR?
 
 3) En yüksek skoru alan SSS seçilir. Skor eşik değerinin (varsayılan 0.35)
    üzerindeyse cevap "bulundu" kabul edilir.
+
+4) Kapsam dışı kontrolü: Mesajda "elektrik", "doğalgaz" gibi belediyenin görev
+   alanı dışındaki bir kelime varsa ve bu kelime eşleşen SSS'de geçmiyorsa,
+   skor yüksek olsa bile eşleşme reddedilir.
 """
 
 from flask import current_app
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from chatbot.preprocessor import clean_text
+from chatbot.preprocessor import OUT_OF_SCOPE_STEMS, clean_text
 
 
 class FAQMatcher:
@@ -34,6 +38,7 @@ class FAQMatcher:
         self.faqs = []           # SSS kayıtları (sözlük listesi)
         self.vectorizer = None   # scikit-learn TF-IDF nesnesi
         self.faq_matrix = None   # Tüm SSS'lerin TF-IDF vektörleri (satır = SSS)
+        self.faq_words = []      # Her SSS dokümanındaki kelime kökleri (kapsam dışı kontrolü için)
 
     def fit(self, faqs):
         """
@@ -47,6 +52,7 @@ class FAQMatcher:
             clean_text(f"{faq['soru']} {faq.get('anahtar_kelimeler') or ''}")
             for faq in self.faqs
         ]
+        self.faq_words = [set(doc.split()) for doc in documents]
 
         # Hiç SSS yoksa veya tüm dokümanlar boşsa model kurulamaz
         if not any(documents):
@@ -63,39 +69,52 @@ class FAQMatcher:
         )
         self.faq_matrix = self.vectorizer.fit_transform(documents)
 
-    def rank(self, message):
+    def _scores(self, cleaned):
         """
-        Mesajı tüm SSS'lerle karşılaştırır.
-        (skor, sss) ikililerinden oluşan, skora göre büyükten küçüğe sıralı liste döndürür.
+        Temizlenmiş mesajı tüm SSS'lerle karşılaştırır.
+        (skor, sss_sıra_no) ikililerini skora göre büyükten küçüğe sıralı döndürür.
         """
-        if self.vectorizer is None:
-            return []
-
-        cleaned = clean_text(message)
-        if not cleaned:
+        if self.vectorizer is None or not cleaned:
             return []
 
         message_vector = self.vectorizer.transform([cleaned])
         # scores: her SSS için 0-1 arası benzerlik skoru
         scores = cosine_similarity(message_vector, self.faq_matrix)[0]
 
-        ranked = sorted(zip(scores, self.faqs), key=lambda pair: pair[0], reverse=True)
-        return [(float(score), faq) for score, faq in ranked]
+        ranked = sorted(enumerate(scores), key=lambda pair: pair[1], reverse=True)
+        return [(float(score), index) for index, score in ranked]
+
+    def rank(self, message):
+        """(skor, sss) ikililerinden oluşan, skora göre sıralı liste döndürür."""
+        return [(score, self.faqs[index]) for score, index in self._scores(clean_text(message))]
 
     def find_best_match(self, message):
         """
         En iyi eşleşmeyi döndürür:
-            {"faq": sss_kaydı veya None, "score": 0.0-1.0, "found": True/False}
-        """
-        ranked = self.rank(message)
-        if not ranked or ranked[0][0] <= 0:
-            return {"faq": None, "score": 0.0, "found": False}
+            {"faq": sss_kaydı veya None, "score": 0.0-1.0,
+             "found": True/False, "out_of_scope": True/False}
 
-        best_score, best_faq = ranked[0]
+        out_of_scope=True: Mesajda belediyenin görev alanı dışındaki bir kelime
+        (elektrik, doğalgaz, hastane...) var ve bu kelime eşleşen SSS'de geçmiyor.
+        """
+        cleaned = clean_text(message)
+        # Mesajdaki kapsam dışı kelimeler (kök hâlinde)
+        out_of_scope_words = set(cleaned.split()) & OUT_OF_SCOPE_STEMS
+
+        ranked = self._scores(cleaned)
+        if not ranked or ranked[0][0] <= 0:
+            return {"faq": None, "score": 0.0, "found": False,
+                    "out_of_scope": bool(out_of_scope_words)}
+
+        best_score, best_index = ranked[0]
+        # SSS'nin kendisi bu kelimeyi içeriyorsa (örn. "pasaport") engel yok
+        out_of_scope = bool(out_of_scope_words - self.faq_words[best_index])
+
         return {
-            "faq": best_faq,
+            "faq": self.faqs[best_index],
             "score": round(best_score, 4),
-            "found": best_score >= self.threshold,
+            "found": best_score >= self.threshold and not out_of_scope,
+            "out_of_scope": out_of_scope,
         }
 
     def suggestions(self, message, min_score, limit=3):

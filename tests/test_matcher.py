@@ -117,7 +117,33 @@ def test_unrelated_messages_are_below_threshold(matcher, message):
 
 def test_only_stopwords_returns_not_found(matcher):
     result = matcher.find_best_match("ve ile mi nasıl")
-    assert result == {"faq": None, "score": 0.0, "found": False}
+    assert result == {"faq": None, "score": 0.0, "found": False, "out_of_scope": False}
+
+
+@pytest.mark.parametrize("message", [
+    "hava durumu nasıl olacak",      # önceden "imar durum belgesi" ile eşleşiyordu
+    "bugün günlerden ne",            # önceden "çöp toplama günleri" ile eşleşiyordu
+])
+def test_generic_words_no_longer_cause_false_match(matcher, message):
+    assert matcher.find_best_match(message)["found"] is False
+
+
+@pytest.mark.parametrize("message", [
+    "elektrik faturamı nasıl öderim",
+    "doğalgaz kesintisi ne zaman bitecek",
+])
+def test_out_of_scope_words_block_match(matcher, message):
+    result = matcher.find_best_match(message)
+    assert result["found"] is False
+    assert result["out_of_scope"] is True
+
+
+def test_out_of_scope_word_allowed_when_faq_contains_it(matcher):
+    # "pasaport" kapsam dışı listesinde ama yabancı uyruklu evlilik SSS'sinde geçiyor
+    result = matcher.find_best_match("yabancı uyruklu evlilik için pasaport gerekli mi")
+    assert result["found"] is True
+    assert result["out_of_scope"] is False
+    assert result["faq"]["kategori"] == "Evlilik/Nikah İşlemleri"
 
 
 def test_empty_matcher_does_not_crash():
@@ -149,11 +175,19 @@ def test_greeting_response(matcher):
 
 
 def test_not_found_response_offers_ticket_and_default_department(matcher):
-    result = build_response("futbol maçı kaç kaç bitti", matcher, 0.30, "Beyaz Masa")
+    result = build_response("sokak lambası yanmıyor", matcher, 0.30, "Beyaz Masa")
     assert result["type"] == "not_found"
     assert result["offer_ticket"] is True
     assert result["department"] == "Beyaz Masa"
     assert "talep" in result["answer"].lower()
+
+
+def test_out_of_scope_response(matcher):
+    result = build_response("elektrik faturamı nasıl öderim", matcher, 0.30, "Beyaz Masa")
+    assert result["type"] == "out_of_scope"
+    assert result["offer_ticket"] is True
+    assert result["department"] == "Beyaz Masa"
+    assert result["suggestions"] == []
 
 
 def test_found_response_contains_department(matcher):

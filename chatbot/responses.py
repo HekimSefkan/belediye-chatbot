@@ -57,7 +57,27 @@ def build_response(message, matcher, routing_threshold, default_department):
             "offer_ticket": False,
         }
 
-    # 3) Cevap bulunamadı: en yakın SSS'nin departmanını tahmin et, yoksa genel birime yönlendir
+    # 3) Konu belediyenin görev alanı dışında (elektrik, doğalgaz, sağlık, eğitim...)
+    if match["out_of_scope"]:
+        answer = (
+            "Bu konu belediyemizin hizmet alanı dışında görünüyor. Elektrik, doğalgaz, sağlık, "
+            "eğitim gibi konular ilgili kurum ve şirketlerin sorumluluğundadır. "
+            f"Yine de isterseniz sorunuzu {default_department} birimine talep olarak iletebilirim. "
+            "Talep olarak kaydetmemi ister misiniz?"
+        )
+        return {
+            "type": "out_of_scope",
+            "answer": answer,
+            "found": False,
+            "score": match["score"],
+            "category": None,
+            "department": default_department,
+            "matched_question": None,
+            "suggestions": [],
+            "offer_ticket": True,
+        }
+
+    # 4) Cevap bulunamadı: en yakın SSS'nin departmanını tahmin et, yoksa genel birime yönlendir
     if faq is not None and match["score"] >= routing_threshold:
         department = faq["departman"]
     else:

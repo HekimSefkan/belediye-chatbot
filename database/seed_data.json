@@ -228,7 +228,7 @@
         {
           "soru": "Evlilik için sağlık raporu nereden alınır?",
           "cevap": "Evlilik sağlık raporu aile hekimliklerinden veya devlet hastanelerinden alınabilir. Rapor düzenlenirken kan tahlili istenebilir; raporun geçerlilik süresi 6 aydır. (Demo bilgi)",
-          "anahtar_kelimeler": "sağlık raporu evlilik raporu kan tahlili aile hekimi"
+          "anahtar_kelimeler": "sağlık raporu evlilik raporu kan tahlili aile hekimi hastane"
         },
         {
           "soru": "Yabancı uyruklu biriyle evlenmek için ne gerekir?",

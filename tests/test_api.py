@@ -42,15 +42,24 @@ def test_chat_is_logged_to_database(app, client):
 
 
 def test_chat_unknown_question_offers_ticket(app, client):
-    response = client.post("/api/chat", json={"message": "futbol maçı kaç kaç bitti"})
+    response = client.post("/api/chat", json={"message": "sokak lambası yanmıyor"})
     data = response.get_json()
 
     assert response.status_code == 200
     assert data["found"] is False
+    assert data["type"] == "not_found"
     assert data["offer_ticket"] is True
     assert data["department"]
     row = query_one(app, "SELECT cevap_bulundu_mu FROM chat_log ORDER BY id DESC LIMIT 1")
     assert row["cevap_bulundu_mu"] == 0
+
+
+def test_chat_out_of_scope_question(app, client):
+    data = client.post("/api/chat", json={"message": "doğalgaz faturası çok yüksek geldi"}).get_json()
+    assert data["type"] == "out_of_scope"
+    assert data["found"] is False
+    assert data["offer_ticket"] is True
+    assert data["department"] == app.config["DEFAULT_DEPARTMENT"]
 
 
 def test_chat_greeting(client):

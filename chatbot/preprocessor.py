@@ -43,11 +43,28 @@ STOPWORDS = {
     # her konuda geçebilen genel fiiller (tek başına konu belirtmez)
     "istiyorum", "istiyoruz", "isterim", "yapmak", "yapmaliyim", "yapabilirim",
     "olabilir", "olur", "nedir", "lazim", "vermek", "etmek",
+    "olacak", "olacakmi", "olsun", "oluyor", "olmali", "bitecek",
+    # genel zaman ve durum kelimeleri
+    # ("hava durumu" sorusunun "imar durum belgesi" ile eşleşmesini engeller)
+    "durum", "durumu", "durumunu", "durumum", "zaman", "simdi",
+    "bugun", "yarin", "gun", "gunu", "gunler", "gunleri", "gunlerden",
 }
 
 # DİKKAT: "su" hem zamir (şu) hem de "su" (içme suyu) anlamına geliyor.
 # Belediye chatbotunda "su" kelimesi çok önemli olduğu için stopword'den çıkarıyoruz.
 STOPWORDS.discard("su")
+
+# Belediyenin görev alanı DIŞINDA kalan konuları gösteren kelimeler.
+# Bu kelimelerden biri mesajda geçiyor ama eşleşen SSS'nin metninde geçmiyorsa
+# eşleşme reddedilir. Örnek: "elektrik faturamı nasıl öderim" sorusu,
+# ortak "fatura" kelimesi yüzünden su faturası cevabıyla eşleşmemeli.
+# Bir SSS bu kelimelerden birini gerçekten içeriyorsa (örn. anahtar kelimelerde
+# "pasaport") o SSS için engel uygulanmaz.
+OUT_OF_SCOPE_WORDS = {
+    "elektrik", "dogalgaz", "hava", "havalar", "ehliyet", "pasaport",
+    "hastane", "eczane", "okul", "universite", "askerlik",
+    "futbol", "mac", "maci", "dolar", "euro", "doviz", "borsa",
+}
 
 
 def turkish_lower(text):
@@ -95,3 +112,7 @@ def clean_text(text):
     """
     tokens = [stem(t) for t in tokenize(text) if t not in STOPWORDS]
     return " ".join(tokens)
+
+
+# Kapsam dışı kelimelerin kök hâlleri (clean_text çıktısıyla karşılaştırabilmek için)
+OUT_OF_SCOPE_STEMS = {stem(word) for word in OUT_OF_SCOPE_WORDS}

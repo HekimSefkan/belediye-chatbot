@@ -245,8 +245,8 @@
             return;
         }
 
-        // Cevap bulunamadıysa: öneriler + talep oluşturma teklifi
-        if (data.type === "not_found") {
+        // Cevap bulunamadıysa veya konu kapsam dışıysa: öneriler + talep oluşturma teklifi
+        if (data.offer_ticket) {
             if (data.suggestions && data.suggestions.length) {
                 addNote("Şunlardan birini mi sormak istediniz?");
                 addChips(data.suggestions.map(function (question) {
