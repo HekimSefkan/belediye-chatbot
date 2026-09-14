@@ -23,10 +23,10 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <label>Kullanıcı adı
-            <input type="text" name="kullanici_adi" required autofocus autocomplete="username">
+            <input type="text" name="kullanici_adi" value="{{ username }}" required autocomplete="username" {{ 'autofocus' if not username }}>
         </label>
         <label>Şifre
-            <input type="password" name="sifre" required autocomplete="current-password">
+            <input type="password" name="sifre" required autocomplete="current-password" {{ 'autofocus' if username }}>
         </label>
 
         <button type="submit" class="btn btn-primary btn-block">Giriş Yap</button>

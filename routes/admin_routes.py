@@ -68,6 +68,11 @@ def login_required(view):
 
 @admin_bp.route("/giris", methods=["GET", "POST"])
 def login():
+    # Zaten giriş yapılmışsa formu tekrar gösterme
+    if "admin_id" in session:
+        return redirect(url_for("admin.dashboard"))
+
+    username = ""
     if request.method == "POST":
         username = request.form.get("kullanici_adi", "").strip()
         password = request.form.get("sifre", "")
@@ -93,7 +98,8 @@ def login():
         # Kullanıcı adı mı şifre mi yanlış, bilerek söylemiyoruz
         flash("Kullanıcı adı veya şifre hatalı.", "error")
 
-    return render_template("admin/login.html")
+    # Hatalı girişte kullanıcı adı alanı boşalmasın diye geri gönderiyoruz
+    return render_template("admin/login.html", username=username)
 
 
 @admin_bp.route("/cikis", methods=["POST"])
@@ -293,10 +299,14 @@ def faq_edit(faq_id):
 @login_required
 def faq_delete(faq_id):
     db = get_db()
-    db.execute("DELETE FROM faq WHERE id = ?", (faq_id,))
+    cursor = db.execute("DELETE FROM faq WHERE id = ?", (faq_id,))
     db.commit()
-    reload_matcher()
-    flash("SSS kaydı silindi.", "success")
+    # rowcount: silinen satır sayısı (0 ise böyle bir kayıt yoktu)
+    if cursor.rowcount == 0:
+        flash(f"#{faq_id} numaralı SSS kaydı bulunamadı.", "error")
+    else:
+        reload_matcher()
+        flash(f"#{faq_id} numaralı SSS kaydı silindi.", "success")
     return redirect(url_for("admin.faq_list"))
 
 
@@ -331,9 +341,14 @@ def ticket_update_status(ticket_id):
         flash("Geçersiz durum seçildi.", "error")
     else:
         db = get_db()
-        db.execute("UPDATE talep_sikayet SET durum = ? WHERE id = ?", (new_status, ticket_id))
+        cursor = db.execute(
+            "UPDATE talep_sikayet SET durum = ? WHERE id = ?", (new_status, ticket_id)
+        )
         db.commit()
-        flash(f"#{ticket_id} numaralı talebin durumu '{new_status}' olarak güncellendi.", "success")
+        if cursor.rowcount == 0:
+            flash(f"#{ticket_id} numaralı talep bulunamadı.", "error")
+        else:
+            flash(f"#{ticket_id} numaralı talebin durumu '{new_status}' olarak güncellendi.", "success")
 
     # Filtre seçiliyse aynı filtreli listeye geri dön
     return redirect(url_for("admin.tickets", durum=request.form.get("filtre", "")))
