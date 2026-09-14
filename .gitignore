@@ -17,6 +17,13 @@ env/
 *.sqlite3
 database/*.db-journal
 
+# --- Geçici test / önizleme dosyaları ---
+static/_preview_*.html
+_*_tmp.py
+*.log
+htmlcov/
+.coverage
+
 # --- Editör / işletim sistemi dosyaları ---
 .claude/
 .vscode/

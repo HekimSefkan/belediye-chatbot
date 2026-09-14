@@ -1,0 +1,6 @@
+# Windows toplu iş dosyaları (.bat) CRLF satır sonu ile çalışmalıdır.
+# GitHub'dan indirilen kopyada da bozulmamaları için satır sonunu sabitliyoruz.
+*.bat text eol=crlf
+
+# Diğer metin dosyaları için Git otomatik karar versin
+* text=auto
