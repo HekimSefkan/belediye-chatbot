@@ -1,0 +1,415 @@
+{
+  "aciklama": "UYARI: Bu dosyadaki tüm soru, cevap, telefon, adres, ücret ve süre bilgileri staj projesi için üretilmiş KURGUSAL DEMO verisidir. Mardin Büyükşehir Belediyesi'nin resmi bilgisi değildir.",
+  "kategoriler": [
+    {
+      "kategori": "Su ve Kanalizasyon",
+      "departman": "Su ve Kanalizasyon Dairesi Başkanlığı",
+      "sorular": [
+        {
+          "soru": "Su faturamı nasıl ödeyebilirim?",
+          "cevap": "Su faturanızı belediyenin online ödeme sayfasından, anlaşmalı bankaların internet/mobil şubelerinden veya hizmet binalarındaki vezne noktalarından ödeyebilirsiniz. Ödeme için abone numaranız yeterlidir. (Demo bilgi)",
+          "anahtar_kelimeler": "fatura ödeme su borcu online ödeme vezne banka"
+        },
+        {
+          "soru": "Su aboneliği açtırmak için hangi belgeler gerekli?",
+          "cevap": "Yeni su aboneliği için kimlik fotokopisi, tapu veya kira sözleşmesi, yapı kullanma izin belgesi (iskân) ve güvence bedeli ödeme dekontu gereklidir. Başvuru hizmet binasındaki abone işlemleri biriminden yapılır. (Demo bilgi)",
+          "anahtar_kelimeler": "abonelik yeni abone sözleşme belge evrak su açtırma"
+        },
+        {
+          "soru": "Mahallemde sular kesik, ne zaman gelecek?",
+          "cevap": "Planlı su kesintileri belediyenin web sitesindeki 'Duyurular' bölümünde bölge ve saat bilgisiyle yayınlanır. Duyuruda yer almayan bir kesinti yaşıyorsanız arıza hattını (demo: 0 482 000 00 01) arayarak bildirim yapabilirsiniz.",
+          "anahtar_kelimeler": "su kesintisi kesik su yok arıza ne zaman gelecek"
+        },
+        {
+          "soru": "Kanalizasyon tıkandı, kime başvurmalıyım?",
+          "cevap": "Kanalizasyon tıkanıklığı ve taşma ihbarları 7/24 arıza hattına (demo: 0 482 000 00 01) bildirilir. Ekip, bina bağlantı hattı dışındaki ana hat tıkanıklıklarına ücretsiz müdahale eder. (Demo bilgi)",
+          "anahtar_kelimeler": "kanalizasyon tıkanıklık taşma lağım rögar koku"
+        },
+        {
+          "soru": "Su sayacım bozuldu, ne yapmalıyım?",
+          "cevap": "Arızalı veya donmuş sayaçlar için abone numaranızla birlikte arıza hattına ya da hizmet binasına başvurabilirsiniz. Sayaç ekip tarafından kontrol edilir; kullanıcı kaynaklı hasarlarda değişim ücreti tahakkuk ettirilir. (Demo bilgi)",
+          "anahtar_kelimeler": "sayaç arızalı bozuk donmuş sayaç değişimi"
+        },
+        {
+          "soru": "Su faturam çok yüksek geldi, itiraz edebilir miyim?",
+          "cevap": "Fatura itirazları abone numarası ve dilekçe ile hizmet binasına veya e-belediye üzerinden yapılabilir. Sayaç okuması yerinde tekrar kontrol edilir; hata tespit edilirse fatura düzeltilir. (Demo bilgi)",
+          "anahtar_kelimeler": "yüksek fatura itiraz fazla geldi yanlış okuma"
+        },
+        {
+          "soru": "Taşınıyorum, su aboneliğimi nasıl kapatırım?",
+          "cevap": "Abonelik iptali için kimliğiniz ve son sayaç okumasıyla hizmet binasına başvurmanız gerekir. Borcunuz kapatıldıktan sonra güvence bedeli iade edilir. (Demo bilgi)",
+          "anahtar_kelimeler": "abonelik iptal kapatma taşınma güvence bedeli iade"
+        }
+      ]
+    },
+    {
+      "kategori": "İmar ve Şehircilik",
+      "departman": "İmar ve Şehircilik Dairesi Başkanlığı",
+      "sorular": [
+        {
+          "soru": "İmar durum belgesi nasıl alınır?",
+          "cevap": "İmar durum belgesi için tapu fotokopisi, kimlik ve başvuru dilekçesi ile İmar ve Şehircilik Dairesine başvurulur. Harç ödendikten sonra belge ortalama 5 iş günü içinde teslim edilir. (Demo bilgi)",
+          "anahtar_kelimeler": "imar durumu belgesi çap parsel tapu"
+        },
+        {
+          "soru": "Yapı ruhsatı almak için ne yapmam gerekiyor?",
+          "cevap": "Yapı ruhsatı için imar durum belgesi, onaylı mimari/statik/tesisat projeleri, tapu kaydı, müteahhit ve yapı denetim sözleşmeleri ile başvuru yapılır. Eksiksiz dosyalar yaklaşık 30 gün içinde sonuçlandırılır. (Demo bilgi)",
+          "anahtar_kelimeler": "yapı ruhsatı inşaat izni bina yapmak proje"
+        },
+        {
+          "soru": "İskan belgesi (yapı kullanma izni) nasıl alınır?",
+          "cevap": "Yapı tamamlandıktan sonra yapı denetim firması raporu, SGK ilişiksiz belgesi ve iskân başvuru formuyla birlikte başvuru yapılır. Yerinde kontrolün ardından yapı kullanma izin belgesi düzenlenir. (Demo bilgi)",
+          "anahtar_kelimeler": "iskan yapı kullanma izni oturma izni"
+        },
+        {
+          "soru": "Evimin bulunduğu parselin imar planını nereden görebilirim?",
+          "cevap": "İmar planlarını belediyenin e-imar (kent rehberi) uygulamasından ada/parsel numarasıyla sorgulayabilirsiniz. Ayrıntılı bilgi için İmar ve Şehircilik Dairesi plan birimine başvurabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "imar planı e-imar kent rehberi ada parsel sorgulama"
+        },
+        {
+          "soru": "Komşum ruhsatsız inşaat yapıyor, nasıl şikayet ederim?",
+          "cevap": "Ruhsatsız veya ruhsata aykırı yapıları adres bilgisiyle birlikte İmar ve Şehircilik Dairesi yapı kontrol birimine bildirebilir ya da bu chatbot üzerinden talep/şikayet kaydı oluşturabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "ruhsatsız inşaat kaçak yapı şikayet izinsiz bina"
+        },
+        {
+          "soru": "Tarihi eserler koruma alanındaki evimde tadilat yapabilir miyim?",
+          "cevap": "Mardin'in tarihi kent dokusu içindeki tescilli yapılarda veya sit alanlarında her türlü tadilat için önce Koruma Bölge Kurulu izni, ardından belediye onayı gerekir. İzinsiz yapılan tadilatlar yasal işlem gerektirir. (Demo bilgi)",
+          "anahtar_kelimeler": "tarihi yapı tescilli sit alanı koruma kurulu tadilat restorasyon eski mardin"
+        },
+        {
+          "soru": "Numarataj ve adres değişikliği işlemleri nereden yapılır?",
+          "cevap": "Bina numarası (numarataj) verilmesi ve adres düzeltme işlemleri İmar ve Şehircilik Dairesi numarataj biriminden yapılır. Başvuruda tapu ve yapı kullanma izin belgesi istenir. (Demo bilgi)",
+          "anahtar_kelimeler": "numarataj adres kapı numarası bina numarası"
+        }
+      ]
+    },
+    {
+      "kategori": "Zabıta",
+      "departman": "Zabıta Dairesi Başkanlığı",
+      "sorular": [
+        {
+          "soru": "Zabıtaya nasıl şikayette bulunabilirim?",
+          "cevap": "Zabıta ile ilgili şikayetlerinizi zabıta ihbar hattına (demo: 0 482 000 00 02) veya bu chatbot üzerinden talep/şikayet kaydı oluşturarak iletebilirsiniz. Şikayetinizde adres ve olay bilgisini net yazmanız işlemi hızlandırır.",
+          "anahtar_kelimeler": "zabıta şikayet ihbar telefon"
+        },
+        {
+          "soru": "İş yeri açma ve çalışma ruhsatı nasıl alınır?",
+          "cevap": "İş yeri açma ve çalışma ruhsatı için kira sözleşmesi veya tapu, vergi levhası, kimlik fotokopisi, yapı kullanma izni ve gerekli durumlarda itfaiye raporu ile başvuru yapılır. Başvurular e-belediye üzerinden de alınmaktadır. (Demo bilgi)",
+          "anahtar_kelimeler": "iş yeri ruhsatı dükkan açmak çalışma ruhsatı işyeri"
+        },
+        {
+          "soru": "Kaldırımı işgal eden esnafı nereye bildirebilirim?",
+          "cevap": "Kaldırım ve yol işgali yapan iş yerleri zabıta ekiplerince denetlenir. Adres bilgisiyle zabıta ihbar hattına veya chatbot üzerinden şikayet kaydı oluşturarak bildirimde bulunabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "kaldırım işgali esnaf yol işgal masa sandalye"
+        },
+        {
+          "soru": "Aşırı fiyat veya etiketsiz ürün satan market için ne yapmalıyım?",
+          "cevap": "Fiyat etiketi bulunmayan veya etiket fiyatından farklı satış yapan iş yerleri zabıta tarafından denetlenir. Fiş/fotoğraf gibi belgelerle birlikte şikayet kaydı oluşturabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "fahiş fiyat etiket market fiş denetim"
+        },
+        {
+          "soru": "Gece geç saatte gürültü yapan iş yeri hakkında şikayet etmek istiyorum",
+          "cevap": "Ruhsat saatleri dışında çalışan veya çevreyi rahatsız edecek düzeyde gürültü yapan iş yerleri için zabıta ihbar hattını arayabilirsiniz. Konutlardaki gürültü şikayetleri için ise kolluk kuvvetlerine (155/156) başvurulmalıdır. (Demo bilgi)",
+          "anahtar_kelimeler": "gürültü ses müzik gece rahatsızlık"
+        },
+        {
+          "soru": "Seyyar satıcı olarak izin alabilir miyim?",
+          "cevap": "Belediye sınırları içinde seyyar satış, belirlenen alanlar ve dönemlerde verilen geçici izinlerle yapılabilir. İzin başvuruları Zabıta Dairesi Başkanlığına dilekçe ile yapılır. (Demo bilgi)",
+          "anahtar_kelimeler": "seyyar satıcı izin tezgah sokak satışı"
+        },
+        {
+          "soru": "Dilencilik yapan kişileri nereye bildirebilirim?",
+          "cevap": "Dilencilik ihbarlarını zabıta ihbar hattına bildirebilirsiniz. Zabıta ekipleri, ihtiyaç sahibi olduğu tespit edilen kişileri sosyal hizmet birimlerine yönlendirir. (Demo bilgi)",
+          "anahtar_kelimeler": "dilenci dilencilik ihbar"
+        }
+      ]
+    },
+    {
+      "kategori": "Temizlik İşleri",
+      "departman": "Temizlik İşleri Dairesi Başkanlığı",
+      "sorular": [
+        {
+          "soru": "Mahallemde çöpler hangi günler toplanıyor?",
+          "cevap": "Merkez mahallelerde evsel atıklar her gün akşam saatlerinde, dış mahallelerde ise haftada 3 gün (Pazartesi, Çarşamba, Cuma) toplanmaktadır. Mahallenize özel program için Temizlik İşleri Dairesine başvurabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "çöp toplama günleri saat çöp kamyonu program"
+        },
+        {
+          "soru": "Çöpler günlerdir alınmadı, nereye şikayet edebilirim?",
+          "cevap": "Toplanmayan çöpler için adres bilgisiyle Temizlik İşleri Dairesine veya bu chatbot üzerinden şikayet kaydı oluşturabilirsiniz. Ekipler en geç 24 saat içinde bölgeye yönlendirilir. (Demo bilgi)",
+          "anahtar_kelimeler": "çöp alınmadı toplanmadı birikti şikayet koku"
+        },
+        {
+          "soru": "Eski eşya ve moloz atığımı nasıl attırabilirim?",
+          "cevap": "Kullanılmayan büyük eşyalar (koltuk, dolap vb.) için ücretsiz alım randevusu oluşturabilirsiniz. İnşaat molozları ise yalnızca belediyenin belirlediği döküm sahalarına, izinli araçlarla taşınabilir. (Demo bilgi)",
+          "anahtar_kelimeler": "eski eşya koltuk moloz hafriyat atık alımı"
+        },
+        {
+          "soru": "Mahalleme çöp konteyneri koyulmasını nasıl talep ederim?",
+          "cevap": "Yeni konteyner veya kırık konteynerin değiştirilmesi taleplerinizi adres bilgisiyle Temizlik İşleri Dairesine ya da chatbot üzerinden talep kaydı oluşturarak iletebilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "çöp konteyneri çöp kutusu bidon kırık konteyner talep"
+        },
+        {
+          "soru": "Geri dönüşüm atıklarını nereye bırakabilirim?",
+          "cevap": "Kağıt, plastik, cam ve metal atıklarınızı mahallelerdeki mavi geri dönüşüm kutularına bırakabilirsiniz. Atık pil ve elektronik atıklar için hizmet binalarında toplama noktaları bulunmaktadır. (Demo bilgi)",
+          "anahtar_kelimeler": "geri dönüşüm plastik cam kağıt atık pil elektronik atık"
+        },
+        {
+          "soru": "Sokağımız süpürülmüyor, cadde temizliği talep etmek istiyorum",
+          "cevap": "Cadde ve sokak süpürme hizmeti belirli bir program dahilinde yapılmaktadır. Programda aksama olduğunu düşünüyorsanız adres bilgisiyle talep kaydı oluşturabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "sokak süpürme cadde temizliği yıkama kirli sokak"
+        },
+        {
+          "soru": "Yağlı atık yağımı nereye verebilirim?",
+          "cevap": "Kullanılmış bitkisel atık yağlarınızı şişelere doldurarak hizmet binalarındaki atık yağ toplama noktalarına bırakabilirsiniz. Atık yağları lavaboya dökmek kanalizasyon hatlarına zarar verir. (Demo bilgi)",
+          "anahtar_kelimeler": "atık yağ kızartma yağı bitkisel yağ"
+        }
+      ]
+    },
+    {
+      "kategori": "Park ve Bahçeler",
+      "departman": "Park ve Bahçeler Dairesi Başkanlığı",
+      "sorular": [
+        {
+          "soru": "Parktaki kırık oyun grubunu nereye bildirebilirim?",
+          "cevap": "Parklardaki kırık oyuncak, bank veya aydınlatma arızalarını park adıyla birlikte Park ve Bahçeler Dairesine veya chatbot üzerinden talep kaydı oluşturarak bildirebilirsiniz. Güvenlik riski taşıyan ekipmanlara öncelik verilir. (Demo bilgi)",
+          "anahtar_kelimeler": "park kırık oyuncak salıncak kaydırak bank arıza"
+        },
+        {
+          "soru": "Sokağımızdaki ağacın budanmasını istiyorum",
+          "cevap": "Kamusal alandaki ağaçların budanması Park ve Bahçeler Dairesi tarafından mevsimsel program dahilinde yapılır. Elektrik hattına veya binaya zarar veren ağaçlar için talep kaydı oluşturabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "ağaç budama dal kesme ağaç kesimi"
+        },
+        {
+          "soru": "Mahallemize park yapılması için nasıl talepte bulunabilirim?",
+          "cevap": "Yeni park ve yeşil alan taleplerinizi muhtarlık aracılığıyla veya doğrudan dilekçe/talep kaydı ile Park ve Bahçeler Dairesine iletebilirsiniz. Talepler imar planındaki yeşil alan durumuna göre değerlendirilir. (Demo bilgi)",
+          "anahtar_kelimeler": "yeni park yapımı yeşil alan oyun alanı talep"
+        },
+        {
+          "soru": "Parkları sulama ve bakım saatleri nedir?",
+          "cevap": "Parklarda sulama genellikle sabah erken saatlerde ve akşam 19:00 sonrasında yapılır; çim biçme ve bakım çalışmaları hafta içi gündüz saatlerinde yürütülür. (Demo bilgi)",
+          "anahtar_kelimeler": "sulama bakım çim biçme saat"
+        },
+        {
+          "soru": "Belediyeden fidan alabilir miyim?",
+          "cevap": "Belediye fidanlığında yetiştirilen fidanlar, özellikle ağaçlandırma kampanyası dönemlerinde vatandaşlara ücretsiz dağıtılır. Kampanya tarihleri web sitesinde duyurulur. (Demo bilgi)",
+          "anahtar_kelimeler": "fidan dağıtımı ağaç dikimi fidanlık ücretsiz fidan"
+        },
+        {
+          "soru": "Parkta piknik yapmak veya etkinlik düzenlemek için izin gerekiyor mu?",
+          "cevap": "Günlük piknik için izin gerekmez. Ancak kalabalık organizasyon, stant veya ses sistemi kullanılacak etkinlikler için Park ve Bahçeler Dairesinden önceden yazılı izin alınmalıdır. (Demo bilgi)",
+          "anahtar_kelimeler": "piknik etkinlik izin park organizasyon"
+        },
+        {
+          "soru": "Parkta başıboş köpekler var, ne yapmalıyım?",
+          "cevap": "Sahipsiz hayvanlarla ilgili ihbarlar belediyenin veteriner işleri birimine iletilir. Hayvanlar toplanarak kontrol, aşılama ve kısırlaştırma işlemleri için bakımevine götürülür. Chatbot üzerinden talep kaydı oluşturabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "sokak köpekleri başıboş hayvan sahipsiz köpek veteriner"
+        }
+      ]
+    },
+    {
+      "kategori": "Evlilik/Nikah İşlemleri",
+      "departman": "Evlendirme Memurluğu",
+      "sorular": [
+        {
+          "soru": "Nikah başvurusu için hangi belgeler gerekiyor?",
+          "cevap": "Nikah başvurusu için çiftlerin nüfus cüzdanları, 6 ay içinde çekilmiş 4'er adet vesikalık fotoğraf, sağlık raporu ve evlenme beyannamesi gereklidir. Başvuru çiftlerden birinin ikamet ettiği ilçede yapılır. (Demo bilgi)",
+          "anahtar_kelimeler": "nikah başvurusu evlilik belgeler evrak evlenme"
+        },
+        {
+          "soru": "Nikah salonu rezervasyonu nasıl yapılır?",
+          "cevap": "Nikah salonu rezervasyonları Evlendirme Memurluğu'ndan veya e-belediye üzerinden tarih ve saat seçilerek yapılır. Hafta sonu tarihleri yoğun olduğundan en az 2 ay önceden rezervasyon önerilir. (Demo bilgi)",
+          "anahtar_kelimeler": "nikah salonu rezervasyon tarih saat randevu"
+        },
+        {
+          "soru": "Nikah ücreti ne kadar?",
+          "cevap": "Nikah ücretleri her yıl belediye meclisi kararıyla belirlenir; hafta içi ve hafta sonu, salon ve salon dışı nikahlar için farklı tarifeler uygulanır. Güncel tarifeyi Evlendirme Memurluğu'ndan öğrenebilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "nikah ücreti fiyat tarife ne kadar"
+        },
+        {
+          "soru": "Evlilik için sağlık raporu nereden alınır?",
+          "cevap": "Evlilik sağlık raporu aile hekimliklerinden veya devlet hastanelerinden alınabilir. Rapor düzenlenirken kan tahlili istenebilir; raporun geçerlilik süresi 6 aydır. (Demo bilgi)",
+          "anahtar_kelimeler": "sağlık raporu evlilik raporu kan tahlili aile hekimi"
+        },
+        {
+          "soru": "Yabancı uyruklu biriyle evlenmek için ne gerekir?",
+          "cevap": "Yabancı uyruklu adaydan pasaportun onaylı tercümesi, evlenmesinde engel yoktur belgesi (bekarlık belgesi) ve doğum belgesi istenir. Yabancı belgelerin apostil onaylı ve noter onaylı Türkçe tercümeli olması gerekir. (Demo bilgi)",
+          "anahtar_kelimeler": "yabancı uyruklu evlilik pasaport bekarlık belgesi apostil"
+        },
+        {
+          "soru": "Nikahta kaç şahit gerekli ve şahitlerde ne aranır?",
+          "cevap": "Nikah sırasında 18 yaşını doldurmuş, kimlik belgesi yanında bulunan 2 şahit bulunması zorunludur. Şahitlerin akrabalık durumu önem taşımaz. (Demo bilgi)",
+          "anahtar_kelimeler": "nikah şahidi şahit kaç kişi"
+        },
+        {
+          "soru": "Evlilik cüzdanımı kaybettim, yenisini nasıl alırım?",
+          "cevap": "Kaybedilen evlilik cüzdanı, nüfus müdürlüklerine kimlik belgesiyle başvurularak yeniden çıkarılabilir. Evlendirme Memurluğu yalnızca nikah işlemlerini yürütür. (Demo bilgi)",
+          "anahtar_kelimeler": "evlilik cüzdanı kayıp yenileme"
+        }
+      ]
+    },
+    {
+      "kategori": "Emlak/Vergi",
+      "departman": "Mali Hizmetler Dairesi Başkanlığı",
+      "sorular": [
+        {
+          "soru": "Emlak vergisi ne zaman ödenir?",
+          "cevap": "Emlak vergisi yılda iki eşit taksitte ödenir: 1. taksit Mart-Mayıs, 2. taksit Kasım ayı sonuna kadar. Süresinde ödenmeyen vergilere gecikme zammı uygulanır. (Demo bilgi)",
+          "anahtar_kelimeler": "emlak vergisi taksit son ödeme tarihi ne zaman"
+        },
+        {
+          "soru": "Emlak vergisi borcumu nasıl sorgulayabilirim?",
+          "cevap": "Emlak vergisi ve diğer belediye borçlarınızı e-belediye sisteminden T.C. kimlik numaranızla sorgulayabilir ve kredi kartıyla online ödeyebilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "vergi borcu sorgulama e-belediye online ödeme borç"
+        },
+        {
+          "soru": "Yeni ev aldım, emlak beyannamesi vermem gerekiyor mu?",
+          "cevap": "Evet. Satın aldığınız taşınmaz için, alım yılını takip eden yılın Şubat ayı sonuna kadar emlak vergisi beyannamesi verilmesi gerekir. Tapu fotokopisi ve kimlikle Mali Hizmetler Dairesine başvurabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "emlak beyannamesi ev aldım tapu bildirim"
+        },
+        {
+          "soru": "Emekliyim, emlak vergisinden muaf olabilir miyim?",
+          "cevap": "Tek konutu olan ve belirli gelir şartlarını sağlayan emekliler, engelliler ve şehit yakınları için emlak vergisi muafiyeti uygulanabilir. Muafiyet için gelir belgesi ve tapu ile başvuru yapılmalıdır. (Demo bilgi)",
+          "anahtar_kelimeler": "muafiyet emekli engelli indirim vergi muaf"
+        },
+        {
+          "soru": "Çevre temizlik vergisi nedir, nasıl ödenir?",
+          "cevap": "Çevre temizlik vergisi konutlar için su faturası üzerinden tahsil edilir; iş yerleri için ise yılda iki taksit halinde Mali Hizmetler Dairesine ödenir. (Demo bilgi)",
+          "anahtar_kelimeler": "çevre temizlik vergisi ÇTV iş yeri"
+        },
+        {
+          "soru": "İlan ve reklam vergisi için nereye başvurmalıyım?",
+          "cevap": "İş yeri tabelası ve reklam panoları için ilan ve reklam vergisi beyannamesi Mali Hizmetler Dairesine verilir. Tabela ölçüleri ve konumu beyannamede belirtilmelidir. (Demo bilgi)",
+          "anahtar_kelimeler": "ilan reklam vergisi tabela pano"
+        },
+        {
+          "soru": "Belediye borcumu taksitlendirebilir miyim?",
+          "cevap": "Vadesi geçmiş belediye alacakları için yasal düzenlemeler çerçevesinde taksitlendirme yapılabilir. Başvuru dilekçesiyle Mali Hizmetler Dairesi tahsilat birimine başvurabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "borç yapılandırma taksitlendirme gecikme zammı"
+        }
+      ]
+    },
+    {
+      "kategori": "Ulaşım",
+      "departman": "Ulaşım Dairesi Başkanlığı",
+      "sorular": [
+        {
+          "soru": "Otobüs saatlerini nereden öğrenebilirim?",
+          "cevap": "Belediye otobüslerinin hat ve sefer saatleri web sitesindeki 'Ulaşım' bölümünde ve duraklardaki bilgi panolarında yayınlanmaktadır. (Demo bilgi)",
+          "anahtar_kelimeler": "otobüs saatleri sefer hat durak toplu taşıma"
+        },
+        {
+          "soru": "Öğrenci kartı (indirimli ulaşım kartı) nasıl çıkarılır?",
+          "cevap": "Öğrenci kartı için öğrenci belgesi, kimlik fotokopisi ve 1 adet vesikalık fotoğrafla kart başvuru merkezine başvurabilirsiniz. Kart yaklaşık 3 iş günü içinde teslim edilir. (Demo bilgi)",
+          "anahtar_kelimeler": "öğrenci kartı indirimli kart ulaşım kartı abonman"
+        },
+        {
+          "soru": "65 yaş üstü ücretsiz ulaşım kartı nasıl alınır?",
+          "cevap": "65 yaş ve üzeri vatandaşlar kimlik kartları ve vesikalık fotoğrafla kart başvuru merkezinden ücretsiz ulaşım kartı alabilir. Engelli vatandaşlar için engelli raporu ile aynı işlem uygulanır. (Demo bilgi)",
+          "anahtar_kelimeler": "65 yaş ücretsiz kart yaşlı engelli kartı"
+        },
+        {
+          "soru": "Otobüs şoförünü nereye şikayet edebilirim?",
+          "cevap": "Toplu taşıma hizmetleriyle ilgili şikayetlerinizi araç plakası, hat numarası, tarih ve saat bilgisiyle Ulaşım Dairesine veya chatbot üzerinden şikayet kaydı oluşturarak iletebilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "şoför şikayet otobüs kaba davranış durakta durmadı"
+        },
+        {
+          "soru": "Otobüste kaybolan eşyamı nereden bulabilirim?",
+          "cevap": "Toplu taşıma araçlarında unutulan eşyalar Ulaşım Dairesi kayıp eşya birimine teslim edilir. Kimliğinizle başvurarak eşyanızı teslim alabilirsiniz; eşyalar 3 ay süreyle saklanır. (Demo bilgi)",
+          "anahtar_kelimeler": "kayıp eşya otobüste unuttum kaybettim"
+        },
+        {
+          "soru": "Taksi durağı veya servis aracı ruhsatı nasıl alınır?",
+          "cevap": "Taksi, dolmuş ve servis araçlarına ait çalışma ruhsatları Ulaşım Koordinasyon Merkezi (UKOME) kararları doğrultusunda Ulaşım Dairesi tarafından verilir. Başvuru şartları için daireye başvurabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "taksi plaka servis aracı ruhsatı dolmuş UKOME"
+        },
+        {
+          "soru": "Trafik ışığı arızalı, nereye bildirebilirim?",
+          "cevap": "Arızalı sinyalizasyon (trafik ışığı) ve eksik trafik levhalarını kavşak adıyla birlikte Ulaşım Dairesi arıza hattına veya chatbot üzerinden talep kaydı oluşturarak bildirebilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "trafik ışığı sinyalizasyon arıza levha kavşak"
+        }
+      ]
+    },
+    {
+      "kategori": "Kültür ve Sosyal İşler",
+      "departman": "Kültür ve Sosyal İşler Dairesi Başkanlığı",
+      "sorular": [
+        {
+          "soru": "Belediyenin kültürel etkinliklerini nereden takip edebilirim?",
+          "cevap": "Konser, sergi, tiyatro ve festival gibi etkinlikler belediyenin web sitesindeki etkinlik takviminde ve resmi sosyal medya hesaplarında duyurulmaktadır. (Demo bilgi)",
+          "anahtar_kelimeler": "etkinlik konser festival tiyatro sergi takvim"
+        },
+        {
+          "soru": "Belediyenin ücretsiz kurslarına nasıl kayıt olabilirim?",
+          "cevap": "El sanatları, bilgisayar, dil ve meslek edindirme kursları dönem başlarında duyurulur. Kayıtlar kimlik fotokopisiyle sosyal tesislerden veya e-belediye üzerinden yapılır. (Demo bilgi)",
+          "anahtar_kelimeler": "kurs kayıt ücretsiz kurs meslek edindirme el sanatları"
+        },
+        {
+          "soru": "İhtiyaç sahibi ailelere sosyal yardım başvurusu nasıl yapılır?",
+          "cevap": "Sosyal yardım (gıda, yakacak, eğitim desteği) başvuruları kimlik ve ikamet belgesiyle Kültür ve Sosyal İşler Dairesine yapılır. Başvuru sonrası hane ziyareti ile ihtiyaç tespiti yapılır. (Demo bilgi)",
+          "anahtar_kelimeler": "sosyal yardım gıda yardımı ihtiyaç sahibi erzak kömür destek"
+        },
+        {
+          "soru": "Engelli vatandaşlara yönelik hangi hizmetler var?",
+          "cevap": "Engelli vatandaşlara yönelik ücretsiz ulaşım, akülü sandalye şarj istasyonları, evde bakım desteği ve rehabilitasyon kursları gibi hizmetler sunulmaktadır. Ayrıntılar için daireye başvurabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "engelli hizmetleri akülü sandalye evde bakım rehabilitasyon"
+        },
+        {
+          "soru": "Belediyenin kütüphanesi nerede ve ne zaman açık?",
+          "cevap": "Belediye kent kütüphanesi hafta içi 09:00-21:00, hafta sonu 10:00-18:00 saatleri arasında hizmet vermektedir. Üyelik ücretsizdir. (Demo bilgi)",
+          "anahtar_kelimeler": "kütüphane çalışma saatleri kitap üyelik"
+        },
+        {
+          "soru": "Düğün salonu veya sosyal tesis kiralayabilir miyim?",
+          "cevap": "Belediyeye ait sosyal tesis ve toplantı salonları düğün, nişan ve toplantılar için uygun tarihlerde kiralanabilir. Rezervasyon için Kültür ve Sosyal İşler Dairesine başvurabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "düğün salonu kiralama sosyal tesis toplantı salonu nişan"
+        },
+        {
+          "soru": "Mardin'deki müze ve tarihi yerleri gezmek için rehberlik hizmeti var mı?",
+          "cevap": "Belediyenin turizm danışma noktalarında şehir haritası ve tanıtım broşürleri ücretsiz dağıtılır. Grup gezileri için önceden randevu alınarak rehberli tur talep edilebilir. (Demo bilgi)",
+          "anahtar_kelimeler": "müze tarihi yerler turizm rehber gezi tur"
+        }
+      ]
+    },
+    {
+      "kategori": "Bilgi İşlem/BİMER",
+      "departman": "Bilgi İşlem Dairesi Başkanlığı",
+      "sorular": [
+        {
+          "soru": "E-belediye şifremi unuttum, ne yapmalıyım?",
+          "cevap": "E-belediye giriş ekranındaki 'Şifremi Unuttum' bağlantısını kullanarak kayıtlı telefonunuza gelen doğrulama koduyla yeni şifre oluşturabilirsiniz. Alternatif olarak e-Devlet ile de giriş yapabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "e-belediye şifre unuttum giriş yapamıyorum parola"
+        },
+        {
+          "soru": "E-belediye sistemine nasıl üye olurum?",
+          "cevap": "E-belediye uygulamasına T.C. kimlik numaranız ve cep telefonunuzla üye olabilir veya e-Devlet şifrenizle doğrudan giriş yapabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "e-belediye üyelik kayıt olmak hesap açma"
+        },
+        {
+          "soru": "CİMER veya BİMER üzerinden başvuru nasıl yapılır?",
+          "cevap": "Cumhurbaşkanlığı İletişim Merkezi (CİMER) başvuruları e-Devlet üzerinden yapılır ve ilgili kuruma yönlendirilir. Belediyeye yönelik başvurularınızı doğrudan Beyaz Masa'ya veya bu chatbot üzerinden talep kaydı olarak da iletebilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "cimer bimer başvuru dilekçe e-devlet"
+        },
+        {
+          "soru": "Belediyenin web sitesi açılmıyor, kime bildirebilirim?",
+          "cevap": "Web sitesi ve online hizmetlerdeki erişim sorunlarını tarayıcı ve hata mesajı bilgisiyle Bilgi İşlem Dairesine veya chatbot üzerinden talep kaydı oluşturarak bildirebilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "web sitesi açılmıyor erişim sorunu hata site çalışmıyor"
+        },
+        {
+          "soru": "Belediyenin ücretsiz Wi-Fi hizmeti nerelerde var?",
+          "cevap": "Belediyenin ücretsiz kablosuz internet hizmeti meydanlar, parklar ve hizmet binalarında sunulmaktadır. Bağlanmak için cep telefonunuza gelen doğrulama kodunu girmeniz yeterlidir. (Demo bilgi)",
+          "anahtar_kelimeler": "ücretsiz wifi kablosuz internet bağlantı"
+        },
+        {
+          "soru": "Başvurumun durumunu nasıl takip edebilirim?",
+          "cevap": "E-belediye üzerinden yaptığınız başvuruları 'Başvurularım' ekranından takip edebilirsiniz. Bu chatbot üzerinden oluşturduğunuz talepler için size verilen talep numarasıyla Beyaz Masa'ya danışabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "başvuru takip durum sorgulama talep numarası"
+        },
+        {
+          "soru": "Kişisel verilerim belediye tarafından nasıl korunuyor?",
+          "cevap": "Belediye, kişisel verileri 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında işler ve korur. Aydınlatma metnine web sitesinden ulaşabilir, bilgi talepleriniz için başvuru formunu kullanabilirsiniz. (Demo bilgi)",
+          "anahtar_kelimeler": "kvkk kişisel veri gizlilik aydınlatma metni"
+        }
+      ]
+    }
+  ]
+}

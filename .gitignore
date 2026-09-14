@@ -1,0 +1,24 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# --- Sanal ortam ---
+venv/
+.venv/
+env/
+
+# --- Gizli ayarlar (şifreler, secret key) ---
+.env
+
+# --- Veritabanı dosyaları (uygulama ilk açılışta otomatik oluşturur) ---
+*.db
+*.sqlite3
+database/*.db-journal
+
+# --- Editör / işletim sistemi dosyaları ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
