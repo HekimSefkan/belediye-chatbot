@@ -256,7 +256,7 @@ hazırlandı. Uygulama internet bağlantısı veya ücretli servis gerektirmeden
 
 ## Ekler
 
-- **Ek-1:** Kaynak kodu – `[GitHub bağlantısı: https://github.com/HekimSefkan/mardin-belediye-chatbot]`
+- **Ek-1:** Kaynak kodu – https://github.com/HekimSefkan/belediye-chatbot
 - **Ek-2:** Ekran görüntüleri – `[Ana sayfa, sohbet cevabı, cevap bulunamadı + talep formu, admin istatistik, SSS yönetimi, talepler]`
 - **Ek-3:** Doğruluk ölçüm tabloları – `docs/dogruluk_olcumu.md`
 - **Ek-4:** Test senaryoları – `docs/test_senaryolari.md`

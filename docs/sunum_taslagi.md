@@ -159,7 +159,7 @@ En yakın: "Su faturamı nasıl ödeyebilirim?"  skor: 0.66
 - Talep durumu sorgulama, e-belediye entegrasyonu
 
 **Teşekkürler – Sorular?**
-GitHub: `github.com/HekimSefkan/mardin-belediye-chatbot`
+GitHub: `github.com/HekimSefkan/belediye-chatbot`
 
 **Konuşma notu:**
 > “Sonuç olarak internet ve ücretli servis gerektirmeden çalışan, vatandaşı doğru birime yönlendiren ve personelin kolayca yönetebildiği bir chatbot geliştirdim. Gerçek belediye verileriyle doldurulursa ve yazım hatası toleransı gibi özellikler eklenirse gerçek kullanıma yaklaşabilir. Bu projede bir yazılımı analizden teste kadar uçtan uca geliştirmeyi, doğal dil işlemenin temellerini ve web güvenliğini öğrendim. Dinlediğiniz için teşekkürler, sorularınızı alabilirim.”

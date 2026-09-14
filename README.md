@@ -35,6 +35,9 @@ Vatandaşların belediyeye en sık sorduğu soruları (su faturası, imar, nikah
 ## 1. Hızlı başlangıç
 
 > Gereksinim: Bilgisayarda **Python 3.11 veya üzeri** kurulu olmalı.
+>
+> Kaynak kodu: **https://github.com/HekimSefkan/belediye-chatbot**
+> İndirmek için `git clone https://github.com/HekimSefkan/belediye-chatbot.git` komutunu çalıştırın ya da GitHub sayfasındaki **Code → Download ZIP** seçeneğini kullanın.
 
 1. Proje klasöründeki **`basla.bat`** dosyasına **çift tıklayın**.
 2. Birkaç saniye içinde tarayıcı **http://127.0.0.1:5000** adresinde açılır.
@@ -264,7 +267,7 @@ Testler geçici bir veritabanı kullanır, gerçek `chatbot.db` dosyasına dokun
 ## 10. Proje yapısı
 
 ```
-mardin-belediye-chatbot/
+belediye-chatbot/
 ├── basla.bat               # ÇİFT TIKLA: uygulamayı başlatır
 ├── sifirla.bat             # Demo öncesi veritabanını sıfırlar
 ├── testleri_calistir.bat   # Testleri çalıştırır
