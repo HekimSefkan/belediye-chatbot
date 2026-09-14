@@ -1,0 +1,73 @@
+{% extends 'admin/base.html' %}
+{% block title %}Talep / Şikayetler{% endblock %}
+
+{% block content %}
+{# Her durum için rozet rengi (CSS sınıfı) #}
+{% set status_classes = {'Beklemede': 'waiting', 'İşlemde': 'progress', 'Tamamlandı': 'done'} %}
+<header class="page-head">
+    <div>
+        <h1>Talep / Şikayetler</h1>
+        <p>Vatandaşların chatbot üzerinden oluşturduğu kayıtlar.</p>
+    </div>
+</header>
+
+<!-- Durum filtresi -->
+<nav class="tabs" aria-label="Durum filtresi">
+    <a href="{{ url_for('admin.tickets') }}" class="{{ 'active' if not selected_status }}">Tümü</a>
+    {% for status in statuses %}
+    <a href="{{ url_for('admin.tickets', durum=status) }}" class="{{ 'active' if status == selected_status }}">{{ status }}</a>
+    {% endfor %}
+</nav>
+
+<div class="panel panel--flush">
+    {% if tickets %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Vatandaş</th>
+                    <th>Konu / Açıklama</th>
+                    <th>Birim</th>
+                    <th>Tarih</th>
+                    <th>Durum</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for ticket in tickets %}
+                <tr>
+                    <td class="muted">#{{ ticket.id }}</td>
+                    <td>
+                        <span class="strong">{{ ticket.ad_soyad }}</span>
+                        {% if ticket.telefon %}<br><span class="muted nowrap">{{ ticket.telefon }}</span>{% endif %}
+                    </td>
+                    <td class="ticket-body">
+                        <span class="strong">{{ ticket.konu }}</span>
+                        <p>{{ ticket.aciklama }}</p>
+                    </td>
+                    <td class="muted">{{ ticket.departman }}</td>
+                    <td class="nowrap muted">{{ ticket.olusturma_tarihi }}</td>
+                    <td>
+                        <!-- Durum değiştirildiğinde form otomatik gönderilir; JS kapalıysa "Kaydet" butonu kullanılır -->
+                        <form action="{{ url_for('admin.ticket_update_status', ticket_id=ticket.id) }}" method="post" class="status-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="filtre" value="{{ selected_status }}">
+                            <select name="durum" class="status-select status--{{ status_classes[ticket.durum] }}"
+                                    aria-label="#{{ ticket.id }} durumu" onchange="this.form.submit()">
+                                {% for status in statuses %}
+                                <option value="{{ status }}" {{ 'selected' if status == ticket.durum }}>{{ status }}</option>
+                                {% endfor %}
+                            </select>
+                            <noscript><button type="submit" class="btn btn-small btn-ghost">Kaydet</button></noscript>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="empty">Bu filtrede talep bulunmuyor.</p>
+    {% endif %}
+</div>
+{% endblock %}

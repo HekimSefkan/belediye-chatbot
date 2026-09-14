@@ -1,0 +1,103 @@
+{% extends 'admin/base.html' %}
+{% block title %}İstatistikler{% endblock %}
+
+{% block content %}
+<header class="page-head">
+    <div>
+        <h1>İstatistikler</h1>
+        <p>Chatbot kullanımının genel özeti.</p>
+    </div>
+</header>
+
+<!-- Özet kartları -->
+<section class="stat-grid">
+    <div class="stat-card">
+        <span class="stat-label">Toplam soru</span>
+        <strong class="stat-value">{{ total_messages }}</strong>
+        <span class="stat-sub">{{ answered }} tanesi cevaplandı</span>
+    </div>
+    <div class="stat-card {{ 'stat-card--warn' if unanswered_rate > 30 }}">
+        <span class="stat-label">Cevaplanamayan oranı</span>
+        <strong class="stat-value">%{{ unanswered_rate }}</strong>
+        <span class="stat-sub">{{ unanswered }} soru cevapsız kaldı</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Talep / şikayet</span>
+        <strong class="stat-value">{{ ticket_total }}</strong>
+        <span class="stat-sub">{{ ticket_counts['Beklemede'] }} beklemede · {{ ticket_counts['İşlemde'] }} işlemde · {{ ticket_counts['Tamamlandı'] }} tamamlandı</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">SSS kaydı</span>
+        <strong class="stat-value">{{ faq_count }}</strong>
+        <span class="stat-sub"><a href="{{ url_for('admin.faq_list') }}">SSS'leri yönet →</a></span>
+    </div>
+</section>
+
+<!-- Grafikler -->
+<section class="chart-grid">
+    <div class="panel panel--wide">
+        <h2>En çok sorulan kategoriler</h2>
+        {% if chart_data.categories.values %}
+            <div class="chart-box chart-box--tall"><canvas id="categoryChart" aria-label="Kategori bazında soru sayıları"></canvas></div>
+        {% else %}
+            <p class="empty">Henüz cevaplanmış soru yok. Ana sayfadan chatbotu deneyerek veri oluşturabilirsiniz.</p>
+        {% endif %}
+    </div>
+
+    <div class="panel">
+        <h2>Cevaplanan / cevaplanamayan</h2>
+        {% if total_messages %}
+            <div class="chart-box"><canvas id="answeredChart" aria-label="Cevaplanan ve cevaplanamayan soru oranı"></canvas></div>
+        {% else %}
+            <p class="empty">Henüz veri yok.</p>
+        {% endif %}
+    </div>
+
+    <div class="panel">
+        <h2>Son 7 gün</h2>
+        {% if chart_data.daily.values %}
+            <div class="chart-box"><canvas id="dailyChart" aria-label="Son 7 günün günlük mesaj sayısı"></canvas></div>
+        {% else %}
+            <p class="empty">Son 7 günde mesaj yok.</p>
+        {% endif %}
+    </div>
+</section>
+
+<!-- SSS'ye eklenmesi gereken sorular -->
+<section class="panel">
+    <div class="panel-head">
+        <h2>Son cevaplanamayan sorular</h2>
+        <a href="{{ url_for('admin.chat_history', filtre='cevapsiz') }}">Tümünü gör →</a>
+    </div>
+    <p class="hint">Bu sorular SSS veritabanına eklenirse chatbot bir dahaki sefere cevap verebilir.</p>
+    {% if recent_unanswered %}
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Mesaj</th><th>En yüksek skor</th><th>Tarih</th><th></th></tr></thead>
+            <tbody>
+            {% for row in recent_unanswered %}
+                <tr>
+                    <td>{{ row.kullanici_mesaji }}</td>
+                    <td>{{ '%.2f' % row.benzerlik_skoru }}</td>
+                    <td class="nowrap">{{ row.tarih }}</td>
+                    <td class="nowrap"><a href="{{ url_for('admin.faq_create', soru=row.kullanici_mesaji) }}">SSS olarak ekle</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="empty">Cevaplanamayan soru yok. 🎉</p>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js internetten değil, projedeki yerel dosyadan yüklenir (kurumsal ağda internet kısıtlı olabilir) -->
+<script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
+<script>
+    // Sunucudan gelen grafik verisi (Jinja'nın tojson filtresi güvenli JSON üretir)
+    window.CHART_DATA = {{ chart_data|tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/admin_charts.js') }}"></script>
+{% endblock %}

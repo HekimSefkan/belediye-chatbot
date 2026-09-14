@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Yönetim Paneli{% endblock %} | Belediye Chatbot Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin">
+
+<div class="admin-layout">
+    <!-- Sol menü -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <span class="brand-mark">MB</span>
+            <div>
+                <strong>Chatbot Yönetimi</strong>
+                <small>Hoş geldin, {{ session.get('admin_user') }}</small>
+            </div>
+        </div>
+
+        {% set endpoint = request.endpoint or '' %}
+        <nav class="sidebar-nav" aria-label="Yönetim menüsü">
+            <a href="{{ url_for('admin.statistics') }}" class="{{ 'active' if endpoint == 'admin.statistics' }}">İstatistikler</a>
+            <a href="{{ url_for('admin.faq_list') }}" class="{{ 'active' if endpoint.startswith('admin.faq') }}">SSS Yönetimi</a>
+            <a href="{{ url_for('admin.tickets') }}" class="{{ 'active' if endpoint.startswith('admin.ticket') }}">Talep / Şikayetler</a>
+            <a href="{{ url_for('admin.chat_history') }}" class="{{ 'active' if endpoint == 'admin.chat_history' }}">Sohbet Geçmişi</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('chat.index') }}" target="_blank" rel="noopener">Siteyi görüntüle ↗</a>
+            <form action="{{ url_for('admin.logout') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-small btn-ghost">Çıkış Yap</button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Sayfa içeriği -->
+    <main class="admin-main">
+        {% include 'admin/_flash.html' %}
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yönetici Girişi | Belediye Chatbot Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin login-page">
+
+<main class="login-card">
+    <div class="login-brand">
+        <span class="brand-mark">MB</span>
+        <div>
+            <h1>Yönetici Girişi</h1>
+            <p>Vatandaş Hizmetleri Chatbotu</p>
+        </div>
+    </div>
+
+    {% include 'admin/_flash.html' %}
+
+    <form method="post" class="form-stack">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label>Kullanıcı adı
+            <input type="text" name="kullanici_adi" required autofocus autocomplete="username">
+        </label>
+        <label>Şifre
+            <input type="password" name="sifre" required autocomplete="current-password">
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-block">Giriş Yap</button>
+    </form>
+
+    <a class="back-link" href="{{ url_for('chat.index') }}">← Ana sayfaya dön</a>
+</main>
+
+</body>
+</html>

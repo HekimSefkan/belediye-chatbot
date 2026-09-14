@@ -200,7 +200,7 @@ def faq_list():
     if search:
         query += " AND (soru LIKE ? OR cevap LIKE ? OR anahtar_kelimeler LIKE ?)"
         params.extend([f"%{search}%"] * 3)
-    query += " ORDER BY kategori, id"
+    query += " ORDER BY id"
 
     return render_template(
         "admin/sss_liste.html",

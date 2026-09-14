@@ -1,0 +1,52 @@
+{% extends 'admin/base.html' %}
+{% set is_edit = mode == 'edit' %}
+{% block title %}{{ 'SSS Düzenle' if is_edit else 'Yeni SSS' }}{% endblock %}
+
+{% block content %}
+<header class="page-head">
+    <div>
+        <h1>{{ 'SSS Düzenle #%s' % faq_id if is_edit else 'Yeni SSS Ekle' }}</h1>
+        <p>Kaydedildiğinde chatbot modeli otomatik olarak yeniden eğitilir.</p>
+    </div>
+    <a href="{{ url_for('admin.faq_list') }}" class="btn btn-ghost">← Listeye dön</a>
+</header>
+
+<form method="post" class="panel form-grid">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label>Kategori
+        <!-- datalist: listeden seçilebilir veya yeni kategori yazılabilir -->
+        <input type="text" name="kategori" list="category-options" value="{{ form.kategori }}" required maxlength="100">
+        <datalist id="category-options">
+            {% for category in categories %}<option value="{{ category }}">{% endfor %}
+        </datalist>
+    </label>
+
+    <label>Sorumlu departman
+        <input type="text" name="departman" list="department-options" value="{{ form.departman }}" required maxlength="150">
+        <datalist id="department-options">
+            {% for department in departments %}<option value="{{ department }}">{% endfor %}
+        </datalist>
+    </label>
+
+    <label class="span-2">Soru
+        <input type="text" name="soru" value="{{ form.soru }}" required maxlength="300"
+               placeholder="Vatandaşın soracağı şekilde yazın, örn. Su faturamı nasıl ödeyebilirim?">
+    </label>
+
+    <label class="span-2">Cevap
+        <textarea name="cevap" rows="6" required maxlength="3000">{{ form.cevap }}</textarea>
+    </label>
+
+    <label class="span-2"><span>Anahtar kelimeler <span class="optional">(isteğe bağlı)</span></span>
+        <input type="text" name="anahtar_kelimeler" value="{{ form.anahtar_kelimeler }}" maxlength="500"
+               placeholder="Eşleşmeyi güçlendiren eş anlamlı kelimeler, örn. fatura ödeme borç vezne">
+        <small class="hint">Vatandaşların aynı konuyu farklı kelimelerle sorabileceğini düşünerek eş anlamlıları ekleyin.</small>
+    </label>
+
+    <div class="span-2 form-actions">
+        <button type="submit" class="btn btn-primary">{{ 'Değişiklikleri Kaydet' if is_edit else 'SSS Ekle' }}</button>
+        <a href="{{ url_for('admin.faq_list') }}" class="btn btn-ghost">Vazgeç</a>
+    </div>
+</form>
+{% endblock %}

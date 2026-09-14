@@ -1,0 +1,56 @@
+{% extends 'admin/base.html' %}
+{% block title %}Sohbet Geçmişi{% endblock %}
+
+{% block content %}
+<header class="page-head">
+    <div>
+        <h1>Sohbet Geçmişi</h1>
+        <p>Son 200 mesaj. Cevaplanamayan soruları SSS'ye ekleyerek chatbotu geliştirebilirsiniz.</p>
+    </div>
+</header>
+
+<nav class="tabs" aria-label="Mesaj filtresi">
+    <a href="{{ url_for('admin.chat_history') }}" class="{{ 'active' if not only_unanswered }}">Tüm mesajlar</a>
+    <a href="{{ url_for('admin.chat_history', filtre='cevapsiz') }}" class="{{ 'active' if only_unanswered }}">Cevaplanamayanlar</a>
+</nav>
+
+<div class="panel panel--flush">
+    {% if logs %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Vatandaş mesajı</th>
+                    <th>Bot cevabı</th>
+                    <th>Kategori</th>
+                    <th>Skor</th>
+                    <th>Sonuç</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for log in logs %}
+                <tr>
+                    <td class="nowrap muted">{{ log.tarih }}</td>
+                    <td class="strong">{{ log.kullanici_mesaji }}</td>
+                    <td class="muted"><div class="clamp" title="{{ log.bot_cevabi }}">{{ log.bot_cevabi }}</div></td>
+                    <td>{% if log.kategori %}<span class="tag">{{ log.kategori }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+                    <td>{{ '%.2f' % log.benzerlik_skoru }}</td>
+                    <td class="nowrap">
+                        {% if log.cevap_bulundu_mu %}
+                            <span class="badge badge--ok">Cevaplandı</span>
+                        {% else %}
+                            <span class="badge badge--warn">Cevapsız</span><br>
+                            <a href="{{ url_for('admin.faq_create', soru=log.kullanici_mesaji) }}" class="small-link">SSS olarak ekle</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="empty">Kayıt bulunamadı.</p>
+    {% endif %}
+</div>
+{% endblock %}
