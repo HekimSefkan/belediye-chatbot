@@ -16,6 +16,8 @@ Bu kılavuz üç bölümden oluşur: **Uygulamayı açma**, **Vatandaş** kullan
 | **Testleri çalıştırmak** | **`testleri_calistir.bat`** dosyasına çift tıklayın. |
 
 > Siyah pencere açık kaldığı sürece uygulama çalışır. Pencereyi küçültebilirsiniz ama kapatmayın.
+>
+> Pencerede her istek `[14:45:03] POST /api/talep 201` gibi tek satır olarak görünür. **400** satırları hata değildir; bir vatandaşın formda eksik alan bıraktığını gösterir ve hemen üstündeki satır hangi alanların reddedildiğini yazar.
 
 ---
 
@@ -58,17 +60,21 @@ Talep formunu üç şekilde açabilirsiniz:
 - Sohbet penceresindeki **Talep / Şikayet Oluştur** butonuyla.
 - Sayfanın üstündeki **Talep / Şikayet** bağlantısıyla.
 
-Formu doldurun:
+Formu doldurun (zorunlu alanlar `*` ile işaretlidir):
 
 | Alan | Zorunlu mu? | İpucu |
 |---|---|---|
-| Ad Soyad | Evet | |
-| Telefon | Hayır | Size dönüş yapılabilmesi için önerilir |
-| İlgili Birim | Evet | Listeden seçin, emin değilseniz Beyaz Masa'yı seçin |
-| Konu | Evet | Kısa bir başlık |
-| Açıklama | Evet | **Adres ve ayrıntıları** yazmanız talebin hızlı çözülmesini sağlar |
+| Ad Soyad | Evet | En az 2 karakter |
+| Telefon | Hayır | 10–13 rakam; boşluk, `+`, `-`, nokta ve parantez kullanılabilir (örn. `0555 123 45 67`). Boş bırakılabilir. |
+| İlgili Birim | Evet | Chatbot bir birim önerdiyse o seçili gelir; öneri yoksa **Beyaz Masa** seçilidir |
+| Konu | Evet | Kısa bir başlık (en fazla 150 karakter) |
+| Açıklama | Evet | **Adres ve ayrıntıları** yazmanız talebin hızlı çözülmesini sağlar. Kutudaki soluk metin sadece örnektir, alanı doldurmaz. |
 
-**Gönder** butonuna bastığınızda talebiniz kaydedilir ve size bir **talep numarası** verilir (örn. *#12*). Eksik veya hatalı alanlar kırmızı renkle ve açıklamasıyla gösterilir.
+**Gönder** butonuna bastığınızda talebiniz kaydedilir ve size bir **talep numarası** verilir (örn. *#12*).
+
+**Form gönderilmezse:** Hatalı alan kırmızıyla işaretlenir, altında nedeni yazar ve formun altında *“Talebiniz gönderilmedi. Lütfen işaretli alanları düzeltin: …”* özeti görünür. Alanı düzeltip tekrar **Gönder**'e basmanız yeterlidir.
+
+**Aydınlatma notu:** Formun altındaki notta, girilen ad soyad, telefon ve talep metninin yalnızca talebin ilgili birime iletilmesi ve size dönüş yapılması amacıyla kaydedildiği yazar. Bu uygulama bir staj demo çalışması olduğu için **gerçek kişisel bilgilerinizi girmeyin.**
 
 ---
 

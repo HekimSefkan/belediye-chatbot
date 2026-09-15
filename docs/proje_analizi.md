@@ -11,10 +11,11 @@
 |---|---|---|
 | **1 – Teslimden önce mutlaka düzeltilmeli** | 7 | ✅ 7'si de düzeltildi |
 | **2 – Düzeltilirse iyi olur** | 19 | ✅ 19'u da düzeltildi (riski düşük, hızlı olanlar) |
-| **3 – Staj kapsamını aşar / ileride yapılabilir** | 13 | ⏳ Açık, sadece raporlandı |
-| **Toplam** | **39** | 26 düzeltildi, 13 açık |
+| **3 – Staj kapsamını aşar / ileride yapılabilir** | 13 | ⏳ Açık; 2'si (3.5 KVKK, 3.6 sunucu) **kısmen giderildi** |
+| **Teslim öncesi ek bulgular** (2. tur) | 4 | ✅ 4'ü de düzeltildi |
+| **Toplam** | **43** | 30 düzeltildi, 13 açık (2'si kısmen) |
 
-- Düzeltmelerden sonra test sayısı **56 → 108** oldu; hepsi geçiyor.
+- İlk analizden sonra test sayısı **56 → 108**, teslim öncesi düzeltmelerle **122** oldu; hepsi geçiyor.
 - Büyük mimari değişiklik gerektiren bir düzeltme yapılmadı.
 
 **Efor ölçeği:** XS < 15 dk · S < 1 saat · M yarım gün · L 1–3 gün · XL 3 günden fazla
@@ -150,8 +151,8 @@
 | 3.2 | Çıkış yapınca oturum sunucuda geçersizleşmiyor | Flask çerez tabanlı oturum kullanır; kopyalanan bir çerez 8 saat dolana kadar geçerlidir | Sunucu tarafı oturum deposu (Flask-Session) veya oturum sürümü tutma | M |
 | 3.3 | İçerik Güvenlik Politikası (CSP) yok | XSS'e karşı ikinci savunma hattı olurdu | Önce satır içi `onsubmit` ve `<script>` blokları ayrı JS dosyalarına taşınmalı, sonra CSP başlığı eklenmeli | M |
 | 3.4 | Genel API'de hız sınırı yok | `/api/talep` ile otomatik sahte talep gönderilebilir; `chat_log` sınırsız büyür | Yayında ters vekil sunucu (nginx) seviyesinde hız sınırı veya Flask-Limiter; talep formuna basit doğrulama | M |
-| 3.5 | KVKK: veri saklama ve aydınlatma | Sohbet mesajları ve talepteki ad/telefon süresiz saklanıyor; formda aydınlatma metni/onay yok | Kurum hukuk birimiyle saklama süresi belirlenmeli; eski kayıtları silen görev ve formda aydınlatma metni bağlantısı | M |
-| 3.6 | Geliştirme sunucusu, HTTPS yok, tek süreç | `app.run()` üretim için uygun değil; birden çok süreçte admin'in SSS güncellemesi diğer süreçlerin modelini yenilemez | Waitress + IIS/nginx + HTTPS; çok süreçte model yenilemesi için veritabanında “SSS sürümü” kontrolü | L |
+| 3.5 | KVKK: veri saklama ve aydınlatma — 🟡 **kısmen giderildi** | Sohbet mesajları ve talepteki ad/telefon süresiz saklanıyor | ✅ **Yapıldı (15.09.2026):** Talep formunun altına aydınlatma notu eklendi (toplanan veriler: ad soyad, telefon, talep metni; amaç: talebin ilgili birime iletilmesi ve dönüş; demo uygulama olduğu ve gerçek kişisel veri girilmemesi gerektiği). Konsol kaydına kişisel veri yazılmıyor. ⏳ **Kalan:** Kurum hukuk birimiyle saklama süresi belirlenmeli, eski kayıtları silen görev ve tam aydınlatma metni sayfası eklenmeli. | M |
+| 3.6 | Üretim sunucusu, HTTPS, tek süreç — 🟡 **kısmen giderildi** | Birden çok süreçte admin'in SSS güncellemesi diğer süreçlerin modelini yenilemez | ✅ **Yapıldı:** Uygulama Flask geliştirme sunucusu yerine **waitress** ile çalışıyor. ⏳ **Kalan:** Önüne HTTPS sağlayan IIS/nginx; çok süreçte model yenilemesi için veritabanında “SSS sürümü” kontrolü | L |
 | 3.7 | Sohbet geçmişinde sayfalama yok | Sadece son 200 kayıt görülebiliyor | `LIMIT/OFFSET` ile sayfalama ve tarih filtresi | S |
 | 3.8 | Selamlamalar “cevaplanan” sayılıyor | *“merhaba”* mesajları cevaplanma oranını olduğundan yüksek gösterir | `chat_log` tablosuna cevap türü sütunu eklenip istatistikte hariç tutulması (şema değişikliği gerektirir) | S |
 | 3.9 | JavaScript için otomatik test yok | Sohbet widget'ı sadece elle ve tarayıcıda test edildi | Playwright ile uçtan uca tarayıcı testleri | M |
@@ -159,6 +160,21 @@
 | 3.11 | Klavyeyle sohbet balonuna ulaşmak uzun sürüyor | Balon sayfanın en sonunda; klavye kullanıcısı tüm hızlı soruları geçmek zorunda (“Asistanla Konuş” butonu alternatif sunuyor) | Sayfa başına “Sohbete geç” atlama bağlantısı | XS |
 | 3.12 | Tek admin hesabı, rol yok | Her birim sadece kendi taleplerini görmeli | Kullanıcı tablosu, rol ve birim bazlı yetkilendirme | L |
 | 3.13 | Eşik değerleri kurgusal veriyle ayarlandı | Gerçek vatandaş sorularında 0.35 en iyi değer olmayabilir | Gerçek SSS ve anonimleştirilmiş sohbet kayıtlarıyla `scripts/dogruluk_olcumu.py` yeniden çalıştırılmalı | S |
+
+---
+
+## Teslim öncesi ek bulgular (2. tur, ✅ hepsi düzeltildi)
+
+Uygulama demo için çalıştırıldığında terminal çıktısında görülen satırlar incelendi.
+
+| # | Bulgu | Neden önemli | Yapılan çözüm | Efor |
+|---|---|---|---|---|
+| 4.1 | `GET /favicon.ico 404` | Her sayfa açılışında konsolda hata satırı; tarayıcı sekmesinde simge yok | Saf Python ile üretilen `static/favicon.ico` (16/32/48 px) ve `favicon.svg`; `/favicon.ico` adresi 200 dönüyor, tüm şablonlarda simge bağlantısı var | S |
+| 4.2 | `POST /api/talep 400` nedeni anlaşılmıyordu | Vatandaş formu neden gönderemediğini fark etmeyebilir; konsolda da neden görünmüyordu. En olası neden: *Açıklama* kutusundaki soluk yer tutucu metnin dolu sanılması ve zorunlu alanların işaretli olmaması. | Kurallar incelendi ve makul bulundu; sadece telefonda nokta ayırıcı (`0555.123.45.67`) serbest bırakıldı. Zorunlu alanlar `*` ile işaretlendi. Reddedilen alan kırmızı, altında neden, formun altında özet gösteriliyor. Yer tutucu örnek metne çevrildi. Konsola reddedilen alan adları (değerleri değil) yazılıyor. Tarayıcıda 400 → düzeltme → 201 akışı doğrulandı. | S |
+| 4.3 | `WARNING: This is a development server` | Demoda kırmızı uyarı “hata var” izlenimi veriyordu | Uygulama tek paketlik **waitress** sunucusuyla başlıyor; `basla.bat` eksik paketi otomatik kuruyor. Waitress istek satırı yazmadığı için basit bir istek kaydı eklendi. | S |
+| 4.4 | Menüden açılan talep formunda birim sessizce listenin ilkiydi | Vatandaş fark etmezse talep yanlış birime (Su ve Kanalizasyon) gidiyordu | Öneri yoksa varsayılan birim **Beyaz Masa** | XS |
+
+Aynı turda kullanıcı isteğiyle yapılanlar: projede eski şehir adının kod, şablon, veri ve dokümanlardan kaldırılması (görünen ad: **Belediye Chatbot**) ve `.bat` çıktılarının Türkçe karakterlerle (`chcp 65001`) yazılması.
 
 ---
 
@@ -177,7 +193,7 @@
 | Boş, çok uzun, emoji, sadece noktalama, İngilizce mesaj | ✅ 400 veya düzgün “bulunamadı” cevabı; çökme yok | Canlı istekler + `test_edge_case_messages_do_not_crash` |
 | Enter ile gönderme, Esc ile kapatma | ✅ Form `submit` olayı ve `keydown` dinleyicisi | Kod incelemesi + tarayıcı |
 | Mobil görünüm | ✅ 390 px'te yatay taşma yok, sohbet tam ekran | Önceki tarayıcı ölçümleri |
-| Dokümanlardaki sayılar | ✅ 70 SSS, 10 kategori, doğruluk oranları kodla uyuşuyor. Test sayısı 108 olarak güncellendi. | Tarama + `pytest --collect-only` |
+| Dokümanlardaki sayılar | ✅ 70 SSS, 10 kategori, doğruluk oranları kodla uyuşuyor. Test sayısı 122 olarak güncellendi. | Tarama + `pytest --collect-only` |
 
 ---
 

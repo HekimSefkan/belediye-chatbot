@@ -85,18 +85,19 @@ Yöntemin anlamı değil kelimeleri karşılaştırdığını açıkça biliyoru
 
 Demo ve pilot kullanım için yeterli. Kurulum gerektirmiyor, tek dosya, yedeklemesi kopyalamak kadar kolay. SQLite okuma ağırlıklı ve orta trafikli uygulamalarda sorunsuz çalışır.
 
-Çok sayıda eş zamanlı kullanıcı olursa PostgreSQL gibi bir sunucu veritabanına geçmek gerekir. Sorgular standart SQL ile yazıldığı için geçiş mümkün. Ancak sorgular hem `database/db.py` hem de rota dosyalarında (`routes/`) bulunuyor; önce hepsinin tek bir veri erişim katmanında toplanması gerekir. Ayrıca gerçek yayında Flask'ın geliştirme sunucusu yerine Waitress gibi bir WSGI sunucusu kullanılmalı.
+Çok sayıda eş zamanlı kullanıcı olursa PostgreSQL gibi bir sunucu veritabanına geçmek gerekir. Sorgular standart SQL ile yazıldığı için geçiş mümkün. Ancak sorgular hem `database/db.py` hem de rota dosyalarında (`routes/`) bulunuyor; önce hepsinin tek bir veri erişim katmanında toplanması gerekir. Uygulama zaten Flask'ın geliştirme sunucusu yerine waitress ile çalışıyor; gerçek yayında önüne HTTPS sağlayan bir web sunucusu (IIS/nginx) konulmalı.
 
 ### 9. Projeyi nasıl test ettin?
 
-Dört grupta:
+Beş grupta:
 
 1. **Birim testleri:** Ön işleme ve eşleştirme fonksiyonları (`tests/test_matcher.py`, 34)
 2. **API ve entegrasyon testleri:** Uç noktalar, doğrulama, güvenlik (`tests/test_api.py`, 21)
 3. **Uçtan uca senaryo testi:** Adminin giriş yapıp cevapsız bir sorudan SSS oluşturması, düzenlemesi, silmesi, talep durumunu güncellemesi ve çıkış yapması (`tests/test_admin_akisi.py`, 1)
 4. **Güvenlik ve hata testleri:** Sahte oturum çerezi, bozuk istekler, emoji/İngilizce mesajlar, bozuk veritabanı dosyası gibi uç durumlar (`tests/test_guvenlik_ve_hatalar.py`, 52)
+5. **Teslim öncesi testler:** Favicon, talep red mesajları ve konsol kaydı, aydınlatma notu, waitress sunucusu (`tests/test_teslim_oncesi.py`, 14)
 
-Toplam **108 test**; hepsi geçiyor. Son grup, projeyi baştan sona analiz ettiğimde bulduğum sorunların tekrar ortaya çıkmaması için eklendi. Testler geçici bir veritabanında çalışıyor. Bunlara ek olarak tarayıcıda masaüstü ve mobil görünümde manuel senaryoları uyguladım (`docs/test_senaryolari.md`).
+Toplam **122 test**; hepsi geçiyor. Son iki grup, projeyi baştan sona analiz ettiğimde ve demo için çalıştırdığımda bulduğum sorunların tekrar ortaya çıkmaması için eklendi. Testler geçici bir veritabanında çalışıyor. Bunlara ek olarak tarayıcıda masaüstü ve mobil görünümde manuel senaryoları uyguladım (`docs/test_senaryolari.md`).
 
 ### 10. Bu proje gerçekte belediyeye ne kazandırır? Nasıl geliştirilir?
 
@@ -113,6 +114,10 @@ Toplam **108 test**; hepsi geçiyor. Son grup, projeyi baştan sona analiz etti�
 - Vatandaşın talep numarasıyla durum sorgulayabilmesi
 - Belediye web sitesine ve e-belediyeye entegrasyon
 
+### Ek soru: Terminalde “WARNING: This is a development server” uyarısı neydi? Konsoldaki 400 satırları hata mı?
+
+Flask'ın kendi sunucusu (`app.run`) her açılışta *“This is a development server. Do not use it in a production deployment.”* uyarısını verir. Bu bir hata değil, o sunucunun kod yazarken kolaylık için tasarlandığını, aynı anda çok kullanıcıya hizmet vermek ve güvenlik sertleştirmesi için yapılmadığını hatırlatan bir nottur. Uygulamamı bu yüzden Windows'ta sorunsuz çalışan, saf Python ile yazılmış tek paketlik bir üretim (WSGI) sunucusu olan **waitress** ile başlatıyorum; uyarı artık çıkmıyor. Gerçek yayında waitress'in önüne HTTPS sağlayan IIS veya nginx gibi bir web sunucusu konulmalıdır. Konsoldaki `POST /api/talep 400` satırları da hata değildir: vatandaşın formda eksik veya hatalı alan bıraktığını gösterir. Hemen üstündeki satır hangi alanın reddedildiğini yazar, vatandaş aynı nedeni ekranda kırmızıyla görür ve düzeltince `201` (kaydedildi) döner.
+
 ---
 
 ## Kısa cevap kartı (sunumdan önce göz gezdir)
@@ -126,5 +131,7 @@ Toplam **108 test**; hepsi geçiyor. Son grup, projeyi baştan sona analiz etti�
 | En büyük zayıflık? | Anlamı değil kelimeleri karşılaştırıyor: *“telefon faturası”* hâlâ *“su faturası”* ile eşleşiyor. |
 | Doğruluk? | Kontrol setinde %75. İlgili soruların hepsi doğru; alakasızların yarısı yanlış eşleşiyor. |
 | Güvenlik? | Parametreli SQL, hash'li şifre, rastgele oturum anahtarı, giriş denemesi sınırı, CSRF token, XSS'e karşı textContent. |
-| Test? | 108 otomatik test: birim, API, uçtan uca admin senaryosu, güvenlik ve hata durumları. |
+| Test? | 122 otomatik test: birim, API, uçtan uca admin senaryosu, güvenlik, hata durumları ve teslim öncesi kontroller. |
+| Development server uyarısı? | Flask'ın geliştirme sunucusunun notu; uygulama waitress ile çalıştığı için artık çıkmıyor. |
+| KVKK? | Talep formunda aydınlatma notu var, konsola kişisel veri yazılmıyor; saklama süresi kurumla belirlenmeli. |
 | Bulduğun en ciddi hata? | Kodda sabit oturum anahtarı → şifresiz admin girişi. Kendim denedim, düzelttim, testle kanıtladım. |

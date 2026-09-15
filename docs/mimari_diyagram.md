@@ -101,3 +101,4 @@ flowchart TD
 - **Blueprint'ler**: Vatandaş sayfası, API ve admin paneli ayrı dosyalarda tutulur. Böylece kod okunabilir kalır.
 - **Model bellekte**: TF-IDF modeli her mesajda değil, uygulama açılırken bir kez eğitilir. SSS eklenince veya değişince yeniden eğitilir, bu yüzden cevaplar milisaniyeler içinde döner.
 - **Ücretli API yok**: Belediye ağında internet kısıtlı olabileceği için tüm bileşenler (Chart.js dahil) yereldedir.
+- **Sunucu: waitress**: `app.py` uygulamayı Flask'ın geliştirme sunucusu yerine saf Python bir üretim (WSGI) sunucusu olan waitress ile `127.0.0.1` üzerinde başlatır. Sadece `FLASK_DEBUG=True` iken geliştirme sunucusu kullanılır.

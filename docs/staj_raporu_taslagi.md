@@ -215,15 +215,29 @@ Aynı analizde başka sorunlar da çıktı:
 - Debug modu varsayılan olarak kapatıldı.
 - Eski admin hesapları otomatik siliniyor.
 - Giriş denemesine sınır ve tarayıcı güvenlik başlıkları eklendi.
-- Her bulgu için bir test yazdım; testler bulguların tekrar ortaya çıkmasını önlüyor. Toplam 39 bulgunun 26'sını düzelttim; staj kapsamını aşan 13'ünü raporladım.
+- Her bulgu için bir test yazdım; testler bulguların tekrar ortaya çıkmasını önlüyor. İlk analizde 39 bulgunun 26'sını düzelttim, staj kapsamını aşan 13'ünü raporladım (teslim öncesi turla birlikte toplam 43 bulgu, 30'u düzeltildi).
 
 **Ders:** Güvenlik önlemlerini listelemek yeterli değil; saldırganın bakış açısıyla **denemek** gerekir.
+
+### 7.9 Demo öncesi terminal çıktısındaki sorunlar
+
+**Sorun:** Uygulamayı demo için çalıştırdığımda terminalde üç dikkat çekici satır gördüm:
+- `GET /favicon.ico 404`
+- `POST /api/talep 400`
+- `WARNING: This is a development server`
+
+**Çözüm:**
+- **Favicon:** Harici dosya indirmeden, saf Python ile küçük bir sohbet balonu simgesi (`favicon.ico`) ürettim; artık 404 yerine 200 dönüyor.
+- **400 cevabı:** Bu, bir alanın doğrulamadan geçmediğini gösteriyordu. Kuralları makul buldum ama kullanıcının nedeni fark etmesi zordu. Zorunlu alanları `*` ile işaretledim, reddedilen alanı kırmızıyla ve nedeniyle gösterdim, konsola da hangi alanın reddedildiğini (kişisel veriyi yazmadan) yazdırdım.
+- **Uyarı:** Flask'ın geliştirme sunucusuna ait bu uyarıyı, uygulamayı tek paketlik üretim sunucusu **waitress** ile başlatarak kaldırdım.
+
+Aynı aşamada talep formuna KVKK aydınlatma notu ekledim ve `.bat` dosyalarının Türkçe karakterli çıktı vermesini sağladım.
 
 ---
 
 ## 8. Test Süreci
 
-Uygulamayı dört grupta test ettim:
+Uygulamayı beş grupta test ettim:
 
 | Test türü | Kapsam | Sayı |
 |---|---|---|
@@ -231,7 +245,8 @@ Uygulamayı dört grupta test ettim:
 | API testleri | Sohbet ve talep uç noktaları, doğrulama, güvenlik, admin girişi | 21 |
 | Uçtan uca senaryo | Admin: giriş → SSS oluştur/düzenle/sil → talep durumu → çıkış | 1 |
 | Güvenlik ve hata testleri | Sahte oturum çerezi, giriş sınırı, bozuk istekler, uç durum mesajları, bozuk veritabanı/seed dosyası | 52 |
-| **Toplam** | | **108 (hepsi başarılı)** |
+| Teslim öncesi testler | Favicon, talep red mesajları ve konsol kaydı, aydınlatma notu, waitress sunucusu, `.bat` biçimi | 14 |
+| **Toplam** | | **122 (hepsi başarılı)** |
 
 Ayrıca tarayıcıda masaüstü ve mobil görünümde 20 manuel senaryo uyguladım (`docs/test_senaryolari.md`). Bunlara sohbete `<script>` içeren mesaj gönderilerek yapılan XSS denemesi de dahildir.
 
@@ -244,7 +259,7 @@ Staj süresince, belediyelerin tekrarlayan vatandaş sorularına yönelik gerçe
 - Vatandaşların 10 hizmet alanındaki sorularını yanıtlayan bir chatbot,
 - Cevap bulunamadığında yönlendirme ve talep kaydı,
 - SSS, talep ve istatistik yönetimi sağlayan bir admin paneli,
-- 108 otomatik test, doğruluk ölçüm betiği ve güvenlik analizi raporu,
+- 122 otomatik test, doğruluk ölçüm betiği ve güvenlik analizi raporu,
 - Kurulum, kullanım ve teknik dokümantasyon
 
 hazırlandı. Uygulama internet bağlantısı veya ücretli servis gerektirmeden çalışmaktadır.
@@ -271,14 +286,32 @@ hazırlandı. Uygulama internet bağlantısı veya ücretli servis gerektirmeden
 | Bilgi tabanı kurgusal | Gerçek belediye SSS'leriyle bilgi tabanının oluşturulması |
 | Vatandaş talebinin durumunu göremiyor | Talep numarasıyla durum sorgulama |
 | Tek yönetici hesabı | Birim bazlı yetkilendirme (her birim kendi taleplerini görsün) |
-| Geliştirme sunucusu | Waitress/Gunicorn ile yayın, HTTPS, belediye web sitesine entegrasyon |
+| Sadece yerel ağda çalışan waitress sunucusu | HTTPS sağlayan IIS/nginx ile yayın, belediye web sitesine entegrasyon |
+| KVKK: aydınlatma notu var ama saklama süresi yok | Kurum hukuk birimiyle saklama süresi ve eski kayıtları silme süreci |
 
 ---
 
 ## Ekler
 
 - **Ek-1:** Kaynak kodu – https://github.com/HekimSefkan/belediye-chatbot
-- **Ek-2:** Ekran görüntüleri – `[Ana sayfa, sohbet cevabı, cevap bulunamadı + talep formu, admin istatistik, SSS yönetimi, talepler]`
+- **Ek-2:** Ekran görüntüleri – `docs/ekran_goruntuleri/` (kurgusal demo verisiyle alınmıştır)
+
+| Şekil | Dosya | İçerik |
+|---|---|---|
+| Ek-2.1 | `01_ana_sayfa.png` | Ana sayfa, sohbet kapalı |
+| Ek-2.2 | `02_sohbet_cevap.png` | Sohbette başarılı cevap ve ilgili birim |
+| Ek-2.3 | `03_cevap_bulunamadi.png` | Cevap bulunamayan soru, birim yönlendirmesi, talep butonları |
+| Ek-2.4 | `04_talep_formu.png` | Doldurulmuş talep formu ve aydınlatma notu |
+| Ek-2.5 | `05_talep_basari.png` | Talep numaralı başarı mesajı |
+| Ek-2.6 | `06_talep_hata_mesaji.png` | Hatalı alanların işaretlenmesi |
+| Ek-2.7 | `07_mobil_sohbet.png` | 390 px mobil görünüm |
+| Ek-2.8 | `08_admin_sss_listesi.png` | Admin – SSS yönetimi |
+| Ek-2.9 | `09_admin_talepler.png` | Admin – talep/şikayet listesi |
+| Ek-2.10 | `10_admin_istatistik.png` | Admin – istatistik grafikleri |
+
+![Ek-2.2 Sohbette başarılı cevap](ekran_goruntuleri/02_sohbet_cevap.png)
+
+![Ek-2.10 Admin istatistik grafikleri](ekran_goruntuleri/10_admin_istatistik.png)
 - **Ek-3:** Doğruluk ölçüm tabloları – `docs/dogruluk_olcumu.md`
 - **Ek-4:** Test senaryoları – `docs/test_senaryolari.md`
 

@@ -19,7 +19,7 @@ Bu belge dört bölümden oluşur:
 .\venv\Scripts\python.exe -m pytest -v
 ```
 
-**Son çalıştırma (15.09.2026, yeni konum `C:\Projects\belediye-chatbot`):** `108 passed`
+**Son çalıştırma (15.09.2026, `C:\Projects\belediye-chatbot`):** `122 passed`
 
 | Dosya | Test sayısı |
 |---|---|
@@ -27,7 +27,8 @@ Bu belge dört bölümden oluşur:
 | `tests/test_api.py` | 21 |
 | `tests/test_admin_akisi.py` | 1 |
 | `tests/test_guvenlik_ve_hatalar.py` | 52 |
-| **Toplam** | **108** |
+| `tests/test_teslim_oncesi.py` | 14 |
+| **Toplam** | **122** |
 
 ### `tests/test_matcher.py` – Ön işleme ve eşleştirme (34 test)
 
@@ -115,11 +116,22 @@ Bu dosya, [proje analizinde](proje_analizi.md) bulunan sorunların düzeltildiğ
 | Bozuk istekler (8) | `test_non_object_json_body_returns_400_not_500` | Liste, metin, sayı, bozuk JSON gövdeleri iki API'de de 500 değil 400 |
 | API hataları | `test_too_large_request_body_returns_json_413`, `test_unknown_api_url_returns_json_404`, `test_unexpected_error_returns_json_without_traceback` | 413/404/500 cevapları Türkçe JSON; iç hata ayrıntısı sızmıyor |
 | Uç durum mesajları (4) | `test_edge_case_messages_do_not_crash` | Sadece noktalama, emoji, İngilizce soru, boşluklu tek harf |
-| Telefon (9) | `test_valid_phone_numbers_are_accepted`, `test_invalid_phone_numbers_are_rejected` | `+90 555…`, `0 (482)…` kabul; `-------`, `12345`, harfli numara red |
+| Telefon (9) | `test_valid_phone_numbers_are_accepted`, `test_invalid_phone_numbers_are_rejected` | `+90 555…`, `0 (850)…` kabul; `-------`, `12345`, harfli numara red |
 | Alan türü ve uzunluğu (8) | `test_non_string_ticket_fields_are_rejected`, `test_ticket_field_length_limits`, `test_single_character_name_is_rejected` | Liste/sayı değerler red; 100/150/2000 sınırlarının tam sınırda kabul, bir fazlasında red edilmesi |
 | XSS | `test_xss_payloads_are_escaped_in_admin_pages` | `<script>`, `<img onerror>`, `<svg onload>` admin sayfalarında kaçışlanıyor |
 | Açılış hataları | `test_corrupt_seed_file_gives_clear_error`, `test_seed_file_with_missing_fields_gives_clear_error`, `test_missing_seed_file_gives_clear_error`, `test_corrupt_database_file_gives_clear_error`, `test_invalid_numeric_env_setting_gives_clear_error` | Python hata çıktısı yerine çözüm öneren Türkçe mesaj |
 | Model güncelleme | `test_matcher_refit_swaps_model_in_one_step` | SSS değişince yeni model tek adımda devreye giriyor, eski model bozulmuyor |
+
+### `tests/test_teslim_oncesi.py` – Teslim öncesi kontroller (14 test)
+
+| Konu | Testler | Neyi doğrular? |
+|---|---|---|
+| İsim | `test_no_file_mentions_old_city_name`, `test_pages_use_belediye_chatbot_name` | Projedeki hiçbir metin dosyasında eski şehir adı yok; sayfa başlığı ve selamlama “Belediye Chatbot” |
+| Favicon | `test_favicon_ico_is_served`, `test_favicon_svg_is_served`, `test_pages_link_the_favicon` | `/favicon.ico` 200 ve geçerli ICO; SVG simge sunuluyor; ana sayfa, giriş ve admin sayfalarında simge bağlantısı var |
+| Talep red nedeni | `test_rejected_ticket_explains_each_field`, `test_rejected_ticket_logs_field_names_but_not_values`, `test_phone_with_dots_is_accepted` | Her alan için Türkçe neden; konsola alan adları yazılıyor ama kişisel veri yazılmıyor; `0555.123.45.67` kabul |
+| Aydınlatma notu | `test_ticket_form_script_has_privacy_note_and_required_marks` | Toplanan veriler, demo uyarısı, zorunlu alan ipucu ve hata özeti formda |
+| Sunucu | `test_run_server_uses_waitress_when_debug_is_off`, `test_request_log_line_format` | Debug kapalıyken waitress kullanılıyor; istek satırı `[SS:DD:ss] POST /api/talep 400` biçiminde |
+| `.bat` dosyaları (3) | `test_bat_files_switch_console_to_utf8` | BOM yok, CRLF satır sonu, ilk satırlar `@echo off` + `chcp 65001 >nul` |
 
 ---
 
@@ -163,6 +175,9 @@ Soru soru skorlar ve yorum: [dogruluk_olcumu.md](dogruluk_olcumu.md)
 | M18 | Uzun soruyla talep | 150 karakterden uzun bir soru yaz → **Evet, talep oluştur** | Konu 150 karakterde “…” ile kısalır, sorunun tamamı Açıklama alanına yazılır; gönderim hatasız | ✅ (tarayıcıda, 15.09.2026) |
 | M19 | XSS denemesi | Sohbete `<img src=x onerror="alert(1)">` yaz | Metin olduğu gibi görünür, uyarı penceresi açılmaz | ✅ (tarayıcıda, 15.09.2026) |
 | M20 | Selamlama sonrası konular | `merhaba` yaz | Cevabın altında konu butonları çıkar | ✅ (tarayıcıda, 15.09.2026) |
+| M21 | Talep red nedeni ve düzeltme | Menüden **Talep / Şikayet** → Telefon `0555 12`, Açıklama boş → **Gönder** → sonra telefonu `0555 123 45 67` yap, açıklama yaz → **Gönder** | İlk gönderimde **400**: Telefon ve Açıklama kırmızı, altında neden, özet *“Lütfen işaretli alanları düzeltin: Açıklama, Telefon.”*, imleç Açıklama'da; konsolda `Talep reddedildi, hatalı alanlar: aciklama, telefon`. Düzeltince **201** ve talep numarası | ✅ (tarayıcıda, 15.09.2026) |
+| M22 | Aydınlatma notu ve varsayılan birim | Menüden talep formunu aç | Formun altında aydınlatma notu; İlgili Birim varsayılanı *Beyaz Masa*; zorunlu alanlarda `*` | ✅ (tarayıcıda, 15.09.2026) |
+| M23 | Sekme simgesi | Ana sayfayı ve admin girişini aç | Sekmede sohbet balonu simgesi; konsolda `GET /favicon.ico 200` (404 yok) | ✅ (15.09.2026) |
 | M16 | Cevapsız sorudan SSS | İstatistikler → *sokak lambası yanmıyor* → **SSS olarak ekle** → formu doldur → kaydet → sohbette aynı soruyu sor | Soru alanı dolu gelir; kayıt sonrası chatbot cevap verir | ✅ (otomatik test: `test_admin_full_walkthrough`) |
 | M17 | SSS düzenle / sil | **SSS Yönetimi** → Düzenle → kaydet; Sil → onayla | Başarı mesajları; chatbot güncel cevabı verir / artık vermez | ✅ (otomatik test) |
 
@@ -180,7 +195,8 @@ Soru soru skorlar ve yorum: [dogruluk_olcumu.md](dogruluk_olcumu.md)
 | K4 | **GitHub'dan yeni indirilmiş kopya** | Depo, `venv` ve veritabanı olmayan boş bir klasöre klonlandı; `basla.bat` çalıştırıldı | ✅ Python'u buldu, venv oluşturdu, paketleri yükledi, uygulama 200 döndü |
 | K5 | `sifirla.bat` | `E` onayıyla çalıştırıldı | ✅ faq: 70, chat_log: 0, talep: 0 |
 | K6 | `sifirla.bat` iptal | `E` dışında bir cevap verildi | ✅ “İşlem iptal edildi”, veritabanı silinmedi |
-| K7 | `testleri_calistir.bat` | Çalıştırıldı | ✅ 108 passed (taşımadan hemen sonra, düzeltmelerden önce: 56 passed) |
+| K7 | `testleri_calistir.bat` | Çalıştırıldı | ✅ 122 passed (taşımadan hemen sonra, düzeltmelerden önce: 56 passed) |
 | K9 | **Klasör taşıma** | Proje `C:\Projects\belediye-chatbot` konumuna taşındı, eski venv silindi, `basla.bat` venv'i yeniden kurdu | ✅ Git geçmişi (11 commit) ve remote sağlam, sayfalar 200, `sifirla.bat` çalışıyor |
-| K10 | Debug kapalı başlangıç | `basla.bat` konsol çıktısı | ✅ `Debug mode: off`, varsayılan şifre uyarısı görünüyor |
+| K10 | Üretim sunucusuyla başlangıç | `basla.bat` konsol çıktısı | ✅ `Sunucu: waitress`, *development server* uyarısı yok, varsayılan şifre uyarısı ve istek satırları görünüyor |
+| K11 | Türkçe `.bat` çıktıları | Üç `.bat` dosyası çalıştırılıp ham çıktı UTF-8 olarak incelendi | ✅ *“başlatılıyor”, “tuşlarına”, “Veritabanı yeniden oluşturuldu”* doğru; komut satırı ayrıştırma hatası yok |
 | K8 | `.bat` satır sonları | Klonlanan kopyada kontrol edildi | ✅ CRLF (`.gitattributes` ile sabitlendi) |

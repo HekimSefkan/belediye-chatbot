@@ -125,7 +125,29 @@ Uygulama `.env` dosyası **olmadan da** varsayılan ayarlarla çalışır. Ayarl
 |---|---|---|
 | **`basla.bat`** | Uygulamayı başlatır, tarayıcıyı açar, gerekirse ilk kurulumu yapar | Her kullanımda |
 | **`sifirla.bat`** | Veritabanını silip 70 demo SSS ile yeniden oluşturur. Onay için `E` yazmanız istenir. | **Demodan önce** temiz başlangıç için (önce `basla.bat` penceresini kapatın) |
-| **`testleri_calistir.bat`** | 108 otomatik testi çalıştırır ve sonucu gösterir | Kodda değişiklik yaptıktan sonra |
+| **`testleri_calistir.bat`** | 122 otomatik testi çalıştırır ve sonucu gösterir | Kodda değişiklik yaptıktan sonra |
+
+`.bat` dosyaları konsolu UTF-8'e (`chcp 65001`) alır, bu yüzden mesajlar Türkçe karakterlerle görünür.
+
+### Konsolda neler görürsünüz?
+
+`basla.bat` penceresinde her istek tek satır olarak yazılır:
+
+```
+Sunucu: waitress (kapatmak için Ctrl+C)
+[14:45:01] GET / 200
+[14:45:01] GET /favicon.ico 200
+WARNING:app:Talep reddedildi, hatalı alanlar: aciklama, telefon
+[14:45:02] POST /api/talep 400
+[14:45:03] POST /api/talep 201
+```
+
+- **400** satırları hata değildir. Vatandaşın talep formunda eksik veya hatalı alan olduğunu gösterir; hemen üstündeki satır hangi alanların reddedildiğini yazar (kişisel veriler konsola yazılmaz). Vatandaş aynı nedenleri formda kırmızıyla görür ve düzeltince **201** (kaydedildi) döner.
+- **304** satırları, tarayıcının dosyayı önbellekten kullandığını gösterir; normaldir.
+
+### “Development server” uyarısı neden çıkmıyor?
+
+Flask'ın kendi sunucusu (`app.run`) her açılışta *“WARNING: This is a development server. Do not use it in a production deployment.”* uyarısını verir. Bu uyarı bir hata değildir: o sunucunun geliştirme kolaylığı için tasarlandığını, aynı anda çok kullanıcıya hizmet vermek ve güvenlik sertleştirmesi için yapılmadığını hatırlatır. Bu projede uygulama, Windows'ta sorunsuz çalışan saf Python bir üretim (WSGI) sunucusu olan **waitress** ile başlatılır, bu yüzden uyarı çıkmaz. Sadece `.env` dosyasında `FLASK_DEBUG=True` yapılırsa (kod değişince otomatik yeniden başlama için) Flask'ın geliştirme sunucusu ve uyarısı geri gelir. Gerçek bir yayında waitress'in önüne HTTPS sağlayan bir web sunucusu (IIS/nginx) konulması gerekir.
 
 ---
 
@@ -146,23 +168,53 @@ flowchart LR
     K -->|SSS olarak ekle| I
 ```
 
+> Ekran görüntüleri kurgusal demo verisiyle alınmıştır. Tüm görüntüler: [docs/ekran_goruntuleri/](docs/ekran_goruntuleri/)
+
 **Vatandaş tarafı**
 
 1. **Ana sayfa:** Belediye tanıtım alanı, kategori kartlarında **Hızlı Sorular** ve “Nasıl çalışır?” bölümü. Sağ altta yuvarlak sohbet balonu bulunur.
+
+   ![Ana sayfa](docs/ekran_goruntuleri/01_ana_sayfa.png)
+
 2. **Sohbet penceresi:** Karşılama mesajı ve 10 kategori butonu gösterilir. Soru yazılır ya da bir butona tıklanır.
 3. **Cevap bulunduğunda:** Cevap metni ve altında *“Temizlik İşleri · İlgili birim: Temizlik İşleri Dairesi Başkanlığı”* bilgisi görünür.
-4. **Cevap bulunamadığında:** *“Net bir cevap bulamadım”* mesajı, yönlendirilen birim, varsa benzer soru önerileri ve **Evet, talep oluştur / Hayır** butonları gösterilir.
-5. **Konu kapsam dışıysa** (örn. *“elektrik faturamı nasıl öderim”*): *“Bu konu belediyemizin hizmet alanı dışında görünüyor”* mesajı ve talep seçeneği gösterilir.
-6. **Talep formu:** Sohbetin içinde açılır, konu ve birim önceden doludur. Gönderilince vatandaşa talep numarası verilir.
 
-Telefonda sohbet penceresi tam ekran açılır.
+   ![Sohbette başarılı cevap](docs/ekran_goruntuleri/02_sohbet_cevap.png)
+
+4. **Cevap bulunamadığında:** *“Net bir cevap bulamadım”* mesajı, yönlendirilen birim, varsa benzer soru önerileri ve **Evet, talep oluştur / Hayır** butonları gösterilir.
+
+   ![Cevap bulunamayan soru ve talep teklifi](docs/ekran_goruntuleri/03_cevap_bulunamadi.png)
+
+5. **Konu kapsam dışıysa** (örn. *“elektrik faturamı nasıl öderim”*): *“Bu konu belediyemizin hizmet alanı dışında görünüyor”* mesajı ve talep seçeneği gösterilir.
+6. **Talep formu:** Sohbetin içinde açılır, konu ve birim önceden doludur. Zorunlu alanlar `*` ile işaretlidir; formun altında **aydınlatma notu** (hangi verilerin hangi amaçla kaydedildiği) yer alır. Gönderilince vatandaşa talep numarası verilir.
+
+   | Doldurulmuş form | Başarı mesajı |
+   |---|---|
+   | ![Doldurulmuş talep formu](docs/ekran_goruntuleri/04_talep_formu.png) | ![Talep başarı mesajı](docs/ekran_goruntuleri/05_talep_basari.png) |
+
+7. **Hatalı gönderim:** Reddedilen alanlar kırmızıyla işaretlenir, altında nedeni yazar ve formun altında özet görünür.
+
+   ![Talep formunda hata mesajları](docs/ekran_goruntuleri/06_talep_hata_mesaji.png)
+
+Telefonda sohbet penceresi tam ekran açılır:
+
+<img src="docs/ekran_goruntuleri/07_mobil_sohbet.png" alt="Mobil görünümde sohbet (390px)" width="300">
 
 **Yönetici tarafı** (`/admin`)
 
 1. **Giriş:** kullanıcı adı ve şifre.
 2. **İstatistikler:** toplam soru, cevaplanamayan oranı, talep sayıları, 3 grafik (en çok sorulan kategoriler, cevaplanan/cevaplanamayan, son 7 gün) ve **son cevaplanamayan sorular** tablosu.
+
+   ![Admin istatistik grafikleri](docs/ekran_goruntuleri/10_admin_istatistik.png)
+
 3. **SSS Yönetimi:** listeleme, kategori filtresi, arama, ekleme, düzenleme ve silme. Değişiklikler chatbota **anında** yansır.
+
+   ![Admin SSS listesi](docs/ekran_goruntuleri/08_admin_sss_listesi.png)
+
 4. **Talep / Şikayetler:** duruma göre filtreleme. Durum kutusundan *Beklemede → İşlemde → Tamamlandı* seçilip **Kaydet** butonuna basılır.
+
+   ![Admin talepler listesi](docs/ekran_goruntuleri/09_admin_talepler.png)
+
 5. **Sohbet Geçmişi:** tüm mesajlar ve skorları. Cevaplanamayan bir soru **“SSS olarak ekle”** bağlantısıyla tek tıkla bilgi tabanına eklenir.
 
 Adım adım demo senaryosu: [docs/test_senaryolari.md](docs/test_senaryolari.md)
@@ -185,6 +237,7 @@ Adım adım demo senaryosu: [docs/test_senaryolari.md](docs/test_senaryolari.md)
 | Katman | Teknoloji | Neden seçildi? |
 |---|---|---|
 | Backend | **Python 3.11+, Flask** | Öğrenmesi kolay, hafif, stajyer ölçeğinde bir proje için yeterli |
+| Sunucu | **waitress** | Saf Python, Windows uyumlu, tek paketlik üretim (WSGI) sunucusu; geliştirme sunucusu uyarısı vermez |
 | Veritabanı | **SQLite** | Kurulum gerektirmez, tek dosya, belediye sunucusunda ek servis istemez |
 | Doğal dil eşleştirme | **scikit-learn** (TF-IDF + cosine similarity) | Ücretsiz, offline, hızlı. Her sonucun *neden* verildiği skorla açıklanabilir. |
 | Frontend | **HTML, düz CSS, vanilla JavaScript** | Ek kütüphane yok, kod baştan sona okunabilir |
@@ -252,7 +305,7 @@ Kontrol seti, yöntemin daha önce görmediği sorulardaki gerçekçi başarıs�
 .\venv\Scripts\python.exe -m pytest -v
 ```
 
-**108 test** bulunur:
+**122 test** bulunur:
 
 | Dosya | Test | Kapsam |
 |---|---|---|
@@ -260,6 +313,7 @@ Kontrol seti, yöntemin daha önce görmediği sorulardaki gerçekçi başarıs�
 | `tests/test_api.py` | 21 | `/api/chat` ve `/api/talep`, admin girişi, CSRF, SQL injection denemesi |
 | `tests/test_admin_akisi.py` | 1 | **Admin panelinin uçtan uca kullanımı:** giriş → cevaplanamayan sorudan SSS oluşturma → düzenleme → silme → talep durumu → çıkış |
 | `tests/test_guvenlik_ve_hatalar.py` | 52 | Sahte oturum çerezi, debug modu, giriş denemesi sınırı, güvenlik başlıkları, bozuk JSON gövdeleri, telefon/alan doğrulaması, emoji ve İngilizce mesajlar, admin sayfalarında XSS, bozuk seed/veritabanı hataları |
+| `tests/test_teslim_oncesi.py` | 14 | Projede eski şehir adının kalmaması, favicon, talep red mesajları ve konsol kaydı, aydınlatma notu, waitress sunucusu, `.bat` dosyalarının UTF-8/CRLF biçimi |
 
 Testler geçici bir veritabanı kullanır, gerçek `chatbot.db` dosyasına dokunmaz.
 
@@ -341,7 +395,7 @@ Diğer sınırlılıklar:
 - **Bağlamı hatırlamaz:** Her mesaj bağımsız değerlendirilir. *“Peki ücreti ne kadar?”* gibi önceki soruya bağlı sorular anlaşılmaz.
 - **Bilgi tabanı kadar iyidir:** SSS'de olmayan konuyu bilemez. Bu yüzden sohbet geçmişinden SSS oluşturma akışı eklenmiştir.
 - Tek admin kullanıcısı vardır, rol yönetimi yoktur. Flask'ın geliştirme sunucusu kullanılır; gerçek yayında Waitress/Gunicorn gibi bir WSGI sunucusu ve HTTPS gerekir.
-- Genel API'de (sohbet, talep) hız sınırı ve KVKK kapsamında veri saklama süresi tanımlı değildir. Açık kalan diğer maddeler için [docs/proje_analizi.md](docs/proje_analizi.md) “Grup 3” bölümüne bakın.
+- Genel API'de (sohbet, talep) hız sınırı yoktur. KVKK açısından talep formuna aydınlatma notu eklenmiştir, ancak veri saklama süresi ve silme süreci tanımlı değildir. Açık kalan diğer maddeler için [docs/proje_analizi.md](docs/proje_analizi.md) “Grup 3” bölümüne bakın.
 
 **Geliştirme fikirleri:** Levenshtein mesafesiyle yazım hatası toleransı, eş anlamlı sözlüğü, anlamsal benzerlik için yerel çalışan bir kelime vektörü modeli, sesli soru (Web Speech API), talep durumunu vatandaşın sorgulayabilmesi. İsteğe bağlı olarak bir LLM katmanı da eklenebilir; ancak bu *ücretli/harici servis gerektirdiği için kurumsal ortamda kullanılmayabilir.*
 
@@ -354,7 +408,9 @@ Diğer sınırlılıklar:
 | [docs/veritabani_semasi.md](docs/veritabani_semasi.md) | Tablolar ve ER diyagramı |
 | [docs/test_senaryolari.md](docs/test_senaryolari.md) | Otomatik testler ve manuel demo senaryoları |
 | [docs/dogruluk_olcumu.md](docs/dogruluk_olcumu.md) | İyileştirme öncesi/sonrası doğruluk tabloları |
-| [docs/proje_analizi.md](docs/proje_analizi.md) | Güvenlik, kod kalitesi, test ve UX analizi: 39 bulgu, düzeltilenler ve açık kalanlar |
+| [docs/proje_analizi.md](docs/proje_analizi.md) | Güvenlik, kod kalitesi, test ve UX analizi: 43 bulgu, düzeltilenler ve açık kalanlar |
+| [docs/teslim_kontrol_listesi.md](docs/teslim_kontrol_listesi.md) | Teslimden önce işaretlenecek kontrol listesi |
+| [docs/ekran_goruntuleri/](docs/ekran_goruntuleri/) | Rapor ve sunum için 10 ekran görüntüsü |
 | [docs/staj_raporu_taslagi.md](docs/staj_raporu_taslagi.md) | Staj raporu için taslak metin |
 | [docs/sunum_taslagi.md](docs/sunum_taslagi.md) | 10 slaytlık sunum içeriği ve konuşma notları |
 | [docs/savunma_sorulari.md](docs/savunma_sorulari.md) | Komisyonun sorabileceği sorular ve cevapları |

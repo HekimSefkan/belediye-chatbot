@@ -20,6 +20,9 @@
 - Zorunlu Yaz Stajı Bitirme Projesi
 - `[Adın Soyadın]` · `[Bölüm / Sınıf]` · `[Tarih]`
 - *Not: Projedeki tüm veriler kurgusal demo verisidir.*
+- Arka plan görseli önerisi:
+
+![Ana sayfa](ekran_goruntuleri/01_ana_sayfa.png)
 
 **Konuşma notu:**
 > “Merhaba, ben [ad]. Stajımı bir belediyenin Bilgi İşlem Dairesi'nde yaptım. Bugün staj süresince geliştirdiğim Belediye Chatbot projesini anlatacağım. Başlamadan belirteyim: Projede kullandığım soru-cevapların hepsi kurgusal, gerçek belediye verisi değil.”
@@ -59,7 +62,7 @@
 ## Slayt 4 – Kullanılan Teknolojiler
 
 **Ekranda:** (logolar veya ikonlarla)
-- **Backend:** Python + Flask
+- **Backend:** Python + Flask · **Sunucu:** waitress
 - **Veritabanı:** SQLite
 - **Doğal dil eşleştirme:** scikit-learn (TF-IDF + cosine similarity)
 - **Arayüz:** HTML, CSS, JavaScript (framework yok)
@@ -94,6 +97,10 @@ En yakın: "Su faturamı nasıl ödeyebilirim?"  skor: 0.66
    ↓ 5. Skor ≥ 0.35 → cevabı göster
 ```
 
+Sonucun ekrandaki hâli (cevap + ilgili birim):
+
+![Sohbette başarılı cevap](ekran_goruntuleri/02_sohbet_cevap.png)
+
 **Konuşma notu:**
 > “Chatbotun nasıl çalıştığını bir örnekle anlatayım. Önce mesajı temizliyorum: küçük harfe çeviriyorum, Türkçe karakterleri sadeleştiriyorum, ‘nasıl’ gibi anlam taşımayan kelimeleri atıyorum. Türkçe eklemeli bir dil olduğu için ‘faturamı’ ile ‘faturası’nın aynı kelime olduğunu anlaması gerekiyor; bunun için kelimenin ilk 5 harfini alıyorum. Sonra TF-IDF ile her kelimeye bir önem puanı veriyorum: ‘iskan’ gibi nadir kelimeler önemli, ‘belediye’ gibi her yerde geçenler önemsiz. Son olarak mesajı 70 soruyla karşılaştırıp en benzerini buluyorum. Skor 0.35'in üzerindeyse cevabı gösteriyorum, altındaysa vatandaşı ilgili birime yönlendirip talep oluşturmayı teklif ediyorum.”
 
@@ -105,6 +112,12 @@ En yakın: "Su faturamı nasıl ödeyebilirim?"  skor: 0.66
 - Sol: 4 tablo (faq, talep_sikayet, chat_log, admin)
 - Sağ: Admin paneli ekran görüntüsü (istatistik grafikleri)
 - Öne çıkan özellik: **Cevaplanamayan soru → “SSS olarak ekle” → chatbot artık cevaplıyor**
+
+![Admin istatistik grafikleri](ekran_goruntuleri/10_admin_istatistik.png)
+
+| SSS yönetimi | Talep / şikayetler |
+|---|---|
+| ![Admin SSS listesi](ekran_goruntuleri/08_admin_sss_listesi.png) | ![Admin talepler listesi](ekran_goruntuleri/09_admin_talepler.png) |
 
 **Konuşma notu:**
 > “Veritabanında dört tablo var: soru-cevaplar, talepler, sohbet geçmişi ve yönetici hesabı. Admin panelinde personel soruları ekleyip düzenleyebiliyor, talepleri takip edebiliyor ve grafiklerle hangi konuların en çok sorulduğunu görebiliyor. En sevdiğim özellik şu: Chatbot bir soruya cevap veremezse bu soru panelde listeleniyor. Personel tek tıkla bunu SSS'ye ekliyor ve chatbot bir sonraki sefere cevap verebiliyor. Yani sistem kullanıldıkça gelişiyor.”
@@ -127,20 +140,30 @@ En yakın: "Su faturamı nasıl ödeyebilirim?"  skor: 0.66
 **Konuşma notu:**
 > “Şimdi sistemi canlı göstereyim…” *(Her adımda ne olduğunu kısaca söyle. Bir şey ters giderse sakin kal: “Bu da sınırlılıklardan birine iyi bir örnek” diyebilirsin.)*
 
+**Yedek slayt (demo çalışmazsa bu görüntülerle anlat):**
+
+| 1. Cevap bulunamadı + talep teklifi | 2. Doldurulmuş talep formu ve aydınlatma notu |
+|---|---|
+| ![Cevap bulunamayan soru](ekran_goruntuleri/03_cevap_bulunamadi.png) | ![Doldurulmuş talep formu](ekran_goruntuleri/04_talep_formu.png) |
+| **3. Talep numarası** | **4. Hatalı alanlar net gösteriliyor** |
+| ![Talep başarı mesajı](ekran_goruntuleri/05_talep_basari.png) | ![Talep formunda hata mesajları](ekran_goruntuleri/06_talep_hata_mesaji.png) |
+
+<img src="ekran_goruntuleri/07_mobil_sohbet.png" alt="Mobil görünümde sohbet" width="260">
+
 ---
 
 ## Slayt 9 – Test, Ölçüm ve Sınırlılıklar
 
 **Ekranda:**
-- **108 otomatik test**, hepsi başarılı (birim, API, uçtan uca admin senaryosu, güvenlik ve hata durumları)
-- **Güvenlik:** parametreli SQL, hash'li şifre, rastgele oturum anahtarı, giriş denemesi sınırı, CSRF, XSS koruması
-- **Proje sonu analizi:** 39 bulgu, 26'sı düzeltildi. En kritiği: sabit oturum anahtarıyla şifresiz admin girişi → düzeltildi ve testle kanıtlandı.
+- **122 otomatik test**, hepsi başarılı (birim, API, uçtan uca admin senaryosu, güvenlik, hata durumları, teslim öncesi kontroller)
+- **Güvenlik:** parametreli SQL, hash'li şifre, rastgele oturum anahtarı, giriş denemesi sınırı, CSRF, XSS koruması; talep formunda KVKK aydınlatma notu
+- **Proje sonu analizi:** 43 bulgu, 30'u düzeltildi. En kritiği: sabit oturum anahtarıyla şifresiz admin girişi → düzeltildi ve testle kanıtlandı.
 - **Doğruluk (ayarlamada kullanılmayan kontrol seti):** %65 → **%75**
 - **Sınırlılık:** Anlamı değil kelimeleri karşılaştırıyor
   - “telefon faturamı ödemek istiyorum” → *su faturası* cevabı ❌
 
 **Konuşma notu:**
-> “Projeyi 108 otomatik testle doğruladım. Proje bittikten sonra tüm kodu baştan inceledim ve bulguları gerçekten denedim. En ciddisi şuydu: oturum anahtarı kodda sabit yazılıydı, bu yüzden sahte bir çerezle şifre girmeden admin paneline girilebiliyordu. Bunu düzelttim ve testle kanıtladım. Doğruluğu ölçmek için ayrıca bir betik yazdım. İlk sürümde ‘hava durumu nasıl olacak’ sorusu ‘imar durum belgesi’ ile eşleşiyordu, çünkü ikisinde de ‘durum’ kelimesi var. Stopword listesini genişletip kapsam dışı bir kelime listesi ekleyerek bunu düzelttim. Ayarlamada hiç kullanmadığım bir kontrol setinde başarı %65'ten %75'e çıktı. Ama dürüst olmam gerekirse, yöntem anlamı değil kelimeleri karşılaştırıyor: ‘telefon faturası’ sorusu hâlâ ‘su faturası’ ile eşleşiyor. Bu, TF-IDF'in doğal sınırı.”
+> “Projeyi 122 otomatik testle doğruladım. Proje bittikten sonra tüm kodu baştan inceledim ve bulguları gerçekten denedim. En ciddisi şuydu: oturum anahtarı kodda sabit yazılıydı, bu yüzden sahte bir çerezle şifre girmeden admin paneline girilebiliyordu. Bunu düzelttim ve testle kanıtladım. Doğruluğu ölçmek için ayrıca bir betik yazdım. İlk sürümde ‘hava durumu nasıl olacak’ sorusu ‘imar durum belgesi’ ile eşleşiyordu, çünkü ikisinde de ‘durum’ kelimesi var. Stopword listesini genişletip kapsam dışı bir kelime listesi ekleyerek bunu düzelttim. Ayarlamada hiç kullanmadığım bir kontrol setinde başarı %65'ten %75'e çıktı. Ama dürüst olmam gerekirse, yöntem anlamı değil kelimeleri karşılaştırıyor: ‘telefon faturası’ sorusu hâlâ ‘su faturası’ ile eşleşiyor. Bu, TF-IDF'in doğal sınırı.”
 
 ---
 
@@ -172,4 +195,5 @@ GitHub: `github.com/HekimSefkan/belediye-chatbot`
 - Muhtemel sorular ve cevapları için: `docs/savunma_sorulari.md` (özellikle en alttaki **kısa cevap kartı**)
 - Demo sırasında internet bağlantısını kapatıp göstermek, “offline çalışıyor” iddiasını güçlendirir.
 - Kod göstermen istenirse en anlaşılır dosyalar: `chatbot/preprocessor.py` → `chatbot/matcher.py` → `routes/api_routes.py`
-- Kötü senaryo planı: Demo çalışmazsa ekran görüntüleriyle devam et. Bu yüzden sunumdan önce ekran görüntülerini slaytlara ekle.
+- Kötü senaryo planı: Demo çalışmazsa Slayt 8'deki yedek ekran görüntüleriyle devam et. Tüm görüntüler `docs/ekran_goruntuleri/` klasöründe; slaytlara oradan ekle.
+- Terminalde `POST /api/talep 400` görünürse panik yapma: vatandaşın formda eksik alan bıraktığını gösterir, nedeni hemen üstteki satırda yazar.
