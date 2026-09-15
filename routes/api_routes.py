@@ -20,16 +20,36 @@ api_bp = Blueprint("api", __name__)
 # Kötüye kullanımı önlemek için mesaj ve form alanlarına uzunluk sınırları
 MAX_MESSAGE_LENGTH = 500
 FIELD_LIMITS = {"ad_soyad": 100, "telefon": 20, "konu": 150, "aciklama": 2000}
+TICKET_FIELDS = ("ad_soyad", "telefon", "konu", "aciklama", "departman")
 
-# Telefon: rakam, boşluk, +, -, parantez (örn. "0 (482) 000 00 00")
-PHONE_PATTERN = re.compile(r"^[0-9+()\-\s]{7,20}$")
+# Telefon: sadece rakam, boşluk, +, -, parantez (örn. "0 (482) 000 00 00")
+PHONE_PATTERN = re.compile(r"^[0-9+()\-\s]+$")
+# Türkiye'deki numaralar 10 (5xx...) ile 12 (+90 5xx...) rakam arasındadır; biraz pay bırakıyoruz
+PHONE_MIN_DIGITS, PHONE_MAX_DIGITS = 10, 13
+
+
+def read_json_object():
+    """
+    İstek gövdesini JSON nesnesi (sözlük) olarak okur.
+    Gövde boş, bozuk ya da nesne yerine liste/metin ise boş sözlük döner;
+    böylece sonraki .get() çağrıları 500 hatasına yol açmaz.
+    """
+    data = request.get_json(silent=True)
+    return data if isinstance(data, dict) else {}
+
+
+def validate_phone(phone):
+    """Telefon boşsa geçerlidir; doluysa izin verilen karakterler ve rakam sayısı kontrol edilir."""
+    if not phone:
+        return True
+    digit_count = sum(ch.isdigit() for ch in phone)
+    return bool(PHONE_PATTERN.match(phone)) and PHONE_MIN_DIGITS <= digit_count <= PHONE_MAX_DIGITS
 
 
 @api_bp.route("/chat", methods=["POST"])
 def chat():
     """Vatandaşın mesajını alır, en uygun cevabı bulur ve sohbet geçmişine kaydeder."""
-    data = request.get_json(silent=True) or {}
-    message = data.get("message", "")
+    message = read_json_object().get("message", "")
 
     # --- Girdi doğrulama ---
     if not isinstance(message, str) or not message.strip():
@@ -58,46 +78,59 @@ def chat():
     return jsonify(result)
 
 
-@api_bp.route("/talep", methods=["POST"])
-def create_ticket():
-    """Chatbot içindeki formdan gelen talep/şikayeti doğrulayıp kaydeder."""
-    data = request.get_json(silent=True) or {}
+def validate_ticket(data, departments):
+    """
+    Talep formu alanlarını temizler ve doğrular.
+    (temizlenmiş_alanlar, hatalar) döndürür; hatalar alan adına göre sözlüktür.
+    """
+    fields, errors = {}, {}
 
-    # Tüm alanları metne çevirip baştaki/sondaki boşlukları temizle
-    fields = {
-        key: str(data.get(key) or "").strip()
-        for key in ("ad_soyad", "telefon", "konu", "aciklama", "departman")
-    }
+    for key in TICKET_FIELDS:
+        value = data.get(key)
+        if value is None:
+            value = ""
+        if not isinstance(value, str):
+            # Örn. ad_soyad olarak liste/sayı gönderilmişse metne çevirip kabul etmiyoruz
+            errors[key] = "Geçersiz değer."
+            value = ""
+        fields[key] = value.strip()
 
-    # --- Doğrulama: hataları alan adına göre topla, frontend ilgili alanın altında gösterir ---
-    errors = {}
-    if not fields["ad_soyad"]:
-        errors["ad_soyad"] = "Ad soyad zorunludur."
-    if not fields["konu"]:
+    if "ad_soyad" not in errors:
+        if not fields["ad_soyad"]:
+            errors["ad_soyad"] = "Ad soyad zorunludur."
+        elif len(fields["ad_soyad"]) < 2:
+            errors["ad_soyad"] = "Ad soyad en az 2 karakter olmalıdır."
+    if "konu" not in errors and not fields["konu"]:
         errors["konu"] = "Konu zorunludur."
-    if not fields["aciklama"]:
+    if "aciklama" not in errors and not fields["aciklama"]:
         errors["aciklama"] = "Açıklama zorunludur."
-    if fields["telefon"] and not PHONE_PATTERN.match(fields["telefon"]):
+    if "telefon" not in errors and not validate_phone(fields["telefon"]):
         errors["telefon"] = "Geçerli bir telefon numarası girin (örn. 0 5xx xxx xx xx)."
 
     for key, limit in FIELD_LIMITS.items():
         if len(fields[key]) > limit and key not in errors:
             errors[key] = f"En fazla {limit} karakter girilebilir."
 
+    if "departman" not in errors and fields["departman"] not in departments:
+        errors["departman"] = "Lütfen listeden bir birim seçin."
+
+    return fields, errors
+
+
+@api_bp.route("/talep", methods=["POST"])
+def create_ticket():
+    """Chatbot içindeki formdan gelen talep/şikayeti doğrulayıp kaydeder."""
     db = get_db()
     departments = fetch_departments(db, current_app.config["DEFAULT_DEPARTMENT"])
-    if fields["departman"] not in departments:
-        errors["departman"] = "Lütfen listeden bir birim seçin."
+    fields, errors = validate_ticket(read_json_object(), departments)
 
     if errors:
         return jsonify({"success": False, "errors": errors}), 400
 
-    # --- Kayıt ---
     cursor = db.execute(
         "INSERT INTO talep_sikayet (ad_soyad, telefon, konu, aciklama, departman) "
         "VALUES (?, ?, ?, ?, ?)",
-        (fields["ad_soyad"], fields["telefon"], fields["konu"],
-         fields["aciklama"], fields["departman"]),
+        tuple(fields[key] for key in TICKET_FIELDS),
     )
     db.commit()
     ticket_id = cursor.lastrowid
