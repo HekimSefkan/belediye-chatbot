@@ -23,6 +23,8 @@ NASIL ÇALIŞIR?
    skor yüksek olsa bile eşleşme reddedilir.
 """
 
+from collections import namedtuple
+
 from flask import current_app
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -30,63 +32,79 @@ from sklearn.metrics.pairwise import cosine_similarity
 from chatbot.preprocessor import OUT_OF_SCOPE_STEMS, clean_text
 
 
+# Eğitilmiş modelin tüm parçaları tek bir nesnede tutulur (bkz. FAQMatcher.fit):
+#   faqs       : SSS kayıtları (sözlük listesi)
+#   vectorizer : scikit-learn TF-IDF nesnesi (SSS yoksa None)
+#   matrix     : Tüm SSS'lerin TF-IDF vektörleri (satır = SSS)
+#   words      : Her SSS dokümanındaki kelime kökleri (kapsam dışı kontrolü için)
+TrainedModel = namedtuple("TrainedModel", "faqs vectorizer matrix words")
+EMPTY_MODEL = TrainedModel(faqs=[], vectorizer=None, matrix=None, words=[])
+
+
 class FAQMatcher:
     """SSS kayıtları üzerinde TF-IDF modeli kurar ve mesajlara en yakın soruyu bulur."""
 
     def __init__(self, threshold=0.35):
         self.threshold = threshold
-        self.faqs = []           # SSS kayıtları (sözlük listesi)
-        self.vectorizer = None   # scikit-learn TF-IDF nesnesi
-        self.faq_matrix = None   # Tüm SSS'lerin TF-IDF vektörleri (satır = SSS)
-        self.faq_words = []      # Her SSS dokümanındaki kelime kökleri (kapsam dışı kontrolü için)
+        self.model = EMPTY_MODEL
+
+    @property
+    def faqs(self):
+        return self.model.faqs
 
     def fit(self, faqs):
         """
         Modeli verilen SSS listesiyle (yeniden) eğitir.
         Admin panelinden SSS eklendiğinde/silindiğinde tekrar çağrılır.
+
+        Yeni model önce ayrı değişkenlerde hazırlanır, en sonda TEK atamayla devreye alınır.
+        Böylece admin SSS güncellerken aynı anda gelen bir vatandaş mesajı,
+        yarısı eski yarısı yeni (tutarsız) bir modelle karşılaşmaz.
         """
-        self.faqs = list(faqs)
+        faqs = list(faqs)
 
         # Her SSS için "soru + anahtar kelimeler" metnini temizleyerek doküman oluştur
         documents = [
             clean_text(f"{faq['soru']} {faq.get('anahtar_kelimeler') or ''}")
-            for faq in self.faqs
+            for faq in faqs
         ]
-        self.faq_words = [set(doc.split()) for doc in documents]
+        words = [set(doc.split()) for doc in documents]
 
-        # Hiç SSS yoksa veya tüm dokümanlar boşsa model kurulamaz
+        # Hiç SSS yoksa veya tüm dokümanlar boşsa TF-IDF modeli kurulamaz
         if not any(documents):
-            self.vectorizer = None
-            self.faq_matrix = None
+            self.model = TrainedModel(faqs, None, None, words)
             return
 
-        self.vectorizer = TfidfVectorizer(
+        vectorizer = TfidfVectorizer(
             # Ön işlemeyi kendimiz yaptık; burada sadece boşluktan bölüyoruz.
             # Varsayılan desen 1 harfli kelimeleri atar, bu desen hepsini tutar.
             token_pattern=r"(?u)\b\w+\b",
             # Aynı kelime çok tekrar etse bile etkisini logaritmik olarak sınırla
             sublinear_tf=True,
         )
-        self.faq_matrix = self.vectorizer.fit_transform(documents)
+        matrix = vectorizer.fit_transform(documents)
+        self.model = TrainedModel(faqs, vectorizer, matrix, words)
 
-    def _scores(self, cleaned):
+    @staticmethod
+    def _scores(model, cleaned):
         """
-        Temizlenmiş mesajı tüm SSS'lerle karşılaştırır.
+        Temizlenmiş mesajı modeldeki tüm SSS'lerle karşılaştırır.
         (skor, sss_sıra_no) ikililerini skora göre büyükten küçüğe sıralı döndürür.
         """
-        if self.vectorizer is None or not cleaned:
+        if model.vectorizer is None or not cleaned:
             return []
 
-        message_vector = self.vectorizer.transform([cleaned])
+        message_vector = model.vectorizer.transform([cleaned])
         # scores: her SSS için 0-1 arası benzerlik skoru
-        scores = cosine_similarity(message_vector, self.faq_matrix)[0]
+        scores = cosine_similarity(message_vector, model.matrix)[0]
 
         ranked = sorted(enumerate(scores), key=lambda pair: pair[1], reverse=True)
         return [(float(score), index) for index, score in ranked]
 
     def rank(self, message):
         """(skor, sss) ikililerinden oluşan, skora göre sıralı liste döndürür."""
-        return [(score, self.faqs[index]) for score, index in self._scores(clean_text(message))]
+        model = self.model  # İşlem boyunca aynı model kullanılsın
+        return [(score, model.faqs[index]) for score, index in self._scores(model, clean_text(message))]
 
     def find_best_match(self, message):
         """
@@ -97,21 +115,22 @@ class FAQMatcher:
         out_of_scope=True: Mesajda belediyenin görev alanı dışındaki bir kelime
         (elektrik, doğalgaz, hastane...) var ve bu kelime eşleşen SSS'de geçmiyor.
         """
+        model = self.model  # İşlem boyunca aynı model kullanılsın
         cleaned = clean_text(message)
         # Mesajdaki kapsam dışı kelimeler (kök hâlinde)
         out_of_scope_words = set(cleaned.split()) & OUT_OF_SCOPE_STEMS
 
-        ranked = self._scores(cleaned)
+        ranked = self._scores(model, cleaned)
         if not ranked or ranked[0][0] <= 0:
             return {"faq": None, "score": 0.0, "found": False,
                     "out_of_scope": bool(out_of_scope_words)}
 
         best_score, best_index = ranked[0]
         # SSS'nin kendisi bu kelimeyi içeriyorsa (örn. "pasaport") engel yok
-        out_of_scope = bool(out_of_scope_words - self.faq_words[best_index])
+        out_of_scope = bool(out_of_scope_words - model.words[best_index])
 
         return {
-            "faq": self.faqs[best_index],
+            "faq": model.faqs[best_index],
             "score": round(best_score, 4),
             "found": best_score >= self.threshold and not out_of_scope,
             "out_of_scope": out_of_scope,
