@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Belediye Chatbot sekme simgesi: turkuaz zemin üzerinde sohbet balonu -->
+  <rect width="32" height="32" rx="7" fill="#0e5a5f"/>
+  <path d="M7 8.5A2.5 2.5 0 0 1 9.5 6h13A2.5 2.5 0 0 1 25 8.5v9a2.5 2.5 0 0 1-2.5 2.5H14l-5 4v-4H9.5A2.5 2.5 0 0 1 7 17.5z" fill="#ffffff"/>
+  <circle cx="11.5" cy="13" r="1.6" fill="#c98a2e"/>
+  <circle cx="16" cy="13" r="1.6" fill="#c98a2e"/>
+  <circle cx="20.5" cy="13" r="1.6" fill="#c98a2e"/>
+</svg>

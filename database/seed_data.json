@@ -1,5 +1,5 @@
 {
-  "aciklama": "UYARI: Bu dosyadaki tüm soru, cevap, telefon, adres, ücret ve süre bilgileri staj projesi için üretilmiş KURGUSAL DEMO verisidir. Mardin Büyükşehir Belediyesi'nin resmi bilgisi değildir.",
+  "aciklama": "UYARI: Bu dosyadaki tüm soru, cevap, telefon, adres, ücret ve süre bilgileri staj projesi için üretilmiş KURGUSAL DEMO verisidir. Herhangi bir belediyenin resmi bilgisi değildir.",
   "kategoriler": [
     {
       "kategori": "Su ve Kanalizasyon",
@@ -73,8 +73,8 @@
         },
         {
           "soru": "Tarihi eserler koruma alanındaki evimde tadilat yapabilir miyim?",
-          "cevap": "Mardin'in tarihi kent dokusu içindeki tescilli yapılarda veya sit alanlarında her türlü tadilat için önce Koruma Bölge Kurulu izni, ardından belediye onayı gerekir. İzinsiz yapılan tadilatlar yasal işlem gerektirir. (Demo bilgi)",
-          "anahtar_kelimeler": "tarihi yapı tescilli sit alanı koruma kurulu tadilat restorasyon eski mardin"
+          "cevap": "Şehrin tarihi kent dokusu içindeki tescilli yapılarda veya sit alanlarında her türlü tadilat için önce Koruma Bölge Kurulu izni, ardından belediye onayı gerekir. İzinsiz yapılan tadilatlar yasal işlem gerektirir. (Demo bilgi)",
+          "anahtar_kelimeler": "tarihi yapı tescilli sit alanı koruma kurulu tadilat restorasyon tarihi kent merkezi"
         },
         {
           "soru": "Numarataj ve adres değişikliği işlemleri nereden yapılır?",
@@ -364,7 +364,7 @@
           "anahtar_kelimeler": "düğün salonu kiralama sosyal tesis toplantı salonu nişan"
         },
         {
-          "soru": "Mardin'deki müze ve tarihi yerleri gezmek için rehberlik hizmeti var mı?",
+          "soru": "Şehirdeki müze ve tarihi yerleri gezmek için rehberlik hizmeti var mı?",
           "cevap": "Belediyenin turizm danışma noktalarında şehir haritası ve tanıtım broşürleri ücretsiz dağıtılır. Grup gezileri için önceden randevu alınarak rehberli tur talep edilebilir. (Demo bilgi)",
           "anahtar_kelimeler": "müze tarihi yerler turizm rehber gezi tur"
         }

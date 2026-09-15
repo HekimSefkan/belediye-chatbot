@@ -16,7 +16,7 @@ THANKS_WORDS = {"tesekkur", "tesekkurler", "tesekkurederim", "sagol", "sagolun",
                 "eyvallah", "eyv", "tsk", "tskler", "ederim"}
 
 GREETING_ANSWER = (
-    "Merhaba! Ben Mardin Büyükşehir Belediyesi vatandaş hizmetleri asistanıyım. "
+    "Merhaba! Ben Belediye Chatbot, belediyenin vatandaş hizmetleri asistanıyım. "
     "Su, imar, zabıta, temizlik, nikah, vergi, ulaşım gibi konulardaki sorularınızı "
     "yazabilir veya aşağıdaki konulardan birini seçebilirsiniz."
 )

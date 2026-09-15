@@ -1,34 +1,35 @@
 @echo off
+chcp 65001 >nul
 setlocal
 rem ==================================================================
-rem  Tum otomatik testleri (pytest) calistirir.
-rem  Aktivasyon kullanilmaz; venv icindeki python dogrudan cagrilir.
+rem  Tüm otomatik testleri (pytest) çalıştırır.
+rem  Aktivasyon kullanılmaz; venv içindeki python doğrudan çağrılır.
 rem ==================================================================
 
 cd /d "%~dp0"
-title Chatbot Testleri
+title Testler - Belediye Chatbot
 set "PYTHONUTF8=1"
 
 if not exist "venv\Scripts\python.exe" goto :venv_yok
 
-echo Testler calistiriliyor...
+echo Testler çalıştırılıyor...
 echo.
 "venv\Scripts\python.exe" -m pytest -v
 if errorlevel 1 goto :basarisiz
 
 echo.
-echo  TUM TESTLER BASARIYLA GECTI.
+echo  TÜM TESTLER BAŞARIYLA GEÇTİ.
 pause
 exit /b 0
 
 :basarisiz
 echo.
-echo  [!] Bazi testler basarisiz oldu. Yukaridaki FAILED satirlarina bakin.
+echo  [!] Bazı testler başarısız oldu. Yukarıdaki FAILED satırlarına bakın.
 pause
 exit /b 1
 
 :venv_yok
-echo [HATA] Sanal ortam bulunamadi: venv\Scripts\python.exe
-echo        Once basla.bat dosyasini calistirin; ilk kurulumu otomatik yapar.
+echo [HATA] Sanal ortam bulunamadı: venv\Scripts\python.exe
+echo        Önce basla.bat dosyasını çalıştırın; ilk kurulumu otomatik yapar.
 pause
 exit /b 1

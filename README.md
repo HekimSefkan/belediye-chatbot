@@ -1,8 +1,8 @@
 > **Bu proje bir staj çalışmasıdır. İçerdiği tüm veriler kurgusal demo verisidir, kurumun resmi verisi değildir.**
 
-# Büyükşehir Belediyesi – Vatandaş Hizmetleri Chatbotu
+# Belediye Chatbot
 
-Büyükşehir Belediyesi Bilgi İşlem Dairesi Başkanlığı'ndaki zorunlu yaz stajı kapsamında geliştirilmiş, **tamamen yerelde (offline) çalışan** bir web chatbotu.
+**Belediye Vatandaş Hizmetleri Chatbotu:** Bir belediyenin Bilgi İşlem Dairesi Başkanlığı'ndaki zorunlu yaz stajı kapsamında geliştirilmiş, **tamamen yerelde (offline) çalışan** bir web chatbotu.
 
 Vatandaşların belediyeye en sık sorduğu soruları (su faturası, imar, nikah, çöp toplama, zabıta, vergi, ulaşım…) otomatik yanıtlar. Cevap bulamadığında vatandaşı doğru birime yönlendirir ve sohbetin içinden **talep/şikayet kaydı** oluşturur. Amaç, çağrı merkezi ve Beyaz Masa'ya gelen tekrarlayan soru yükünü azaltmaktır.
 

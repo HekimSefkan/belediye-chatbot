@@ -1,5 +1,5 @@
 -- ============================================================
--- Mardin Büyükşehir Belediyesi Vatandaş Hizmetleri Chatbotu
+-- Belediye Chatbot - Belediye Vatandaş Hizmetleri Chatbotu
 -- SQLite veritabanı şeması
 -- "IF NOT EXISTS" sayesinde uygulama her açıldığında güvenle çalıştırılabilir.
 -- ============================================================

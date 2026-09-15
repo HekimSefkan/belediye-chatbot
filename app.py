@@ -1,5 +1,5 @@
 """
-Mardin Büyükşehir Belediyesi - Vatandaş Hizmetleri Chatbotu
+Belediye Chatbot - Belediye Vatandaş Hizmetleri Chatbotu
 Uygulamanın giriş noktası.
 
 Çalıştırmak için:
@@ -10,8 +10,9 @@ Not: Bu proje bir staj çalışmasıdır; içerdiği veriler kurgusal demo veris
 """
 
 import sys
+from datetime import datetime
 
-from flask import Flask, current_app, jsonify, request
+from flask import Flask, current_app, jsonify, request, send_from_directory
 from werkzeug.exceptions import HTTPException
 
 from chatbot.matcher import FAQMatcher
@@ -68,12 +69,33 @@ def create_app(test_config=None):
     # 5) Şablonlarda {{ csrf_token() }} kullanılabilsin (form güvenliği için)
     app.jinja_env.globals["csrf_token"] = generate_csrf_token
 
+    # Tarayıcılar sekme simgesini her zaman /favicon.ico adresinden de ister;
+    # dosya static klasöründe durur, bu adres ona yönlendirir (404 hatası oluşmasın diye)
+    app.add_url_rule("/favicon.ico", "favicon", serve_favicon)
+
     # 6) Güvenlik başlıkları ve API hata cevapları
     app.after_request(add_security_headers)
     app.register_error_handler(HTTPException, handle_http_error)
     app.register_error_handler(Exception, handle_unexpected_error)
 
     return app
+
+
+def serve_favicon():
+    """static/favicon.ico dosyasını /favicon.ico adresinden sunar."""
+    return send_from_directory(
+        current_app.static_folder, "favicon.ico", mimetype="image/vnd.microsoft.icon"
+    )
+
+
+def log_request(response):
+    """
+    Her isteği konsola tek satır olarak yazar:  [14:05:31] POST /api/talep 400
+    (waitress sunucusu istekleri kendiliğinden yazmadığı için eklenmiştir.)
+    """
+    print(f"[{datetime.now():%H:%M:%S}] {request.method} {request.path} {response.status_code}",
+          flush=True)
+    return response
 
 
 def add_security_headers(response):
@@ -123,6 +145,35 @@ def print_startup_warnings(app):
               "sadece geliştirme sırasında kullanın.")
 
 
+def run_server(app):
+    """
+    Uygulamayı yerel bilgisayarda (127.0.0.1) başlatır.
+
+    - Normal kullanımda WAITRESS sunucusu kullanılır. Waitress, Windows'ta sorunsuz çalışan,
+      saf Python ile yazılmış tek paketlik bir üretim (WSGI) sunucusudur. Flask'ın kendi
+      geliştirme sunucusunun "This is a development server" uyarısı bu yüzden çıkmaz.
+    - FLASK_DEBUG=True ise Flask'ın geliştirme sunucusu kullanılır (kod değişince otomatik
+      yeniden başlar, hata ayıklama için uygundur).
+    """
+    host, port = "127.0.0.1", app.config["PORT"]
+
+    if app.config["DEBUG"]:
+        app.run(host=host, port=port, debug=True)
+        return
+
+    app.after_request(log_request)
+    try:
+        from waitress import serve
+    except ImportError:
+        print("UYARI: waitress paketi kurulu değil, Flask geliştirme sunucusu kullanılıyor. "
+              "Kurmak için: venv\\Scripts\\python.exe -m pip install -r requirements.txt")
+        app.run(host=host, port=port)
+        return
+
+    print("Sunucu: waitress (kapatmak için Ctrl+C)")
+    serve(app, host=host, port=port, threads=8)
+
+
 if __name__ == "__main__":
     try:
         application = create_app()
@@ -131,10 +182,15 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print_startup_warnings(application)
-    print("Chatbot çalışıyor:  http://127.0.0.1:%s" % application.config["PORT"])
-    print("Admin paneli:       http://127.0.0.1:%s/admin" % application.config["PORT"])
-    application.run(
-        host="127.0.0.1",
-        port=application.config["PORT"],
-        debug=application.config["DEBUG"],
-    )
+    print("Belediye Chatbot çalışıyor:  http://127.0.0.1:%s" % application.config["PORT"])
+    print("Admin paneli:                http://127.0.0.1:%s/admin" % application.config["PORT"])
+    try:
+        run_server(application)
+    except KeyboardInterrupt:
+        # Ctrl+C ile kapatınca uzun hata çıktısı yerine kısa bir mesaj göster
+        print("\nUygulama kapatıldı.")
+    except OSError as server_error:
+        print(f"\n[HATA] Sunucu başlatılamadı: {server_error}\n"
+              f"{application.config['PORT']} portu başka bir program (ör. açık kalmış başka bir "
+              "basla.bat penceresi) tarafından kullanılıyor olabilir.")
+        sys.exit(1)

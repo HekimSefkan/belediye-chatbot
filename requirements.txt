@@ -3,6 +3,8 @@
 
 # Web çatısı (Werkzeug, Flask ile birlikte gelir ve şifre hash'leme için kullanılır)
 Flask>=3.0,<4.0
+# Uygulamayı çalıştıran sunucu (saf Python, Windows uyumlu, tek paket)
+waitress>=3.0,<4.0
 # TF-IDF ve cosine similarity hesaplamaları
 scikit-learn>=1.3,<2.0
 # .env dosyasından ayar okumak için

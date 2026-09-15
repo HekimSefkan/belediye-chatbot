@@ -1,4 +1,4 @@
-# Sunum Taslağı – Vatandaş Hizmetleri Chatbotu
+# Sunum Taslağı – Belediye Chatbot
 
 > Bu proje bir staj çalışmasıdır. İçerdiği tüm veriler kurgusal demo verisidir, kurumun resmi verisi değildir.
 
@@ -15,14 +15,14 @@
 ## Slayt 1 – Kapak
 
 **Ekranda:**
-- Vatandaş Hizmetleri Chatbotu
-- Mardin Büyükşehir Belediyesi – Bilgi İşlem Dairesi Başkanlığı
+- Belediye Chatbot – Belediye Vatandaş Hizmetleri Chatbotu
+- Belediye Bilgi İşlem Dairesi Başkanlığı
 - Zorunlu Yaz Stajı Bitirme Projesi
 - `[Adın Soyadın]` · `[Bölüm / Sınıf]` · `[Tarih]`
 - *Not: Projedeki tüm veriler kurgusal demo verisidir.*
 
 **Konuşma notu:**
-> “Merhaba, ben [ad]. Stajımı Mardin Büyükşehir Belediyesi Bilgi İşlem Dairesi'nde yaptım. Bugün staj süresince geliştirdiğim Vatandaş Hizmetleri Chatbotu'nu anlatacağım. Başlamadan belirteyim: Projede kullandığım soru-cevapların hepsi kurgusal, gerçek belediye verisi değil.”
+> “Merhaba, ben [ad]. Stajımı bir belediyenin Bilgi İşlem Dairesi'nde yaptım. Bugün staj süresince geliştirdiğim Belediye Chatbot projesini anlatacağım. Başlamadan belirteyim: Projede kullandığım soru-cevapların hepsi kurgusal, gerçek belediye verisi değil.”
 
 ---
 

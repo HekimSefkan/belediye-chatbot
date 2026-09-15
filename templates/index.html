@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vatandaş Hizmetleri Asistanı | Mardin Büyükşehir Belediyesi (Demo)</title>
+    <title>Belediye Chatbot | Belediye Vatandaş Hizmetleri Chatbotu (Demo)</title>
+    {% include '_favicon.html' %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -12,10 +13,10 @@
 <header class="site-header">
     <div class="container header-inner">
         <a href="{{ url_for('chat.index') }}" class="brand">
-            <span class="brand-mark" aria-hidden="true">MB</span>
+            <span class="brand-mark" aria-hidden="true">BC</span>
             <span class="brand-text">
-                <strong>Mardin Büyükşehir Belediyesi</strong>
-                <small>Vatandaş Hizmetleri Asistanı</small>
+                <strong>Belediye Chatbot</strong>
+                <small>Belediye Vatandaş Hizmetleri Chatbotu</small>
             </span>
         </a>
         <nav class="main-nav" aria-label="Ana menü">
@@ -49,7 +50,7 @@
                 </ul>
             </div>
 
-            <!-- Mardin'in taş kemerlerini anımsatan dekoratif çizim -->
+            <!-- Tarihi kentlerin taş kemerlerini anımsatan dekoratif çizim -->
             <div class="hero-art" aria-hidden="true">
                 <svg viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg">
                     <rect x="0" y="40" width="320" height="220" rx="18" class="art-wall"/>
@@ -143,11 +144,11 @@
     </svg>
 </button>
 
-<section id="chat-panel" class="chat-panel" role="dialog" aria-label="Belediye asistanı" hidden>
+<section id="chat-panel" class="chat-panel" role="dialog" aria-label="Belediye Chatbot sohbet penceresi" hidden>
     <header class="chat-header">
-        <span class="chat-avatar" aria-hidden="true">MB</span>
+        <span class="chat-avatar" aria-hidden="true">BC</span>
         <div class="chat-title">
-            <strong>Belediye Asistanı</strong>
+            <strong>Belediye Chatbot</strong>
             <span><i class="status-dot"></i> Çevrim içi · Demo</span>
         </div>
         <button type="button" id="chat-close" class="chat-close" aria-label="Sohbeti kapat">

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Yönetim Paneli{% endblock %} | Belediye Chatbot Admin</title>
+    {% include '_favicon.html' %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 <body class="admin">
@@ -12,7 +13,7 @@
     <!-- Sol menü -->
     <aside class="sidebar">
         <div class="sidebar-brand">
-            <span class="brand-mark">MB</span>
+            <span class="brand-mark">BC</span>
             <div>
                 <strong>Chatbot Yönetimi</strong>
                 <small>Hoş geldin, {{ session.get('admin_user') }}</small>

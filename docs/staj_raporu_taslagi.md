@@ -1,4 +1,4 @@
-# Staj Raporu Taslağı – Vatandaş Hizmetleri Chatbotu
+# Staj Raporu Taslağı – Belediye Chatbot
 
 > Bu proje bir staj çalışmasıdır. İçerdiği tüm veriler kurgusal demo verisidir, kurumun resmi verisi değildir.
 
@@ -10,11 +10,11 @@
 
 ### 1.1 Stajın yapıldığı kurum
 
-Zorunlu yaz stajımı `[staj başlangıç – bitiş tarihleri]` tarihleri arasında, 20 iş günü boyunca Mardin Büyükşehir Belediyesi Bilgi İşlem Dairesi Başkanlığı'nda yaptım. Bilgi İşlem Dairesi; belediyenin yazılım altyapısının, e-belediye hizmetlerinin, ağ ve donanım sistemlerinin yönetiminden sorumludur. `[Birimin yapısı, çalışan sayısı, kullanılan sistemler hakkında gözlemlerini ekle.]`
+Zorunlu yaz stajımı `[staj başlangıç – bitiş tarihleri]` tarihleri arasında, 20 iş günü boyunca `[kurum adı]` Bilgi İşlem Dairesi Başkanlığı'nda yaptım. Bilgi İşlem Dairesi; belediyenin yazılım altyapısının, e-belediye hizmetlerinin, ağ ve donanım sistemlerinin yönetiminden sorumludur. `[Birimin yapısı, çalışan sayısı, kullanılan sistemler hakkında gözlemlerini ekle.]`
 
 ### 1.2 Staj projesinin konusu
 
-Staj süresince, vatandaşların belediyeye en sık sorduğu soruları otomatik yanıtlayan, cevap bulamadığında vatandaşı doğru birime yönlendiren ve talep/şikayet kaydı oluşturabilen web tabanlı bir **Vatandaş Hizmetleri Chatbotu** geliştirdim.
+Staj süresince, vatandaşların belediyeye en sık sorduğu soruları otomatik yanıtlayan, cevap bulamadığında vatandaşı doğru birime yönlendiren ve talep/şikayet kaydı oluşturabilen web tabanlı bir chatbot olan **Belediye Chatbot**'u geliştirdim.
 
 ---
 
