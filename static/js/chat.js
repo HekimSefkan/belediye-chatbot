@@ -164,7 +164,7 @@
     function showWelcome() {
         addMessage(
             "bot",
-            "Merhaba! 👋 Ben Mardin Büyükşehir Belediyesi vatandaş hizmetleri asistanıyım.\n" +
+            "Merhaba! 👋 Ben Belediye Chatbot, belediyenin vatandaş hizmetleri asistanıyım.\n" +
             "Sorunuzu yazabilir veya aşağıdan bir konu seçebilirsiniz."
         );
         showCategories();
@@ -301,12 +301,20 @@
         label.dataset.field = options.name;
 
         const title = el("span", null, options.label);
-        if (options.optional) title.appendChild(el("span", "optional", " (isteğe bağlı)"));
+        if (options.optional) {
+            title.appendChild(el("span", "optional", " (isteğe bağlı)"));
+        } else {
+            // Zorunlu alan işareti; ekran okuyucuya aria-required ile ayrıca bildirilir
+            const star = el("span", "required-mark", " *");
+            star.setAttribute("aria-hidden", "true");
+            title.appendChild(star);
+        }
         label.appendChild(title);
 
         const control = document.createElement(options.tag || "input");
         control.id = options.id;
         control.name = options.name;
+        if (!options.optional) control.setAttribute("aria-required", "true");
         if (options.type) control.type = options.type;
         if (options.maxLength) control.maxLength = options.maxLength;
         if (options.placeholder) control.placeholder = options.placeholder;
@@ -318,7 +326,7 @@
         error.id = options.id + "-hata";
         control.setAttribute("aria-describedby", error.id);
         label.appendChild(error);
-        return { label: label, control: control, error: error };
+        return { label: label, control: control, error: error, title: options.label };
     }
 
     /** Alanın hata durumunu ayarlar (message boşsa hatayı temizler). */
@@ -368,6 +376,7 @@
         const ticketForm = el("form", "ticket-form");
         ticketForm.noValidate = true;
         ticketForm.appendChild(el("h4", null, "Talep / Şikayet Formu"));
+        ticketForm.appendChild(el("p", "form-hint", "* işaretli alanların doldurulması zorunludur."));
 
         const fields = {
             ad_soyad: createField({ id: prefix + "ad", name: "ad_soyad", label: "Ad Soyad", maxLength: 100 }),
@@ -381,16 +390,20 @@
             }),
             aciklama: createField({
                 id: prefix + "acik", name: "aciklama", label: "Açıklama", tag: "textarea", maxLength: 2000,
-                placeholder: "Adres ve ayrıntıları yazmanız talebinizin hızlı çözülmesini sağlar.",
+                placeholder: "Örn. Cumhuriyet Mah. 12. Sokak'taki lamba 3 gündür yanmıyor. " +
+                    "(Adres ve ayrıntı yazmak talebin hızlı çözülmesini sağlar.)",
                 value: description,
             }),
         };
 
-        // Departman seçeneklerini doldur; chatbotun önerdiği birim seçili gelsin
+        // Departman seçeneklerini doldur; chatbotun önerdiği birim seçili gelsin.
+        // Öneri yoksa (form menüden açıldıysa) listenin sonundaki genel birim (Beyaz Masa) seçilir,
+        // böylece talep fark edilmeden listenin ilk birimine gitmez.
+        const selectedDepartment = prefill.departman || departmentList[departmentList.length - 1];
         departmentList.forEach(function (name) {
             const option = el("option", null, name);
             option.value = name;
-            if (name === prefill.departman) option.selected = true;
+            if (name === selectedDepartment) option.selected = true;
             fields.departman.control.appendChild(option);
         });
 
@@ -410,6 +423,15 @@
         cancelBtn.type = "button";
         actions.append(submitBtn, cancelBtn);
         ticketForm.appendChild(actions);
+
+        // KVKK aydınlatma notu: hangi veriler, hangi amaçla toplanıyor
+        ticketForm.appendChild(el(
+            "p",
+            "privacy-note",
+            "Aydınlatma notu: Bu formda girdiğiniz ad soyad, telefon (isteğe bağlı) ve talep metni " +
+            "yalnızca talebinizin ilgili birime iletilmesi ve size dönüş yapılması amacıyla kaydedilir. " +
+            "Bu uygulama bir staj demo çalışmasıdır; lütfen gerçek kişisel bilgilerinizi girmeyin."
+        ));
 
         cancelBtn.addEventListener("click", function () {
             row.remove();
@@ -444,6 +466,9 @@
                 fieldKeys.forEach(function (key) { setFieldError(fields[key], errors[key]); });
 
                 if (fieldKeys.length) {
+                    // Hangi alanların reddedildiğini formun altında özetle; nedenleri alanların altında yazar
+                    formError.textContent = "Talebiniz gönderilmedi. Lütfen işaretli alanları düzeltin: " +
+                        fieldKeys.map(function (key) { return fields[key].title; }).join(", ") + ".";
                     fields[fieldKeys[0]].control.focus();
                 } else {
                     // Alan hatası yoksa (ör. sunucu hatası) formun altında genel bir mesaj göster
