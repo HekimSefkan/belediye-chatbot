@@ -209,7 +209,7 @@ def test_edge_case_messages_do_not_crash(client, message):
     assert data["answer"]
 
 
-@pytest.mark.parametrize("phone", ["0555 123 45 67", "+90 555 123 45 67", "0 (482) 000 00 00", "5551234567"])
+@pytest.mark.parametrize("phone", ["0555 123 45 67", "+90 555 123 45 67", "0 (850) 000 00 00", "5551234567"])
 def test_valid_phone_numbers_are_accepted(client, phone):
     assert client.post("/api/talep", json=valid_ticket(telefon=phone)).status_code == 201
 

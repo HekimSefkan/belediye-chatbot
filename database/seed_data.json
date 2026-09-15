@@ -17,12 +17,12 @@
         },
         {
           "soru": "Mahallemde sular kesik, ne zaman gelecek?",
-          "cevap": "Planlı su kesintileri belediyenin web sitesindeki 'Duyurular' bölümünde bölge ve saat bilgisiyle yayınlanır. Duyuruda yer almayan bir kesinti yaşıyorsanız arıza hattını (demo: 0 482 000 00 01) arayarak bildirim yapabilirsiniz.",
+          "cevap": "Planlı su kesintileri belediyenin web sitesindeki 'Duyurular' bölümünde bölge ve saat bilgisiyle yayınlanır. Duyuruda yer almayan bir kesinti yaşıyorsanız arıza hattını (demo: 0 850 000 00 01) arayarak bildirim yapabilirsiniz.",
           "anahtar_kelimeler": "su kesintisi suyumuz kesildi su yok arıza ne zaman gelecek"
         },
         {
           "soru": "Kanalizasyon tıkandı, kime başvurmalıyım?",
-          "cevap": "Kanalizasyon tıkanıklığı ve taşma ihbarları 7/24 arıza hattına (demo: 0 482 000 00 01) bildirilir. Ekip, bina bağlantı hattı dışındaki ana hat tıkanıklıklarına ücretsiz müdahale eder. (Demo bilgi)",
+          "cevap": "Kanalizasyon tıkanıklığı ve taşma ihbarları 7/24 arıza hattına (demo: 0 850 000 00 01) bildirilir. Ekip, bina bağlantı hattı dışındaki ana hat tıkanıklıklarına ücretsiz müdahale eder. (Demo bilgi)",
           "anahtar_kelimeler": "kanalizasyon tıkanıklık taştı lağım rögar koku"
         },
         {
@@ -89,7 +89,7 @@
       "sorular": [
         {
           "soru": "Zabıtaya nasıl şikayette bulunabilirim?",
-          "cevap": "Zabıta ile ilgili şikayetlerinizi zabıta ihbar hattına (demo: 0 482 000 00 02) veya bu chatbot üzerinden talep/şikayet kaydı oluşturarak iletebilirsiniz. Şikayetinizde adres ve olay bilgisini net yazmanız işlemi hızlandırır.",
+          "cevap": "Zabıta ile ilgili şikayetlerinizi zabıta ihbar hattına (demo: 0 850 000 00 02) veya bu chatbot üzerinden talep/şikayet kaydı oluşturarak iletebilirsiniz. Şikayetinizde adres ve olay bilgisini net yazmanız işlemi hızlandırır.",
           "anahtar_kelimeler": "zabıta şikayet ihbar telefon"
         },
         {

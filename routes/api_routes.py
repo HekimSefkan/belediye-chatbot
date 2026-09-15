@@ -22,7 +22,7 @@ MAX_MESSAGE_LENGTH = 500
 FIELD_LIMITS = {"ad_soyad": 100, "telefon": 20, "konu": 150, "aciklama": 2000}
 TICKET_FIELDS = ("ad_soyad", "telefon", "konu", "aciklama", "departman")
 
-# Telefon: sadece rakam, boşluk, +, -, nokta, parantez (örn. "0 (482) 000 00 00", "0555.123.45.67")
+# Telefon: sadece rakam, boşluk, +, -, nokta, parantez (örn. "0 (850) 000 00 00", "0555.123.45.67")
 PHONE_PATTERN = re.compile(r"^[0-9+().\-\s]+$")
 # Türkiye'deki numaralar 10 (5xx...) ile 12 (+90 5xx...) rakam arasındadır; biraz pay bırakıyoruz
 PHONE_MIN_DIGITS, PHONE_MAX_DIGITS = 10, 13
