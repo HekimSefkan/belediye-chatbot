@@ -101,7 +101,10 @@ Her mesaj kaydedilir. Bu kayıtlar istatistik sayfasında ve SSS veritabanını 
 | `kullanici_adi` | TEXT, benzersiz | Varsayılan: `admin` |
 | `sifre_hash` | TEXT | `werkzeug.security.generate_password_hash` çıktısı. Şifre asla düz metin olarak saklanmaz. |
 
-Uygulama her açılışta `.env` dosyasındaki `ADMIN_USERNAME` / `ADMIN_PASSWORD` değerlerini bu tabloyla eşitler. Şifre değiştiyse hash yenilenir.
+Uygulama her açılışta `.env` dosyasındaki `ADMIN_USERNAME` / `ADMIN_PASSWORD` değerlerini bu tabloyla eşitler:
+- Şifre değiştiyse hash yenilenir.
+- Farklı bir kullanıcı adıyla kalmış eski admin kayıtları silinir. Böylece kullanıcı adı değiştirildiğinde eski `admin / admin123` hesabı açık kalmaz.
+- Silinen hesabın açık bir oturumu varsa bir sonraki istekte geçersiz sayılır.
 
 ## Örnek sorgular
 

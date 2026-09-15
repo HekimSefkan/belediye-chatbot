@@ -69,26 +69,34 @@ Yöntemin anlamı değil kelimeleri karşılaştırdığını açıkça biliyoru
 - **SQL injection:** Tüm sorgular parametreli (`?` yer tutucu). `x'); DROP TABLE faq; --` mesajının tabloyu silmediğini doğrulayan bir test var.
 - **Şifre:** Admin şifresi veritabanında hash olarak saklanıyor (Werkzeug). Veritabanı ele geçirilse bile şifre okunamıyor.
 - **CSRF:** Admin formlarında oturuma özel gizli token var. Başka bir sitenin, admin adına sahte form göndermesi engelleniyor.
-- **XSS:** Vatandaş mesajları ekrana `textContent` ile yazılıyor. `<script>` yazılsa bile kod olarak çalışmıyor.
-- **Girdi doğrulama:** Uzunluk sınırları, telefon formatı ve departman listesi sunucu tarafında kontrol ediliyor.
+- **XSS:** Vatandaş mesajları ekrana `textContent` ile yazılıyor. `<script>` yazılsa bile kod olarak çalışmıyor; bunu tarayıcıda da denedim.
+- **Girdi doğrulama:** Alan türü, uzunluk sınırları, telefon formatı ve departman listesi sunucu tarafında kontrol ediliyor. İstek boyutu en fazla 64 KB.
+- **Oturum:**
+  - Oturum anahtarı her kurulumda rastgele üretiliyor.
+  - 5 hatalı denemeden sonra giriş 5 dakika kilitleniyor.
+  - Oturum 8 saat sonra kapanıyor.
+- **Debug modu kapalı:** Hata olursa kullanıcıya kaynak kodu veya dosya yolu gösterilmiyor.
 
-📄 `tests/test_api.py`
+**Analizde bulduğum kritik açık:** İlk sürümde oturum anahtarı kodda sabit yazılıydı ve kod GitHub'da herkese açıktı. Bu anahtarla sahte bir çerez imzalayıp **şifre girmeden** admin paneline girilebildiğini kendim denedim ve gösterdim. Anahtarı rastgele üretilen, GitHub'a yüklenmeyen bir dosyaya taşıdım ve bunu doğrulayan bir test yazdım. Bu bana “güvenliği iddia etmek değil, denemek gerekir” dersini verdi.
+
+📄 `tests/test_guvenlik_ve_hatalar.py`, `docs/proje_analizi.md`
 
 ### 8. Neden SQLite? Belediye gerçekten kullansa yeterli olur mu?
 
 Demo ve pilot kullanım için yeterli. Kurulum gerektirmiyor, tek dosya, yedeklemesi kopyalamak kadar kolay. SQLite okuma ağırlıklı ve orta trafikli uygulamalarda sorunsuz çalışır.
 
-Çok sayıda eş zamanlı kullanıcı olursa PostgreSQL gibi bir sunucu veritabanına geçmek gerekir. Tüm sorgular standart SQL ile yazıldığı ve veritabanı erişimi tek bir dosyada (`database/db.py`) toplandığı için bu geçiş sınırlı bir değişiklik olur. Ayrıca gerçek yayında Flask'ın geliştirme sunucusu yerine Waitress gibi bir WSGI sunucusu kullanılmalı.
+Çok sayıda eş zamanlı kullanıcı olursa PostgreSQL gibi bir sunucu veritabanına geçmek gerekir. Sorgular standart SQL ile yazıldığı için geçiş mümkün. Ancak sorgular hem `database/db.py` hem de rota dosyalarında (`routes/`) bulunuyor; önce hepsinin tek bir veri erişim katmanında toplanması gerekir. Ayrıca gerçek yayında Flask'ın geliştirme sunucusu yerine Waitress gibi bir WSGI sunucusu kullanılmalı.
 
 ### 9. Projeyi nasıl test ettin?
 
-Üç katmanda:
+Dört grupta:
 
-1. **Birim testleri:** Ön işleme ve eşleştirme fonksiyonları (`tests/test_matcher.py`)
-2. **API ve entegrasyon testleri:** Uç noktalar, doğrulama, güvenlik (`tests/test_api.py`)
-3. **Uçtan uca senaryo testi:** Adminin giriş yapıp cevapsız bir sorudan SSS oluşturması, düzenlemesi, silmesi, talep durumunu güncellemesi ve çıkış yapması (`tests/test_admin_akisi.py`)
+1. **Birim testleri:** Ön işleme ve eşleştirme fonksiyonları (`tests/test_matcher.py`, 34)
+2. **API ve entegrasyon testleri:** Uç noktalar, doğrulama, güvenlik (`tests/test_api.py`, 21)
+3. **Uçtan uca senaryo testi:** Adminin giriş yapıp cevapsız bir sorudan SSS oluşturması, düzenlemesi, silmesi, talep durumunu güncellemesi ve çıkış yapması (`tests/test_admin_akisi.py`, 1)
+4. **Güvenlik ve hata testleri:** Sahte oturum çerezi, bozuk istekler, emoji/İngilizce mesajlar, bozuk veritabanı dosyası gibi uç durumlar (`tests/test_guvenlik_ve_hatalar.py`, 52)
 
-Toplam **56 test**; hepsi geçiyor. Testler geçici bir veritabanında çalışıyor. Bunlara ek olarak tarayıcıda masaüstü ve mobil görünümde manuel senaryoları uyguladım (`docs/test_senaryolari.md`).
+Toplam **108 test**; hepsi geçiyor. Son grup, projeyi baştan sona analiz ettiğimde bulduğum sorunların tekrar ortaya çıkmaması için eklendi. Testler geçici bir veritabanında çalışıyor. Bunlara ek olarak tarayıcıda masaüstü ve mobil görünümde manuel senaryoları uyguladım (`docs/test_senaryolari.md`).
 
 ### 10. Bu proje gerçekte belediyeye ne kazandırır? Nasıl geliştirilir?
 
@@ -117,5 +125,6 @@ Toplam **56 test**; hepsi geçiyor. Testler geçici bir veritabanında çalış�
 | Neden 0.35? | Doğru eşleşmelerin en düşüğü 0.36, alakasızlar çoğunlukla 0.32'nin altında. |
 | En büyük zayıflık? | Anlamı değil kelimeleri karşılaştırıyor: *“telefon faturası”* hâlâ *“su faturası”* ile eşleşiyor. |
 | Doğruluk? | Kontrol setinde %75. İlgili soruların hepsi doğru; alakasızların yarısı yanlış eşleşiyor. |
-| Güvenlik? | Parametreli SQL, hash'li şifre, CSRF token, XSS'e karşı textContent. |
-| Test? | 56 otomatik test: birim, API ve uçtan uca admin senaryosu. |
+| Güvenlik? | Parametreli SQL, hash'li şifre, rastgele oturum anahtarı, giriş denemesi sınırı, CSRF token, XSS'e karşı textContent. |
+| Test? | 108 otomatik test: birim, API, uçtan uca admin senaryosu, güvenlik ve hata durumları. |
+| Bulduğun en ciddi hata? | Kodda sabit oturum anahtarı → şifresiz admin girişi. Kendim denedim, düzelttim, testle kanıtladım. |

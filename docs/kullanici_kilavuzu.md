@@ -77,7 +77,9 @@ Formu doldurun:
 ### 2.1 Giriş
 
 1. **http://127.0.0.1:5000/admin** adresini açın. Ana sayfanın en altındaki **Yönetici Girişi** bağlantısını da kullanabilirsiniz.
-2. Kullanıcı adı ve şifrenizi girin. Varsayılan bilgiler `admin` / `admin123` şeklindedir. **İlk kurulumda `.env` dosyasından mutlaka değiştirin.**
+2. Kullanıcı adı ve şifrenizi girin. Varsayılan bilgiler `admin` / `admin123` şeklindedir. **Gerçek kullanımda `.env` dosyasından mutlaka değiştirin.** Varsayılan şifre kullanıldığı sürece panelin üstünde sarı bir uyarı görünür.
+   - Güvenlik için **5 hatalı denemeden sonra giriş 5 dakika kilitlenir**.
+   - Oturum en fazla **8 saat** açık kalır; sonra yeniden giriş istenir.
 3. Çıkmak için sol menünün altındaki **Çıkış Yap** butonunu kullanın.
 
 > Şifreyi değiştirmek için `.env` dosyasındaki `ADMIN_PASSWORD` değerini güncelleyip uygulamayı yeniden başlatmanız yeterlidir.
@@ -111,7 +113,7 @@ Girişten sonra ilk açılan sayfadır.
 ### 2.4 Talep / şikayetler
 
 - Üstteki sekmelerle **Tümü / Beklemede / İşlemde / Tamamlandı** filtrelerini kullanın.
-- Her satırın **Durum** kutusundan yeni durumu seçtiğinizde değişiklik otomatik olarak kaydedilir ve sayfanın üstünde onay mesajı görünür.
+- Her satırın **Durum** kutusundan yeni durumu seçip yanındaki **Kaydet** butonuna basın. Sayfanın üstünde onay mesajı görünür. (Seçim anında otomatik kaydedilmez; klavyeyle gezinirken yanlışlıkla değişiklik yapılmasın diye.)
 - Önerilen iş akışı: **Beklemede** (yeni gelen) → **İşlemde** (ilgili birime iletildi) → **Tamamlandı**.
 
 ### 2.5 Sohbet geçmişi
@@ -132,4 +134,7 @@ Girişten sonra ilk açılan sayfadır.
 | *“Address already in use”* / 5000 portu kullanımda | Uygulama zaten açık olabilir; diğer `basla.bat` penceresini kapatın. Ya da `.env` dosyasında `PORT=5001` yapın. |
 | `sifirla.bat` *“Veritabanı dosyası silinemedi”* diyor | Uygulama açık. `basla.bat` penceresini kapatıp tekrar deneyin. |
 | Admin şifresini unuttum | `.env` dosyasında `ADMIN_PASSWORD` değerini değiştirip uygulamayı yeniden başlatın. `.env` yoksa şifre `admin123`'tür. |
+| *“Çok fazla hatalı deneme yapıldı”* | 5 dakika bekleyin ya da uygulamayı kapatıp `basla.bat` ile yeniden açın (sayaç sıfırlanır). |
+| Uygulama *“[HATA] Demo SSS dosyası bozuk”* veya *“Veritabanı dosyası bozuk”* diyor | Mesajdaki öneriyi uygulayın. Veritabanı için **`sifirla.bat`**; `seed_data.json` için dosyayı GitHub'daki orijinaliyle değiştirin. |
+| Güncellemeden sonra admin panelinden çıkış yapılmış | Oturum anahtarı değiştiğinde açık oturumlar kapanır; yeniden giriş yapmanız yeterli. |
 | Demo verilere geri dönmek istiyorum | **`sifirla.bat`** |

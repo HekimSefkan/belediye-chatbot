@@ -132,14 +132,15 @@ En yakın: "Su faturamı nasıl ödeyebilirim?"  skor: 0.66
 ## Slayt 9 – Test, Ölçüm ve Sınırlılıklar
 
 **Ekranda:**
-- **56 otomatik test**, hepsi başarılı (birim, API, uçtan uca admin senaryosu)
-- **Güvenlik:** parametreli SQL, hash'li şifre, CSRF, XSS koruması
+- **108 otomatik test**, hepsi başarılı (birim, API, uçtan uca admin senaryosu, güvenlik ve hata durumları)
+- **Güvenlik:** parametreli SQL, hash'li şifre, rastgele oturum anahtarı, giriş denemesi sınırı, CSRF, XSS koruması
+- **Proje sonu analizi:** 39 bulgu, 26'sı düzeltildi. En kritiği: sabit oturum anahtarıyla şifresiz admin girişi → düzeltildi ve testle kanıtlandı.
 - **Doğruluk (ayarlamada kullanılmayan kontrol seti):** %65 → **%75**
 - **Sınırlılık:** Anlamı değil kelimeleri karşılaştırıyor
   - “telefon faturamı ödemek istiyorum” → *su faturası* cevabı ❌
 
 **Konuşma notu:**
-> “Projeyi 56 otomatik testle doğruladım. Doğruluğu ölçmek için ayrıca bir betik yazdım. İlk sürümde ‘hava durumu nasıl olacak’ sorusu ‘imar durum belgesi’ ile eşleşiyordu, çünkü ikisinde de ‘durum’ kelimesi var. Stopword listesini genişletip kapsam dışı bir kelime listesi ekleyerek bunu düzelttim. Ayarlamada hiç kullanmadığım bir kontrol setinde başarı %65'ten %75'e çıktı. Ama dürüst olmam gerekirse, yöntem anlamı değil kelimeleri karşılaştırıyor: ‘telefon faturası’ sorusu hâlâ ‘su faturası’ ile eşleşiyor. Bu, TF-IDF'in doğal sınırı.”
+> “Projeyi 108 otomatik testle doğruladım. Proje bittikten sonra tüm kodu baştan inceledim ve bulguları gerçekten denedim. En ciddisi şuydu: oturum anahtarı kodda sabit yazılıydı, bu yüzden sahte bir çerezle şifre girmeden admin paneline girilebiliyordu. Bunu düzelttim ve testle kanıtladım. Doğruluğu ölçmek için ayrıca bir betik yazdım. İlk sürümde ‘hava durumu nasıl olacak’ sorusu ‘imar durum belgesi’ ile eşleşiyordu, çünkü ikisinde de ‘durum’ kelimesi var. Stopword listesini genişletip kapsam dışı bir kelime listesi ekleyerek bunu düzelttim. Ayarlamada hiç kullanmadığım bir kontrol setinde başarı %65'ten %75'e çıktı. Ama dürüst olmam gerekirse, yöntem anlamı değil kelimeleri karşılaştırıyor: ‘telefon faturası’ sorusu hâlâ ‘su faturası’ ile eşleşiyor. Bu, TF-IDF'in doğal sınırı.”
 
 ---
 

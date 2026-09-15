@@ -19,7 +19,15 @@ Bu belge dört bölümden oluşur:
 .\venv\Scripts\python.exe -m pytest -v
 ```
 
-**Son çalıştırma (14.09.2026):** `56 passed`
+**Son çalıştırma (15.09.2026, yeni konum `C:\Projects\belediye-chatbot`):** `108 passed`
+
+| Dosya | Test sayısı |
+|---|---|
+| `tests/test_matcher.py` | 34 |
+| `tests/test_api.py` | 21 |
+| `tests/test_admin_akisi.py` | 1 |
+| `tests/test_guvenlik_ve_hatalar.py` | 52 |
+| **Toplam** | **108** |
 
 ### `tests/test_matcher.py` – Ön işleme ve eşleştirme (34 test)
 
@@ -90,6 +98,29 @@ Bu belge dört bölümden oluşur:
 | 9 | Sohbet geçmişinde “cevaplanamayanlar” filtresi |
 | 10 | Çıkış → admin sayfaları tekrar kilitleniyor |
 
+### `tests/test_guvenlik_ve_hatalar.py` – Güvenlik, hata yönetimi ve uç durumlar (52 test)
+
+Bu dosya, [proje analizinde](proje_analizi.md) bulunan sorunların düzeltildiğini kanıtlar ve tekrar ortaya çıkmalarını önler.
+
+| Konu | Testler | Neyi doğrular? |
+|---|---|---|
+| Oturum anahtarı | `test_secret_key_is_not_a_public_value`, `test_public_placeholder_secret_key_is_ignored`, `test_custom_secret_key_from_env_is_used` | Anahtar herkese açık bir değer değil; örnek değer yok sayılıyor; üretilen anahtar dosyada saklanıp tekrar kullanılıyor |
+| **Sahte admin çerezi** | `test_session_cookie_signed_with_old_public_key_is_rejected` | Eski sürümdeki herkese açık anahtarla imzalanmış çerez panele **giremiyor** |
+| Debug modu | `test_debug_mode_is_off_by_default` | Varsayılan olarak kapalı |
+| Başlık ve çerez | `test_security_headers_are_set`, `test_session_cookie_flags_and_lifetime` | `X-Frame-Options`, `nosniff`, `Referrer-Policy`; çerez `HttpOnly`, `SameSite=Lax`, süreli |
+| Admin hesabı | `test_changing_admin_username_removes_old_account`, `test_session_of_deleted_admin_is_invalidated` | Kullanıcı adı değişince eski `admin` hesabı siliniyor; silinen hesabın oturumu geçersiz |
+| Giriş sınırı | `test_login_is_locked_after_too_many_failures` | 5 hatadan sonra doğru şifre bile 429; kilit süresi dolunca giriş açılıyor |
+| Şifre uyarısı | `test_default_password_warning_banner`, `test_no_warning_banner_with_custom_password` | Uyarı sadece `admin123` kullanılırken görünüyor |
+| SSS formu | `test_faq_form_rejects_too_long_fields` | Sunucu tarafı uzunluk sınırı |
+| Bozuk istekler (8) | `test_non_object_json_body_returns_400_not_500` | Liste, metin, sayı, bozuk JSON gövdeleri iki API'de de 500 değil 400 |
+| API hataları | `test_too_large_request_body_returns_json_413`, `test_unknown_api_url_returns_json_404`, `test_unexpected_error_returns_json_without_traceback` | 413/404/500 cevapları Türkçe JSON; iç hata ayrıntısı sızmıyor |
+| Uç durum mesajları (4) | `test_edge_case_messages_do_not_crash` | Sadece noktalama, emoji, İngilizce soru, boşluklu tek harf |
+| Telefon (9) | `test_valid_phone_numbers_are_accepted`, `test_invalid_phone_numbers_are_rejected` | `+90 555…`, `0 (482)…` kabul; `-------`, `12345`, harfli numara red |
+| Alan türü ve uzunluğu (8) | `test_non_string_ticket_fields_are_rejected`, `test_ticket_field_length_limits`, `test_single_character_name_is_rejected` | Liste/sayı değerler red; 100/150/2000 sınırlarının tam sınırda kabul, bir fazlasında red edilmesi |
+| XSS | `test_xss_payloads_are_escaped_in_admin_pages` | `<script>`, `<img onerror>`, `<svg onload>` admin sayfalarında kaçışlanıyor |
+| Açılış hataları | `test_corrupt_seed_file_gives_clear_error`, `test_seed_file_with_missing_fields_gives_clear_error`, `test_missing_seed_file_gives_clear_error`, `test_corrupt_database_file_gives_clear_error`, `test_invalid_numeric_env_setting_gives_clear_error` | Python hata çıktısı yerine çözüm öneren Türkçe mesaj |
+| Model güncelleme | `test_matcher_refit_swaps_model_in_one_step` | SSS değişince yeni model tek adımda devreye giriyor, eski model bozulmuyor |
+
 ---
 
 ## 2. Doğruluk ölçümü
@@ -128,7 +159,10 @@ Soru soru skorlar ve yorum: [dogruluk_olcumu.md](dogruluk_olcumu.md)
 | M12 | Admin koruması | Oturum açmadan `/admin/sss` | Giriş sayfasına yönlendirilir | ✅ (otomatik test) |
 | M13 | Admin girişi | `/admin` → `admin` / `admin123` | İstatistikler sayfası açılır | ✅ (otomatik test) |
 | M14 | İstatistik grafikleri | M2–M10 sonrasında istatistik sayfası | 4 özet kartı dolu; 3 grafik yerel Chart.js 4.4.1 ile çiziliyor | ✅ |
-| M15 | Talep durumu | **Talep / Şikayetler** → #1 → *İşlemde* | Onay mesajı; durum kutusu mavi (*İşlemde*), yeşil (*Tamamlandı*), turuncu (*Beklemede*) | ✅ |
+| M15 | Talep durumu | **Talep / Şikayetler** → #1 → *İşlemde* seç → **Kaydet** | Onay mesajı; durum kutusu mavi (*İşlemde*), yeşil (*Tamamlandı*), turuncu (*Beklemede*) | ✅ |
+| M18 | Uzun soruyla talep | 150 karakterden uzun bir soru yaz → **Evet, talep oluştur** | Konu 150 karakterde “…” ile kısalır, sorunun tamamı Açıklama alanına yazılır; gönderim hatasız | ✅ (tarayıcıda, 15.09.2026) |
+| M19 | XSS denemesi | Sohbete `<img src=x onerror="alert(1)">` yaz | Metin olduğu gibi görünür, uyarı penceresi açılmaz | ✅ (tarayıcıda, 15.09.2026) |
+| M20 | Selamlama sonrası konular | `merhaba` yaz | Cevabın altında konu butonları çıkar | ✅ (tarayıcıda, 15.09.2026) |
 | M16 | Cevapsız sorudan SSS | İstatistikler → *sokak lambası yanmıyor* → **SSS olarak ekle** → formu doldur → kaydet → sohbette aynı soruyu sor | Soru alanı dolu gelir; kayıt sonrası chatbot cevap verir | ✅ (otomatik test: `test_admin_full_walkthrough`) |
 | M17 | SSS düzenle / sil | **SSS Yönetimi** → Düzenle → kaydet; Sil → onayla | Başarı mesajları; chatbot güncel cevabı verir / artık vermez | ✅ (otomatik test) |
 
@@ -146,5 +180,7 @@ Soru soru skorlar ve yorum: [dogruluk_olcumu.md](dogruluk_olcumu.md)
 | K4 | **GitHub'dan yeni indirilmiş kopya** | Depo, `venv` ve veritabanı olmayan boş bir klasöre klonlandı; `basla.bat` çalıştırıldı | ✅ Python'u buldu, venv oluşturdu, paketleri yükledi, uygulama 200 döndü |
 | K5 | `sifirla.bat` | `E` onayıyla çalıştırıldı | ✅ faq: 70, chat_log: 0, talep: 0 |
 | K6 | `sifirla.bat` iptal | `E` dışında bir cevap verildi | ✅ “İşlem iptal edildi”, veritabanı silinmedi |
-| K7 | `testleri_calistir.bat` | Çalıştırıldı | ✅ 56 passed |
+| K7 | `testleri_calistir.bat` | Çalıştırıldı | ✅ 108 passed (taşımadan hemen sonra, düzeltmelerden önce: 56 passed) |
+| K9 | **Klasör taşıma** | Proje `C:\Projects\belediye-chatbot` konumuna taşındı, eski venv silindi, `basla.bat` venv'i yeniden kurdu | ✅ Git geçmişi (11 commit) ve remote sağlam, sayfalar 200, `sifirla.bat` çalışıyor |
+| K10 | Debug kapalı başlangıç | `basla.bat` konsol çıktısı | ✅ `Debug mode: off`, varsayılan şifre uyarısı görünüyor |
 | K8 | `.bat` satır sonları | Klonlanan kopyada kontrol edildi | ✅ CRLF (`.gitattributes` ile sabitlendi) |

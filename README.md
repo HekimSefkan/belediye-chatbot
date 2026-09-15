@@ -110,11 +110,11 @@ Uygulama `.env` dosyası **olmadan da** varsayılan ayarlarla çalışır. Ayarl
 
 | Değişken | Varsayılan | Açıklama |
 |---|---|---|
-| `SECRET_KEY` | geliştirme anahtarı | Oturum çerezlerini imzalar. Gerçek ortamda mutlaka değiştirin. |
-| `ADMIN_USERNAME` | `admin` | Admin kullanıcı adı |
-| `ADMIN_PASSWORD` | `admin123` | Admin şifresi. Her açılışta hash'lenip veritabanına yazılır. |
+| `SECRET_KEY` | *(boş)* | Oturum çerezlerini imzalar. Boş bırakılırsa rastgele üretilip `instance/secret_key` dosyasına kaydedilir (önerilen; bu dosya GitHub'a yüklenmez). |
+| `ADMIN_USERNAME` | `admin` | Admin kullanıcı adı. Değiştirilirse eski kullanıcı adıyla kalan admin hesabı silinir. |
+| `ADMIN_PASSWORD` | `admin123` | Admin şifresi. Her açılışta hash'lenip veritabanına yazılır. Varsayılan şifre kullanılıyorsa panelde uyarı çıkar. |
 | `SIMILARITY_THRESHOLD` | `0.35` | Cevabın “bulundu” sayılması için gereken en düşük benzerlik skoru |
-| `FLASK_DEBUG` | `True` | Geliştirme modu |
+| `FLASK_DEBUG` | `False` | Sadece geliştirirken `True` yapın. Açıkken hata sayfaları kaynak kodu gösterir. |
 | `PORT` | `5000` | Sunucu portu |
 
 ---
@@ -125,7 +125,7 @@ Uygulama `.env` dosyası **olmadan da** varsayılan ayarlarla çalışır. Ayarl
 |---|---|---|
 | **`basla.bat`** | Uygulamayı başlatır, tarayıcıyı açar, gerekirse ilk kurulumu yapar | Her kullanımda |
 | **`sifirla.bat`** | Veritabanını silip 70 demo SSS ile yeniden oluşturur. Onay için `E` yazmanız istenir. | **Demodan önce** temiz başlangıç için (önce `basla.bat` penceresini kapatın) |
-| **`testleri_calistir.bat`** | 56 otomatik testi çalıştırır ve sonucu gösterir | Kodda değişiklik yaptıktan sonra |
+| **`testleri_calistir.bat`** | 108 otomatik testi çalıştırır ve sonucu gösterir | Kodda değişiklik yaptıktan sonra |
 
 ---
 
@@ -162,7 +162,7 @@ Telefonda sohbet penceresi tam ekran açılır.
 1. **Giriş:** kullanıcı adı ve şifre.
 2. **İstatistikler:** toplam soru, cevaplanamayan oranı, talep sayıları, 3 grafik (en çok sorulan kategoriler, cevaplanan/cevaplanamayan, son 7 gün) ve **son cevaplanamayan sorular** tablosu.
 3. **SSS Yönetimi:** listeleme, kategori filtresi, arama, ekleme, düzenleme ve silme. Değişiklikler chatbota **anında** yansır.
-4. **Talep / Şikayetler:** duruma göre filtreleme. Durum kutusundan *Beklemede → İşlemde → Tamamlandı* olarak güncellenir.
+4. **Talep / Şikayetler:** duruma göre filtreleme. Durum kutusundan *Beklemede → İşlemde → Tamamlandı* seçilip **Kaydet** butonuna basılır.
 5. **Sohbet Geçmişi:** tüm mesajlar ve skorları. Cevaplanamayan bir soru **“SSS olarak ekle”** bağlantısıyla tek tıkla bilgi tabanına eklenir.
 
 Adım adım demo senaryosu: [docs/test_senaryolari.md](docs/test_senaryolari.md)
@@ -252,13 +252,14 @@ Kontrol seti, yöntemin daha önce görmediği sorulardaki gerçekçi başarıs�
 .\venv\Scripts\python.exe -m pytest -v
 ```
 
-**56 test** bulunur:
-- Metin ön işleme
-- Eşleştirme doğruluğu ve kapsam dışı kontrolü
-- `/api/chat` ve `/api/talep` uç noktaları
-- Admin girişi ve CSRF koruması
-- SQL injection denemesi
-- **Admin panelinin uçtan uca kullanım senaryosu:** giriş → cevaplanamayan sorudan SSS oluşturma → düzenleme → silme → talep durumu → çıkış
+**108 test** bulunur:
+
+| Dosya | Test | Kapsam |
+|---|---|---|
+| `tests/test_matcher.py` | 34 | Metin ön işleme, eşleştirme doğruluğu, kapsam dışı kontrolü, cevap türleri |
+| `tests/test_api.py` | 21 | `/api/chat` ve `/api/talep`, admin girişi, CSRF, SQL injection denemesi |
+| `tests/test_admin_akisi.py` | 1 | **Admin panelinin uçtan uca kullanımı:** giriş → cevaplanamayan sorudan SSS oluşturma → düzenleme → silme → talep durumu → çıkış |
+| `tests/test_guvenlik_ve_hatalar.py` | 52 | Sahte oturum çerezi, debug modu, giriş denemesi sınırı, güvenlik başlıkları, bozuk JSON gövdeleri, telefon/alan doğrulaması, emoji ve İngilizce mesajlar, admin sayfalarında XSS, bozuk seed/veritabanı hataları |
 
 Testler geçici bir veritabanı kullanır, gerçek `chatbot.db` dosyasına dokunmaz.
 
@@ -275,6 +276,7 @@ belediye-chatbot/
 ├── config.py               # Ayarlar (.env'den okunur, yoksa varsayılanlar)
 ├── requirements.txt
 ├── .env.example
+├── instance/               # (otomatik oluşur, GitHub'a yüklenmez) bu bilgisayara özel oturum anahtarı
 ├── database/
 │   ├── schema.sql          # Tablo tanımları
 │   ├── seed_data.json      # 10 kategori, 70 kurgusal demo SSS
@@ -301,13 +303,23 @@ belediye-chatbot/
 
 - **SQL injection:** Tüm sorgular `?` yer tutucularıyla (parametreli) yazılmıştır. Bunu doğrulayan bir test de vardır.
 - **Şifre saklama:** Admin şifresi `werkzeug.security` ile hash'lenir, düz metin olarak saklanmaz.
-- **CSRF:** Admin panelindeki tüm POST formları oturuma özel bir token ile korunur.
+- **Oturum anahtarı:** `SECRET_KEY` kodda sabit değildir. Her kurulumda rastgele üretilir ve GitHub'a yüklenmeyen `instance/secret_key` dosyasında tutulur. Böylece sahte admin çerezi üretilemez.
+- **Giriş güvenliği:**
+  - 5 hatalı denemeden sonra giriş 5 dakika kilitlenir.
+  - Girişte oturum yenilenir ve en fazla 8 saat açık kalır.
+  - Silinen admin hesabının oturumu geçersiz olur.
+  - Yönlendirmeler yalnızca site içi adreslere yapılır.
+- **CSRF:** Admin panelindeki tüm POST formları oturuma özel bir token ile korunur. Çerezler `HttpOnly` ve `SameSite=Lax`.
 - **XSS:** Sohbet mesajları ekrana `textContent` ile yazılır. Jinja2 çıktıları otomatik olarak kaçışlar (escape).
-- **Girdi doğrulama:** Uzunluk sınırları, telefon formatı ve departman listesi kontrolleri yapılır.
-- **Oturum:** Girişte oturum yenilenir, yönlendirmeler yalnızca site içi adreslere yapılır.
-- `.env` ve veritabanı dosyası `.gitignore` ile GitHub'a yüklenmez.
+- **Tarayıcı başlıkları:** `X-Frame-Options: DENY` (başka sitede iframe içinde açılamaz), `X-Content-Type-Options: nosniff`, `Referrer-Policy`.
+- **Girdi doğrulama:** Alan türü, uzunluk sınırları, telefon formatı (10–13 rakam), departman listesi kontrolü ve en fazla 64 KB istek boyutu.
+- **Hata yönetimi:**
+  - Debug modu varsayılan olarak kapalıdır.
+  - Beklenmeyen hatalarda kullanıcıya iç ayrıntı gösterilmez.
+  - API hataları Türkçe JSON mesajı döner.
+- `.env`, `instance/` ve veritabanı dosyası `.gitignore` ile GitHub'a yüklenmez.
 
-> Varsayılan şifre (`admin123`) ve `SECRET_KEY` sadece demo içindir. Gerçek kullanımda `.env` dosyasından değiştirilmelidir.
+> Varsayılan şifre (`admin123`) sadece demo içindir; kullanıldığı sürece admin panelinde uyarı görünür. Gerçek kullanımda `.env` dosyasından değiştirilmelidir. Güvenlik analizinin ayrıntıları: [docs/proje_analizi.md](docs/proje_analizi.md)
 
 ## 12. Sınırlılıklar
 
@@ -328,7 +340,8 @@ Diğer sınırlılıklar:
 - **Yazım hatalarına toleransı sınırlıdır:** *“faturmı”* gibi harf hataları kök bulmayı bozabilir.
 - **Bağlamı hatırlamaz:** Her mesaj bağımsız değerlendirilir. *“Peki ücreti ne kadar?”* gibi önceki soruya bağlı sorular anlaşılmaz.
 - **Bilgi tabanı kadar iyidir:** SSS'de olmayan konuyu bilemez. Bu yüzden sohbet geçmişinden SSS oluşturma akışı eklenmiştir.
-- Tek admin kullanıcısı vardır, rol yönetimi yoktur. Flask'ın geliştirme sunucusu kullanılır; gerçek yayında Waitress/Gunicorn gibi bir WSGI sunucusu gerekir.
+- Tek admin kullanıcısı vardır, rol yönetimi yoktur. Flask'ın geliştirme sunucusu kullanılır; gerçek yayında Waitress/Gunicorn gibi bir WSGI sunucusu ve HTTPS gerekir.
+- Genel API'de (sohbet, talep) hız sınırı ve KVKK kapsamında veri saklama süresi tanımlı değildir. Açık kalan diğer maddeler için [docs/proje_analizi.md](docs/proje_analizi.md) “Grup 3” bölümüne bakın.
 
 **Geliştirme fikirleri:** Levenshtein mesafesiyle yazım hatası toleransı, eş anlamlı sözlüğü, anlamsal benzerlik için yerel çalışan bir kelime vektörü modeli, sesli soru (Web Speech API), talep durumunu vatandaşın sorgulayabilmesi. İsteğe bağlı olarak bir LLM katmanı da eklenebilir; ancak bu *ücretli/harici servis gerektirdiği için kurumsal ortamda kullanılmayabilir.*
 
@@ -341,6 +354,7 @@ Diğer sınırlılıklar:
 | [docs/veritabani_semasi.md](docs/veritabani_semasi.md) | Tablolar ve ER diyagramı |
 | [docs/test_senaryolari.md](docs/test_senaryolari.md) | Otomatik testler ve manuel demo senaryoları |
 | [docs/dogruluk_olcumu.md](docs/dogruluk_olcumu.md) | İyileştirme öncesi/sonrası doğruluk tabloları |
+| [docs/proje_analizi.md](docs/proje_analizi.md) | Güvenlik, kod kalitesi, test ve UX analizi: 39 bulgu, düzeltilenler ve açık kalanlar |
 | [docs/staj_raporu_taslagi.md](docs/staj_raporu_taslagi.md) | Staj raporu için taslak metin |
 | [docs/sunum_taslagi.md](docs/sunum_taslagi.md) | 10 slaytlık sunum içeriği ve konuşma notları |
 | [docs/savunma_sorulari.md](docs/savunma_sorulari.md) | Komisyonun sorabileceği sorular ve cevapları |

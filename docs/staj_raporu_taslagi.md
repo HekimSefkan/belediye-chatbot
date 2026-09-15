@@ -199,20 +199,41 @@ Tasarımda dikkat edilen noktalar:
 **Sorun:** Vatandaşın yazdığı metin doğrudan veritabanına ve ekrana yazılıyordu; SQL injection ve XSS riskleri vardı.
 **Çözüm:** Tüm SQL sorgularını parametreli yazdım ve mesajları ekrana `textContent` ile bastım. Admin formlarına CSRF token ekledim ve bunları otomatik testlerle doğruladım.
 
+### 7.8 Proje sonu analizinde bulunan kritik güvenlik açığı
+
+**Sorun:** Proje tamamlandıktan sonra tüm kodu dosya dosya yeniden inceledim ve bulguları gerçek isteklerle denedim (`docs/proje_analizi.md`). En ciddi bulgu şuydu:
+- Flask'ın admin oturumunu imzaladığı gizli anahtar (`SECRET_KEY`) kodda sabit bir değer olarak yazılıydı ve kod GitHub'da herkese açıktı.
+- Bu anahtarla sahte bir oturum çerezi ürettim ve **şifre girmeden** admin paneline girebildiğimi gördüm.
+
+Aynı analizde başka sorunlar da çıktı:
+- Debug modu varsayılan olarak açıktı; hata sayfaları kaynak kodu gösteriyordu.
+- `.env`'de admin kullanıcı adı değiştirilince eski demo hesabı açık kalıyordu.
+- Liste türünde JSON gönderilince sunucu 500 hatası veriyordu.
+
+**Çözüm:**
+- Gizli anahtar artık her kurulumda rastgele üretiliyor ve GitHub'a yüklenmeyen bir dosyada saklanıyor.
+- Debug modu varsayılan olarak kapatıldı.
+- Eski admin hesapları otomatik siliniyor.
+- Giriş denemesine sınır ve tarayıcı güvenlik başlıkları eklendi.
+- Her bulgu için bir test yazdım; testler bulguların tekrar ortaya çıkmasını önlüyor. Toplam 39 bulgunun 26'sını düzelttim; staj kapsamını aşan 13'ünü raporladım.
+
+**Ders:** Güvenlik önlemlerini listelemek yeterli değil; saldırganın bakış açısıyla **denemek** gerekir.
+
 ---
 
 ## 8. Test Süreci
 
-Uygulamayı üç düzeyde test ettim:
+Uygulamayı dört grupta test ettim:
 
 | Test türü | Kapsam | Sayı |
 |---|---|---|
 | Birim testleri | Ön işleme, kök bulma, eşleştirme, kapsam dışı kontrolü | 34 |
 | API testleri | Sohbet ve talep uç noktaları, doğrulama, güvenlik, admin girişi | 21 |
 | Uçtan uca senaryo | Admin: giriş → SSS oluştur/düzenle/sil → talep durumu → çıkış | 1 |
-| **Toplam** | | **56 (hepsi başarılı)** |
+| Güvenlik ve hata testleri | Sahte oturum çerezi, giriş sınırı, bozuk istekler, uç durum mesajları, bozuk veritabanı/seed dosyası | 52 |
+| **Toplam** | | **108 (hepsi başarılı)** |
 
-Ayrıca tarayıcıda masaüstü ve mobil görünümde 16 manuel senaryo uyguladım (`docs/test_senaryolari.md`).
+Ayrıca tarayıcıda masaüstü ve mobil görünümde 20 manuel senaryo uyguladım (`docs/test_senaryolari.md`). Bunlara sohbete `<script>` içeren mesaj gönderilerek yapılan XSS denemesi de dahildir.
 
 ---
 
@@ -223,7 +244,7 @@ Staj süresince, belediyelerin tekrarlayan vatandaş sorularına yönelik gerçe
 - Vatandaşların 10 hizmet alanındaki sorularını yanıtlayan bir chatbot,
 - Cevap bulunamadığında yönlendirme ve talep kaydı,
 - SSS, talep ve istatistik yönetimi sağlayan bir admin paneli,
-- 56 otomatik test ve doğruluk ölçüm betiği,
+- 108 otomatik test, doğruluk ölçüm betiği ve güvenlik analizi raporu,
 - Kurulum, kullanım ve teknik dokümantasyon
 
 hazırlandı. Uygulama internet bağlantısı veya ücretli servis gerektirmeden çalışmaktadır.
