@@ -1,8 +1,11 @@
+# Üst sürüm sınırları, ileride çıkacak ve geriye uyumsuz olabilecek büyük sürümlerin
+# (ör. scikit-learn 2.x) kurulumu bozmasını önler.
+
 # Web çatısı (Werkzeug, Flask ile birlikte gelir ve şifre hash'leme için kullanılır)
 Flask>=3.0,<4.0
 # TF-IDF ve cosine similarity hesaplamaları
-scikit-learn>=1.3
+scikit-learn>=1.3,<2.0
 # .env dosyasından ayar okumak için
-python-dotenv>=1.0
+python-dotenv>=1.0,<2.0
 # Birim testleri
-pytest>=8.0
+pytest>=8.0,<10.0

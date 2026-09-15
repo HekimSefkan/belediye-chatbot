@@ -3,20 +3,32 @@ Mardin Büyükşehir Belediyesi - Vatandaş Hizmetleri Chatbotu
 Uygulamanın giriş noktası.
 
 Çalıştırmak için:
-    python app.py
+    basla.bat  (veya: venv\\Scripts\\python.exe app.py)
 Ardından tarayıcıda: http://127.0.0.1:5000
 
 Not: Bu proje bir staj çalışmasıdır; içerdiği veriler kurgusal demo verisidir.
 """
 
-from flask import Flask
+import sys
+
+from flask import Flask, current_app, jsonify, request
+from werkzeug.exceptions import HTTPException
 
 from chatbot.matcher import FAQMatcher
-from config import Config
-from database.db import close_db, connect, fetch_all_faqs, init_db
+from config import DEFAULT_ADMIN_PASSWORD, Config
+from database.db import DatabaseSetupError, close_db, connect, fetch_all_faqs, init_db
 from routes.admin_routes import admin_bp, generate_csrf_token
 from routes.api_routes import api_bp
 from routes.chat_routes import chat_bp
+
+# API hatalarında vatandaşa gösterilecek Türkçe mesajlar
+API_ERROR_MESSAGES = {
+    400: "İstek anlaşılamadı. Lütfen tekrar deneyin.",
+    404: "İstenen adres bulunamadı.",
+    405: "Bu adres bu istek türünü desteklemiyor.",
+    413: "Gönderilen veri çok büyük.",
+    500: "Sunucuda beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+}
 
 
 def create_app(test_config=None):
@@ -56,11 +68,69 @@ def create_app(test_config=None):
     # 5) Şablonlarda {{ csrf_token() }} kullanılabilsin (form güvenliği için)
     app.jinja_env.globals["csrf_token"] = generate_csrf_token
 
+    # 6) Güvenlik başlıkları ve API hata cevapları
+    app.after_request(add_security_headers)
+    app.register_error_handler(HTTPException, handle_http_error)
+    app.register_error_handler(Exception, handle_unexpected_error)
+
     return app
 
 
+def add_security_headers(response):
+    """Her cevaba temel tarayıcı güvenlik başlıklarını ekler."""
+    # Tarayıcı dosya türünü tahmin etmeye çalışmasın (ör. metni script sanmasın)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    # Sayfalar başka sitelerin iframe'i içinde açılamasın (tıklama tuzağı / clickjacking)
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    # Başka sitelere gidilirken adres çubuğundaki bilgiler gönderilmesin
+    response.headers.setdefault("Referrer-Policy", "same-origin")
+    return response
+
+
+def _is_api_request():
+    return request.path.startswith("/api/")
+
+
+def handle_http_error(error):
+    """
+    /api/ adreslerindeki 400/404/405/413 gibi hatalarda HTML yerine JSON döndürür;
+    sohbet penceresi bu mesajı vatandaşa gösterebilir. Diğer sayfalar Flask'ın varsayılan
+    hata sayfasını kullanır.
+    """
+    if _is_api_request():
+        message = API_ERROR_MESSAGES.get(error.code, error.description)
+        return jsonify({"error": message}), error.code
+    return error
+
+
+def handle_unexpected_error(error):
+    """Beklenmeyen hatalar: API'de JSON 500 döner, ayrıntı sadece sunucu konsoluna yazılır."""
+    if isinstance(error, HTTPException):
+        return handle_http_error(error)
+    current_app.logger.exception("Beklenmeyen hata: %s", request.path)
+    if _is_api_request():
+        return jsonify({"error": API_ERROR_MESSAGES[500]}), 500
+    return "Sunucuda beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.", 500
+
+
+def print_startup_warnings(app):
+    """Demo ayarları kullanılıyorsa konsolda uyarı gösterir."""
+    if app.config["ADMIN_PASSWORD"] == DEFAULT_ADMIN_PASSWORD:
+        print("UYARI: Varsayılan admin şifresi (admin123) kullanılıyor. "
+              "Gerçek kullanımda .env dosyasında ADMIN_PASSWORD değerini değiştirin.")
+    if app.config["DEBUG"]:
+        print("UYARI: Debug modu açık (FLASK_DEBUG=True). Hata sayfaları kaynak kodu gösterir; "
+              "sadece geliştirme sırasında kullanın.")
+
+
 if __name__ == "__main__":
-    application = create_app()
+    try:
+        application = create_app()
+    except DatabaseSetupError as setup_error:
+        print(f"\n[HATA] {setup_error}\n")
+        sys.exit(1)
+
+    print_startup_warnings(application)
     print("Chatbot çalışıyor:  http://127.0.0.1:%s" % application.config["PORT"])
     print("Admin paneli:       http://127.0.0.1:%s/admin" % application.config["PORT"])
     application.run(

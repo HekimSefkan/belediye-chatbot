@@ -11,6 +11,8 @@ env/
 
 # --- Gizli ayarlar (şifreler, secret key) ---
 .env
+# Otomatik üretilen oturum anahtarı (instance/secret_key) bu bilgisayara özeldir
+instance/
 
 # --- Veritabanı dosyaları (uygulama ilk açılışta otomatik oluşturur) ---
 *.db

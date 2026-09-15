@@ -16,6 +16,7 @@ Güvenlik önlemleri:
 """
 
 import secrets
+import time
 from functools import wraps
 
 from flask import (Blueprint, abort, current_app, flash, redirect, render_template,
@@ -23,12 +24,23 @@ from flask import (Blueprint, abort, current_app, flash, redirect, render_templa
 from werkzeug.security import check_password_hash
 
 from chatbot.matcher import reload_matcher
+from config import DEFAULT_ADMIN_PASSWORD
 from database.db import fetch_categories, fetch_departments, get_db
 
 admin_bp = Blueprint("admin", __name__)
 
 TICKET_STATUSES = ["Beklemede", "İşlemde", "Tamamlandı"]
 FAQ_FIELDS = ("kategori", "soru", "cevap", "anahtar_kelimeler", "departman")
+
+# SSS formu alanları: (ekranda görünen ad, zorunlu mu, en fazla karakter)
+# Sınırlar şablondaki maxlength değerleriyle aynıdır; sunucu tarafında da kontrol edilir.
+FAQ_FIELD_RULES = {
+    "kategori": ("Kategori", True, 100),
+    "soru": ("Soru", True, 300),
+    "cevap": ("Cevap", True, 3000),
+    "anahtar_kelimeler": ("Anahtar kelimeler", False, 500),
+    "departman": ("Departman", True, 150),
+}
 
 
 # ---------------------------------------------------------------------------
@@ -51,15 +63,67 @@ def check_csrf():
             abort(400, description="Geçersiz form isteği (CSRF). Sayfayı yenileyip tekrar deneyin.")
 
 
+def is_logged_in():
+    """
+    Oturumda admin var mı VE bu admin veritabanında hâlâ kayıtlı mı?
+    (.env'de kullanıcı adı değiştirilip eski hesap silindiyse eski oturum da geçersiz olur.)
+    """
+    admin_id = session.get("admin_id")
+    if admin_id is None:
+        return False
+    exists = get_db().execute("SELECT 1 FROM admin WHERE id = ?", (admin_id,)).fetchone()
+    if exists is None:
+        session.clear()
+        return False
+    return True
+
+
 def login_required(view):
     """Bu dekoratörü alan sayfalar sadece giriş yapmış admin tarafından görülebilir."""
     @wraps(view)
     def wrapped(*args, **kwargs):
-        if "admin_id" not in session:
+        if not is_logged_in():
             flash("Bu sayfayı görmek için giriş yapmalısınız.", "warning")
             return redirect(url_for("admin.login", next=request.path))
         return view(*args, **kwargs)
     return wrapped
+
+
+@admin_bp.context_processor
+def inject_admin_warnings():
+    """Admin şablonlarında varsayılan şifre uyarısı gösterebilmek için."""
+    return {
+        "default_password_in_use": current_app.config["ADMIN_PASSWORD"] == DEFAULT_ADMIN_PASSWORD,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Giriş denemesi sınırı (şifre tahmini / kaba kuvvet saldırısına karşı)
+# ---------------------------------------------------------------------------
+# Hatalı denemeler IP adresine göre bellekte sayılır. Uygulama yeniden başlatılınca sıfırlanır;
+# tek sunuculu küçük bir uygulama için yeterli ve anlaşılır bir yöntemdir.
+
+def _login_attempts():
+    """{ip: (hatalı_deneme_sayısı, ilk_hatalı_denemenin_zamanı)} sözlüğü."""
+    return current_app.extensions.setdefault("login_attempts", {})
+
+
+def login_locked_seconds(ip):
+    """Bu IP için giriş engelliyse kalan saniyeyi, değilse 0 döndürür."""
+    count, first_failure = _login_attempts().get(ip, (0, 0))
+    lock_seconds = current_app.config["LOGIN_LOCK_SECONDS"]
+    elapsed = time.time() - first_failure
+    if elapsed >= lock_seconds:
+        _login_attempts().pop(ip, None)   # Süre dolduysa sayaç sıfırlanır
+        return 0
+    if count >= current_app.config["LOGIN_MAX_ATTEMPTS"]:
+        return int(lock_seconds - elapsed) + 1
+    return 0
+
+
+def record_failed_login(ip):
+    count, first_failure = _login_attempts().get(ip, (0, time.time()))
+    _login_attempts()[ip] = (count + 1, first_failure)
 
 
 # ---------------------------------------------------------------------------
@@ -69,13 +133,20 @@ def login_required(view):
 @admin_bp.route("/giris", methods=["GET", "POST"])
 def login():
     # Zaten giriş yapılmışsa formu tekrar gösterme
-    if "admin_id" in session:
+    if is_logged_in():
         return redirect(url_for("admin.dashboard"))
 
     username = ""
     if request.method == "POST":
         username = request.form.get("kullanici_adi", "").strip()
         password = request.form.get("sifre", "")
+        ip = request.remote_addr or "bilinmiyor"
+
+        locked = login_locked_seconds(ip)
+        if locked:
+            flash(f"Çok fazla hatalı deneme yapıldı. Lütfen {locked // 60 + 1} dakika sonra tekrar deneyin.",
+                  "error")
+            return render_template("admin/login.html", username=username), 429
 
         admin = get_db().execute(
             "SELECT id, kullanici_adi, sifre_hash FROM admin WHERE kullanici_adi = ?",
@@ -83,8 +154,10 @@ def login():
         ).fetchone()
 
         if admin and check_password_hash(admin["sifre_hash"], password):
+            _login_attempts().pop(ip, None)
             # Oturum sabitleme saldırısına karşı eski oturumu temizleyip yenisini başlat
             session.clear()
+            session.permanent = True   # PERMANENT_SESSION_LIFETIME (8 saat) sonunda sona erer
             session["admin_id"] = admin["id"]
             session["admin_user"] = admin["kullanici_adi"]
             flash("Hoş geldiniz, giriş başarılı.", "success")
@@ -95,6 +168,7 @@ def login():
                 next_url = url_for("admin.dashboard")
             return redirect(next_url)
 
+        record_failed_login(ip)
         # Kullanıcı adı mı şifre mi yanlış, bilerek söylemiyoruz
         flash("Kullanıcı adı veya şifre hatalı.", "error")
 
@@ -218,14 +292,14 @@ def faq_list():
 
 
 def _read_faq_form():
-    """Formdaki SSS alanlarını okur ve basit doğrulama yapar."""
+    """Formdaki SSS alanlarını okur; zorunlu alan ve uzunluk kontrolü yapar."""
     form = {field: request.form.get(field, "").strip() for field in FAQ_FIELDS}
-    errors = [
-        f"'{label}' alanı boş bırakılamaz."
-        for field, label in (("kategori", "Kategori"), ("soru", "Soru"),
-                             ("cevap", "Cevap"), ("departman", "Departman"))
-        if not form[field]
-    ]
+    errors = []
+    for field, (label, required, max_length) in FAQ_FIELD_RULES.items():
+        if required and not form[field]:
+            errors.append(f"'{label}' alanı boş bırakılamaz.")
+        elif len(form[field]) > max_length:
+            errors.append(f"'{label}' alanı en fazla {max_length} karakter olabilir.")
     return form, errors
 
 

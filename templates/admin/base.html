@@ -38,6 +38,12 @@
 
     <!-- Sayfa içeriği -->
     <main class="admin-main">
+        {% if default_password_in_use %}
+        <div class="flash flash--warning" role="note">
+            Varsayılan demo şifresi (<code>admin123</code>) kullanılıyor. Gerçek kullanımda
+            <code>.env</code> dosyasında <code>ADMIN_PASSWORD</code> değerini değiştirip uygulamayı yeniden başlatın.
+        </div>
+        {% endif %}
         {% include 'admin/_flash.html' %}
         {% block content %}{% endblock %}
     </main>

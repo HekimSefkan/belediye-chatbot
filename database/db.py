@@ -46,17 +46,41 @@ def close_db(exception=None):
         db.close()
 
 
+class DatabaseSetupError(RuntimeError):
+    """Uygulama açılırken veritabanı hazırlanamazsa kullanıcıya gösterilecek anlaşılır hata."""
+
+
 def init_db(config):
     """
     Uygulama açılırken bir kez çalışır:
     1) schema.sql ile tabloları oluşturur,
     2) faq tablosu boşsa seed_data.json içindeki demo soruları ekler,
     3) admin kullanıcısını oluşturur/şifresini günceller.
+
+    Bir şey ters giderse Python hata çıktısı yerine ne yapılması gerektiğini
+    anlatan bir DatabaseSetupError fırlatır.
     """
-    conn = connect(config["DATABASE_PATH"])
     try:
-        with open(config["SCHEMA_PATH"], encoding="utf-8") as f:
-            conn.executescript(f.read())
+        conn = connect(config["DATABASE_PATH"])
+    except (sqlite3.Error, OSError) as error:
+        raise DatabaseSetupError(
+            f"Veritabanı dosyası açılamadı: {config['DATABASE_PATH']} ({error})."
+        ) from error
+
+    try:
+        try:
+            with open(config["SCHEMA_PATH"], encoding="utf-8") as f:
+                conn.executescript(f.read())
+        except OSError as error:
+            raise DatabaseSetupError(
+                f"Şema dosyası bulunamadı: {config['SCHEMA_PATH']}. "
+                "Proje dosyaları eksik olabilir; depoyu GitHub'dan yeniden indirin."
+            ) from error
+        except sqlite3.DatabaseError as error:
+            raise DatabaseSetupError(
+                f"Veritabanı dosyası bozuk görünüyor ({error}). "
+                "sifirla.bat ile veritabanını yeniden oluşturabilirsiniz."
+            ) from error
 
         faq_count = conn.execute("SELECT COUNT(*) FROM faq").fetchone()[0]
         if faq_count == 0:
@@ -70,21 +94,31 @@ def init_db(config):
 
 def seed_faqs(conn, seed_path):
     """seed_data.json dosyasındaki örnek SSS kayıtlarını veritabanına ekler."""
-    with open(seed_path, encoding="utf-8") as f:
-        data = json.load(f)
-
-    rows = []
-    for category in data["kategoriler"]:
-        for item in category["sorular"]:
-            rows.append(
-                (
-                    category["kategori"],
-                    item["soru"],
-                    item["cevap"],
-                    item.get("anahtar_kelimeler", ""),
-                    category["departman"],
-                )
+    try:
+        with open(seed_path, encoding="utf-8") as f:
+            data = json.load(f)
+        rows = [
+            (
+                category["kategori"],
+                item["soru"],
+                item["cevap"],
+                item.get("anahtar_kelimeler", ""),
+                category["departman"],
             )
+            for category in data["kategoriler"]
+            for item in category["sorular"]
+        ]
+    except OSError as error:
+        raise DatabaseSetupError(
+            f"Demo SSS dosyası bulunamadı: {seed_path}. "
+            "Dosyayı GitHub'daki orijinal database/seed_data.json ile geri yükleyin."
+        ) from error
+    except (ValueError, KeyError, TypeError) as error:
+        # ValueError: JSON sözdizimi hatası, KeyError/TypeError: beklenen alanlar eksik
+        raise DatabaseSetupError(
+            f"Demo SSS dosyası bozuk: {seed_path} ({type(error).__name__}: {error}). "
+            "Son yaptığınız değişikliği kontrol edin veya dosyayı GitHub'daki orijinaliyle değiştirin."
+        ) from error
 
     conn.executemany(
         "INSERT INTO faq (kategori, soru, cevap, anahtar_kelimeler, departman) "
@@ -98,8 +132,12 @@ def sync_admin_user(conn, username, password):
     Config'deki admin kullanıcı adı/şifresini veritabanına yansıtır.
     - Kullanıcı yoksa oluşturur.
     - Varsa ve şifre değişmişse (örn. .env'de güncellendiyse) hash'i yeniler.
+    - Başka kullanıcı adıyla kalmış eski admin kayıtlarını siler. Aksi halde .env'de
+      kullanıcı adı değiştirildiğinde eski "admin / admin123" hesabı açık kalırdı.
     Şifre her zaman werkzeug ile hash'lenir, düz metin olarak saklanmaz.
     """
+    conn.execute("DELETE FROM admin WHERE kullanici_adi != ?", (username,))
+
     row = conn.execute(
         "SELECT id, sifre_hash FROM admin WHERE kullanici_adi = ?", (username,)
     ).fetchone()
