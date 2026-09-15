@@ -295,8 +295,21 @@ button { font: inherit; cursor: pointer; }
 .ticket-form input:focus, .ticket-form select:focus, .ticket-form textarea:focus { outline: none; border-color: var(--primary); background: #fff; }
 .ticket-form .has-error input, .ticket-form .has-error select, .ticket-form .has-error textarea { border-color: var(--danger); }
 .field-error { color: var(--danger); font-size: 12px; font-weight: 500; min-height: 0; }
+.form-error { margin: 0; font-size: 13px; }
+.form-error:empty { display: none; }
 .form-actions { display: flex; gap: 8px; }
 .form-actions .btn { padding: 8px 16px; font-size: 14px; }
+
+/* Hareket hassasiyeti olan kullanıcılar için (işletim sisteminde "animasyonları azalt" açıksa)
+   animasyon ve yumuşak kaydırma kapatılır */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
 
 /* =====================================================================
    MOBİL UYUM (responsive)

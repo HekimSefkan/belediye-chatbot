@@ -32,6 +32,9 @@
     let departments = null;    // /api/departmanlar önbelleği
     let formCounter = 0;       // Her talep formuna benzersiz id vermek için
 
+    // Sunucudaki sınırlarla aynı (routes/api_routes.py -> FIELD_LIMITS)
+    const MAX_SUBJECT_LENGTH = 150;
+
     // =================================================================
     // Yardımcı fonksiyonlar
     // =================================================================
@@ -140,8 +143,9 @@
     function showTyping() {
         const row = el("div", "msg msg--bot");
         const bubble = el("div", "msg__bubble typing");
-        bubble.setAttribute("aria-label", "Asistan yazıyor");
-        bubble.append(el("i"), el("i"), el("i"));
+        // role="status": ekran okuyucu "Asistan yazıyor" metnini seslendirir
+        bubble.setAttribute("role", "status");
+        bubble.append(el("i"), el("i"), el("i"), el("span", "visually-hidden", "Asistan yazıyor…"));
         row.appendChild(bubble);
         messagesEl.appendChild(row);
         scrollToBottom();
@@ -235,6 +239,12 @@
     function renderBotReply(data, userText) {
         const bubble = addMessage("bot", data.answer);
 
+        // Selamlama cevabı "aşağıdaki konulardan birini seçin" dediği için konuları göster
+        if (data.type === "greeting") {
+            showCategories();
+            return;
+        }
+
         // Cevap bulunduysa hangi kategori ve birimden geldiğini göster
         if (data.type === "answer") {
             bubble.appendChild(el(
@@ -303,8 +313,23 @@
         if (options.value) control.value = options.value;
         label.appendChild(control);
 
-        label.appendChild(el("span", "field-error"));
-        return { label: label, control: control };
+        // Hata mesajı alana aria-describedby ile bağlanır; ekran okuyucu alanla birlikte okur
+        const error = el("span", "field-error");
+        error.id = options.id + "-hata";
+        control.setAttribute("aria-describedby", error.id);
+        label.appendChild(error);
+        return { label: label, control: control, error: error };
+    }
+
+    /** Alanın hata durumunu ayarlar (message boşsa hatayı temizler). */
+    function setFieldError(field, message) {
+        field.label.classList.toggle("has-error", Boolean(message));
+        field.error.textContent = message || "";
+        if (message) {
+            field.control.setAttribute("aria-invalid", "true");
+        } else {
+            field.control.removeAttribute("aria-invalid");
+        }
     }
 
     async function showTicketForm(prefill) {
@@ -330,6 +355,15 @@
         formCounter += 1;
         const prefix = "tf" + formCounter + "-";
 
+        // Vatandaşın sorusu konu alanına sığmıyorsa (en fazla 150 karakter) kısaltılır,
+        // sorunun tamamı açıklama alanına yazılır. Böylece "en fazla 150 karakter" hatası çıkmaz.
+        let subject = prefill.konu || "";
+        let description = "";
+        if (subject.length > MAX_SUBJECT_LENGTH) {
+            description = subject;
+            subject = subject.slice(0, MAX_SUBJECT_LENGTH - 1).trimEnd() + "…";
+        }
+
         const row = el("div", "msg msg--bot msg--form");
         const ticketForm = el("form", "ticket-form");
         ticketForm.noValidate = true;
@@ -342,10 +376,13 @@
                 optional: true, maxLength: 20, placeholder: "05xx xxx xx xx",
             }),
             departman: createField({ id: prefix + "dep", name: "departman", label: "İlgili Birim", tag: "select" }),
-            konu: createField({ id: prefix + "konu", name: "konu", label: "Konu", maxLength: 150, value: prefill.konu }),
+            konu: createField({
+                id: prefix + "konu", name: "konu", label: "Konu", maxLength: MAX_SUBJECT_LENGTH, value: subject,
+            }),
             aciklama: createField({
                 id: prefix + "acik", name: "aciklama", label: "Açıklama", tag: "textarea", maxLength: 2000,
                 placeholder: "Adres ve ayrıntıları yazmanız talebinizin hızlı çözülmesini sağlar.",
+                value: description,
             }),
         };
 
@@ -360,6 +397,11 @@
         Object.keys(fields).forEach(function (key) {
             ticketForm.appendChild(fields[key].label);
         });
+
+        // Alanlara bağlı olmayan hatalar (sunucu/bağlantı hatası) için mesaj alanı
+        const formError = el("p", "field-error form-error");
+        formError.setAttribute("role", "alert");
+        ticketForm.appendChild(formError);
 
         const actions = el("div", "form-actions");
         const submitBtn = el("button", "btn btn-primary", "Gönder");
@@ -378,10 +420,8 @@
             event.preventDefault();
 
             // Önceki hata mesajlarını temizle
-            ticketForm.querySelectorAll("label").forEach(function (label) {
-                label.classList.remove("has-error");
-                label.querySelector(".field-error").textContent = "";
-            });
+            Object.keys(fields).forEach(function (key) { setFieldError(fields[key], ""); });
+            formError.textContent = "";
 
             const payload = {};
             Object.keys(fields).forEach(function (key) {
@@ -400,16 +440,18 @@
                 }
                 // Sunucudan gelen alan bazlı hataları ilgili alanın altında göster
                 const errors = result.body.errors || {};
-                Object.keys(errors).forEach(function (key) {
-                    if (fields[key]) {
-                        fields[key].label.classList.add("has-error");
-                        fields[key].label.querySelector(".field-error").textContent = errors[key];
-                    }
-                });
-                const firstError = ticketForm.querySelector(".has-error input, .has-error select, .has-error textarea");
-                if (firstError) firstError.focus();
+                const fieldKeys = Object.keys(errors).filter(function (key) { return fields[key]; });
+                fieldKeys.forEach(function (key) { setFieldError(fields[key], errors[key]); });
+
+                if (fieldKeys.length) {
+                    fields[fieldKeys[0]].control.focus();
+                } else {
+                    // Alan hatası yoksa (ör. sunucu hatası) formun altında genel bir mesaj göster
+                    formError.textContent = result.body.error ||
+                        "Talebiniz şu anda kaydedilemedi. Lütfen biraz sonra tekrar deneyin.";
+                }
             } catch (error) {
-                addMessage("bot", "Talep gönderilemedi. Lütfen bağlantınızı kontrol edip tekrar deneyin.");
+                formError.textContent = "Talep gönderilemedi. Lütfen bağlantınızı kontrol edip tekrar deneyin.";
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = "Gönder";

@@ -48,17 +48,19 @@
                     <td class="muted">{{ ticket.departman }}</td>
                     <td class="nowrap muted">{{ ticket.olusturma_tarihi }}</td>
                     <td>
-                        <!-- Durum değiştirildiğinde form otomatik gönderilir; JS kapalıysa "Kaydet" butonu kullanılır -->
+                        <!-- Yeni durum seçilip "Kaydet" butonuna basılır. Seçim anında otomatik gönderim
+                             yapılmaz: klavyeyle ok tuşlarıyla gezinirken yanlışlıkla kaydedilmesin. -->
                         <form action="{{ url_for('admin.ticket_update_status', ticket_id=ticket.id) }}" method="post" class="status-form">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <input type="hidden" name="filtre" value="{{ selected_status }}">
                             <select name="durum" class="status-select status--{{ status_classes[ticket.durum] }}"
-                                    aria-label="#{{ ticket.id }} durumu" onchange="this.form.submit()">
+                                    aria-label="#{{ ticket.id }} numaralı talebin durumu">
                                 {% for status in statuses %}
                                 <option value="{{ status }}" {{ 'selected' if status == ticket.durum }}>{{ status }}</option>
                                 {% endfor %}
                             </select>
-                            <noscript><button type="submit" class="btn btn-small btn-ghost">Kaydet</button></noscript>
+                            <button type="submit" class="btn btn-small btn-ghost"
+                                    aria-label="#{{ ticket.id }} numaralı talebin durumunu kaydet">Kaydet</button>
                         </form>
                     </td>
                 </tr>
