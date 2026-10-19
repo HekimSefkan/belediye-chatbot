@@ -394,7 +394,7 @@ Diğer sınırlılıklar:
 - **Yazım hatalarına toleransı sınırlıdır:** *“faturmı”* gibi harf hataları kök bulmayı bozabilir.
 - **Bağlamı hatırlamaz:** Her mesaj bağımsız değerlendirilir. *“Peki ücreti ne kadar?”* gibi önceki soruya bağlı sorular anlaşılmaz.
 - **Bilgi tabanı kadar iyidir:** SSS'de olmayan konuyu bilemez. Bu yüzden sohbet geçmişinden SSS oluşturma akışı eklenmiştir.
-- Tek admin kullanıcısı vardır, rol yönetimi yoktur. Flask'ın geliştirme sunucusu kullanılır; gerçek yayında Waitress/Gunicorn gibi bir WSGI sunucusu ve HTTPS gerekir.
+- Tek admin kullanıcısı vardır, rol yönetimi yoktur. Uygulama waitress ile çalışır; gerçek yayında önüne HTTPS sağlayan bir web sunucusu gerekir.
 - Genel API'de (sohbet, talep) hız sınırı yoktur. KVKK açısından talep formuna aydınlatma notu eklenmiştir, ancak veri saklama süresi ve silme süreci tanımlı değildir. Açık kalan diğer maddeler için [docs/proje_analizi.md](docs/proje_analizi.md) “Grup 3” bölümüne bakın.
 
 **Geliştirme fikirleri:** Levenshtein mesafesiyle yazım hatası toleransı, eş anlamlı sözlüğü, anlamsal benzerlik için yerel çalışan bir kelime vektörü modeli, sesli soru (Web Speech API), talep durumunu vatandaşın sorgulayabilmesi. İsteğe bağlı olarak bir LLM katmanı da eklenebilir; ancak bu *ücretli/harici servis gerektirdiği için kurumsal ortamda kullanılmayabilir.*
